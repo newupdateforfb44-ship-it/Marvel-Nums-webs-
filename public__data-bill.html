@@ -1,0 +1,99 @@
+
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+<!-- ════════════════ DATA / CABLE / BILL PAGE (fetched at runtime into #page-databill) ════════════════ -->
+<!-- This fragment is loaded by loadDataBillFragment() in script.js on first visit to /databill -->
+<!-- and cached afterward. It is injected as the innerHTML of #page-databill in index.html. -->
+<style>
+.db-cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.db-cat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r16);padding:20px 14px;text-align:center;cursor:pointer;transition:.15s}
+.db-cat-card:hover{border-color:var(--gold)}
+.db-cat-card.active{border-color:var(--gold);background:var(--card2)}
+.db-cat-icon{font-size:30px;margin-bottom:8px}
+.db-cat-name{font-weight:700;font-size:14px;color:var(--t1)}
+.db-biller-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.db-biller-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:14px;text-align:center;cursor:pointer;font-weight:600;font-size:13px;color:var(--t1);transition:.15s}
+.db-biller-card:hover,.db-biller-card.active{border-color:var(--gold)}
+.db-plan-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.db-plan-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:13px 16px;cursor:pointer;transition:.15s}
+.db-plan-row:hover,.db-plan-row.active{border-color:var(--gold)}
+.db-plan-name{font-weight:600;font-size:13.5px;color:var(--t1)}
+.db-plan-price{font-weight:800;color:var(--gold);font-size:14px;white-space:nowrap}
+.db-section-title{font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 10px}
+.db-empty{color:var(--t2);font-size:13.5px;padding:20px;text-align:center}
+.db-back-row{margin-bottom:14px}
+.db-history-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--r12);padding:12px 16px;margin-bottom:8px;font-size:13px}
+.db-history-status{font-weight:700;padding:2px 9px;border-radius:20px;font-size:11px}
+.db-history-status.successful{background:rgba(0,212,106,.12);color:var(--green)}
+.db-history-status.pending{background:rgba(52,211,153,.12);color:var(--blue)}
+.db-history-status.failed{background:rgba(255,71,87,.12);color:var(--red)}
+</style>
+
+<div class="page-hero">
+  <div class="ph-chip"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Data / Cable / Bills</div>
+  <h1>Buy Data, Cable &amp; Pay Bills</h1>
+  <p>Data bundles, cable TV subscriptions, and electricity/utility payments — paid instantly from your MARVINUMS wallet.</p>
+</div>
+
+<div class="deposit-wrap">
+
+  <!-- Balance -->
+  <div class="bal-card">
+    <div class="bal-label">Current Balance</div>
+    <div class="bal-amount"><span id="dbBal">₦0.00</span></div>
+ <button class="bal-refresh" onclick="refreshBalance()"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh Balance</button>
+  </div>
+
+  <!-- STEP 1: Category -->
+  <div id="dbStepCategory">
+    <div class="db-section-title">1. Choose a category</div>
+    <div class="db-cat-grid" id="dbCatGrid"><div class="spin" style="margin:20px auto"></div></div>
+  </div>
+
+  <!-- STEP 2: Biller -->
+  <div id="dbStepBiller" style="display:none">
+    <div class="db-back-row"><button type="button" class="dep-back-btn" onclick="dbGoToStep('category')">‹ Change Category</button></div>
+    <div class="db-section-title" id="dbBillerTitle">2. Choose a provider</div>
+    <div class="db-biller-grid" id="dbBillerGrid"></div>
+  </div>
+
+  <!-- STEP 3: Plan -->
+  <div id="dbStepPlan" style="display:none">
+    <div class="db-back-row"><button type="button" class="dep-back-btn" onclick="dbGoToStep('biller')">‹ Change Provider</button></div>
+    <div class="db-section-title" id="dbPlanTitle">3. Choose a plan</div>
+    <div class="db-plan-list" id="dbPlanList"></div>
+  </div>
+
+  <!-- STEP 4: Identifier + Confirm -->
+  <div id="dbStepConfirm" style="display:none">
+    <div class="db-back-row"><button type="button" class="dep-back-btn" onclick="dbGoToStep('plan')">‹ Change Plan</button></div>
+    <div class="dep-step-card">
+      <div class="dep-step-body">
+        <h3 id="dbConfirmTitle">Enter Details</h3>
+        <div class="dep-confirm-box" style="margin-bottom:14px">
+          <div class="dcb-row"><span>Plan</span><b id="dbConfirmPlanName">—</b></div>
+          <div class="dcb-row dcb-total"><span>Price</span><b id="dbConfirmPrice">₦0</b></div>
+        </div>
+        <div class="fg">
+          <label id="dbIdentifierLabel">Phone Number *</label>
+          <input type="text" id="dbIdentifierInput" placeholder="e.g. 08012345678" oninput="dbClearValidation()"/>
+        </div>
+ <button type="button" class="dep-back-btn" id="dbVerifyBtn" style="display:none;padding:6px 0" onclick="dbVerifyIdentifier()"><svg class="icon i-search" aria-hidden="true"><use href="#i-search"/></svg> Verify Number</button>
+        <div id="dbVerifiedName" class="info-note" style="display:none;margin-bottom:10px"></div>
+ <button class="btn-primary btn-full dep-submit-btn" id="dbPayBtn" onclick="dbSubmitPurchase()"><svg class="icon i-check-circle" aria-hidden="true"><use href="#i-check-circle"/></svg> Confirm &amp; Pay</button>
+        <div id="dbFeedback" class="form-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result card -->
+  <div id="dbResultCard" style="display:none" class="dep-result-card"></div>
+
+  <!-- HISTORY -->
+  <div class="how-card" style="margin-top:24px">
+ <h3><svg class="icon i-receipt" aria-hidden="true"><use href="#i-receipt"/></svg> Recent Purchases</h3>
+    <div id="dbHistoryList"><div class="db-empty">No purchases yet</div></div>
+  </div>
+
+</div>

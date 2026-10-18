@@ -1,0 +1,67 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Boost 2 | Marvel Nums</title><meta name="theme-color" content="#0788e8">
+<script src="/js/auth-keeper.js?v=1"></script>
+<script src="/js/back-button.js?v=1" defer></script>
+<link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/theme.css"><link rel="stylesheet" href="/css/layout-polish.css">
+<style>.wrap{max-width:1050px;margin:20px auto;padding:14px}.head{padding:20px;border-radius:18px;background:linear-gradient(135deg,#064e3b,#0788e8);color:#fff}.head h1{margin:0 0 4px}.bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.bar input,.bar select{flex:1 1 200px;padding:11px;border:1px solid #bbb;border-radius:10px;font-size:15px;box-sizing:border-box}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin-top:16px}.svc{padding:16px;border:1px solid var(--border,#ddd);border-radius:15px;background:var(--card,#fff)}.svc h3{font-size:15px;margin:0 0 6px}.svc button{width:100%;padding:11px;background:#0788e8;color:#fff;border:0;border-radius:9px;font-weight:700}.svc input{width:100%;padding:10px;margin:6px 0 12px;border:1px solid #bbb;border-radius:8px;box-sizing:border-box}.muted{opacity:.75;font-size:13px}.more{display:block;margin:18px auto;padding:11px 22px;border-radius:10px;border:1px solid #0788e8;background:transparent;color:#0788e8;font-weight:700}.note{padding:18px;border-radius:14px;border:1px solid var(--border,#ddd);margin-top:16px;line-height:1.6}</style><script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-speed"><main class="wrap"><p><a href="/boost">← Back to Boosting</a></p>
+<header class="head"><h1>Boost 2</h1><p style="margin:0">Social media growth services</p></header>
+<div id="status" role="status" style="margin:14px 0">Loading services…</div>
+<div id="syncRow" style="display:none;margin:0 0 6px" class="muted"><span id="syncedAt"></span> <a href="#" id="refreshBtn" style="margin-left:8px;font-weight:700;color:#0788e8">⟳ Refresh services</a></div>
+<div class="bar" id="bar" style="display:none"><input id="search" type="search" placeholder="Search services (e.g. Instagram followers)"><select id="cat"></select></div>
+<section id="services" class="grid"></section>
+<button class="more" id="more" style="display:none">Show more</button>
+</main>
+<script>
+const T=()=>{try{return localStorage.getItem('ksl_token')||''}catch(e){return ''}};
+if(!T()){location.replace('/login?next=/boost2')}
+const money=n=>(window.KLSMoney&&KLSMoney.amount)?KLSMoney.amount(n):'₦'+Number(n||0).toLocaleString('en-NG',{maximumFractionDigits:2});
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id);
+let all=[],shown=60;
+async function api(url,opts){const r=await fetch(url,{...(opts||{}),headers:{'Content-Type':'application/json',Authorization:'Bearer '+T()}});const raw=await r.text();let d={};try{d=raw?JSON.parse(raw):{}}catch(e){}if(r.status===401){location.href='/login?next=/boost2';throw Error('Please log in again.')}if(!r.ok){const e=Error(d.error||'Something went wrong ('+r.status+').');e.detail=d.detail||'';throw e}return d}
+function render(){const q=$('search').value.trim().toLowerCase(),c=$('cat').value;const list=all.filter(s=>(!c||s.category===c)&&(!q||(s.name+' '+s.category).toLowerCase().includes(q)));$('status').textContent=list.length?`${list.length} services available.`:'No services match your search.';$('services').innerHTML=list.slice(0,shown).map(s=>`<article class="svc"><h3>${esc(s.name)}</h3><p class="muted">${esc(s.category)} · Min ${s.min} · Max ${s.max}</p><p><b>${money(s.price)}</b> per 1,000</p><label class="muted">Quantity<input type="number" id="q${s.id}" min="${s.min}" max="${s.max}" value="${s.min}"></label><label class="muted">Post / profile link<input type="url" id="l${s.id}" placeholder="https://…"></label><button onclick="buy(${s.id},${s.min},${s.max})">Place order</button></article>`).join('');$('more').style.display=list.length>shown?'block':'none'}
+function applyData(d){
+  if(d.syncedAt){$('syncRow').style.display='block';$('syncedAt').textContent=(d.stale?'Showing saved list · ':'')+'Updated '+new Date(d.syncedAt).toLocaleString()}
+  if(d.enabled===false){$('status').innerHTML='<div class="note"><b>Boost 2 is not available yet.</b><br>'+esc(d.message||'Please contact the administrator.')+'</div>';return false}
+  all=d.services||[];
+  if(!all.length){$('status').innerHTML='<div class="note"><b>No services available yet.</b><br>Please contact the administrator.</div>';return false}
+  const keep=$('cat').value;
+  const cats=[...new Set(all.map(s=>s.category))].sort();
+  $('cat').innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('');
+  if(keep&&cats.includes(keep))$('cat').value=keep;
+  $('bar').style.display='flex';render();return true
+}
+// Instant start: show the last list we saved on this device the moment the page opens,
+// then quietly refresh it from the server in the background.
+async function load(refresh){
+  let shownFromCache=false;
+  if(!refresh){try{const c=JSON.parse(localStorage.getItem('ksl_b2_cache')||'null');if(c&&Array.isArray(c.services)&&c.services.length){shownFromCache=applyData(c)}}catch(e){}}
+  try{
+    const d=await api('/api/boost2/services'+(refresh?'?refresh=1':''));
+    if(d.enabled!==false&&Array.isArray(d.services)&&d.services.length){try{localStorage.setItem('ksl_b2_cache',JSON.stringify({services:d.services,syncedAt:d.syncedAt,stale:d.stale}))}catch(e){}}
+    applyData(d)
+  }catch(e){
+    if(shownFromCache)return;
+    $('status').innerHTML='<div class="note">'+esc(e.message)+(e.detail?'<br><span class="muted">'+esc(e.detail)+'</span>':'')+'<br><a href="#" onclick="load(true);return false">Try again</a></div>'
+  }
+}
+$('search').addEventListener('input',()=>{shown=60;render()});$('cat').addEventListener('change',()=>{shown=60;render()});$('refreshBtn').onclick=async e=>{e.preventDefault();$('refreshBtn').textContent='Refreshing…';await load(true);$('refreshBtn').textContent='⟳ Refresh services'};$('more').onclick=()=>{shown+=60;render()};
+async function buy(id,min,max){
+  const quantity=Number($('q'+id).value),link=$('l'+id).value.trim();
+  if(!Number.isInteger(quantity)||quantity<min||quantity>max)return KLS.banner(`Quantity must be between ${min.toLocaleString()} and ${max.toLocaleString()}.`,'error',{title:'Check the quantity'});
+  if(!/^https?:\/\//i.test(link))return KLS.banner('Paste the full public link of your post or profile (it must start with https://).','error',{title:'Link needed'});
+  const svc=all.find(x=>x.id===id),total=svc?Math.round(svc.price*quantity/1000*100)/100:0;
+  const ok=await kslConfirm(`${svc?svc.name+'\n':''}Quantity: ${quantity.toLocaleString()}${total?'\nTotal: '+money(total):''}\n\nThis will be deducted from your wallet now.`,{title:'Confirm your order',okText:'Place order',cancelText:'Cancel'});
+  if(!ok)return;
+  try{const d=await api('/api/boost2/orders',{method:'POST',body:JSON.stringify({serviceId:id,quantity,link})});
+    KLS.banner(`Your order was placed and is ${d.status||'processing'}. Amount paid: ${money(d.amountPaid)}.`,'success',{title:'Order submitted'})}
+  catch(e){KLS.banner(e.message,'error',{title:'Order not placed'})}
+}
+load();
+</script></body></html>

@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>API Documentation — Marvel Nums</title>
+  <meta name="description" content="Integrate with the Marvel Nums developer API — browse listings, check balance, and buy programmatically."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css?v=20260910a"/>
+  <link rel="stylesheet" href="theme.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
+ <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+  <meta name="theme-color" content="#0788e8"/>
+  <script>
+    (function(){
+      try {
+        var pref = 'dark'; /* dark-only brand */
+        var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+        document.documentElement.setAttribute('data-theme', effective);
+        // Follow the device / country clock: with no manual override, re-evaluate the
+        // theme on a timer and whenever the tab is shown again (covers timezone changes).
+        var auto = function(){
+          try {
+            var p = 'dark'; /* dark-only brand */
+            if (p === 'light' || p === 'dark') return;
+            var h = new Date().getHours();
+            document.documentElement.setAttribute('data-theme', (h >= 19 || h < 7) ? 'dark' : 'light');
+          } catch(e) {}
+        };
+        setInterval(auto, 10 * 60 * 1000);
+        document.addEventListener('visibilitychange', function(){ if (!document.hidden) auto(); });
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260910a"/>
+ <link rel="stylesheet" href="/css/announce.css"/>
+  <link rel="stylesheet" href="/css/redesign.css?v=20260910a"/>
+  <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="stylesheet" href="/css/mobile-fix.css">
+<script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-social">
+
+<!-- Shared WhatsApp logo icon — referenced via <svg class="wa-icon"><use href="#wa-logo"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="wa-logo" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.2h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.79 14.09c-.24.68-1.4 1.3-1.93 1.35-.5.06-1.13.08-1.83-.11-.42-.12-.96-.3-1.66-.6-2.92-1.26-4.82-4.2-4.97-4.4-.15-.19-1.19-1.58-1.19-3.01 0-1.44.75-2.14 1.02-2.44.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2.01.9 2.15.07.15.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.27.71 1.17 1.52 1.9 1.05.94 1.93 1.23 2.21 1.37.28.14.44.12.6-.07.16-.19.68-.79.87-1.06.18-.27.37-.22.62-.13.25.09 1.6.75 1.87.89.27.13.45.2.51.31.06.11.06.66-.18 1.34z"/>
+  </symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></g></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></g></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M11 5l-7 7 7 7"/></g></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></g></symbol>
+  <symbol id="i-x-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></g></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/></g></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6z"/></g></symbol>
+  <symbol id="i-crown" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16l1-9-5 4-4-7-4 7-5-4z"/></g></symbol>
+  <symbol id="i-message-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 01-11.9 7.8L4 21l1.2-5A8.5 8.5 0 1121 12z"/></g></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17"/><path d="M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7"/></g></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></g></symbol>
+  <symbol id="i-credit-card" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></g></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></g></symbol>
+  <symbol id="i-gamepad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 10v4M5 12h4M15 11h.01M18 13h.01"/></g></symbol>
+  <symbol id="i-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12"/><path d="M3 9h18M12 9v12M12 9c-2-4-6-4-6-1s3 1 6 1M12 9c2-4 6-4 6-1s-3 1-6 1"/></g></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 015.7 5l-5 5-2.4-2.4-5 5a2 2 0 01-2.8-2.8l5-5L7.8 8.7a4 4 0 015-5.7L10 6l1 1z"/></g></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 8a3 3 0 010 6M21 20a6 6 0 00-6-6.5"/></g></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H19v14a3 3 0 01-3 3H8a3 3 0 003-3V6a3 3 0 00-3-3z"/><path d="M8 3a3 3 0 00-3 3v11a3 3 0 003 3"/></g></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.6 12.6a2 2 0 002 1.4h8.6a2 2 0 002-1.6L22 8H6"/></g></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></g></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0v5l2 3H4l2-3z"/><path d="M10 20a2 2 0 004 0"/></g></symbol>
+  <symbol id="i-plug" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 01-6 6 6 6 0 01-6-6z"/><path d="M12 17v5"/></g></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.6 7.6 0 00-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 001.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 001.7-1l2.4 1 2-3.5z"/></g></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></g></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></g></symbol>
+  <symbol id="i-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></g></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></g></symbol>
+  <symbol id="i-book-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1z"/><path d="M12 6v14"/></g></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></g></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></g></symbol>
+  <symbol id="i-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></g></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 01-8 0z"/><path d="M6 5H4v2a3 3 0 003 3M18 5h2v2a3 3 0 01-3 3"/><path d="M10 15h4v3h-4zM8 21h8"/></g></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M7 21v-7h10v7"/></g></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></g></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></g></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.8L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></g></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v3"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-6a1 1 0 00-1-1h-4a2 2 0 000 4h5"/></g></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 16l-5.5-5.5L4 21"/></g></symbol>
+  <symbol id="i-dot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/></g></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></g></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 1 5 5 5 9 0 3-1 5-2 6l-3 3-3-3c-1-1-2-3-2-6 0-4 2-8 5-9z"/><circle cx="12" cy="9" r="2"/><path d="M9 17l-3 4M15 17l3 4"/></g></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></g></symbol>
+  <symbol id="i-headset" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0118 0v2"/><rect x="2" y="14" width="5" height="7" rx="1.5"/><rect x="17" y="14" width="5" height="7" rx="1.5"/><path d="M20 21a4 4 0 01-4 3h-2"/></g></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+  <symbol id="i-bank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M10 10v9M14 10v9M19 10v9"/><path d="M3 21h18"/></g></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 6l4 4"/></g></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14A8 8 0 1110 4a6.5 6.5 0 0010 10z"/></g></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></g></symbol>
+  <symbol id="i-medal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 3l3 6 3-6"/><path d="M10.5 13.5l1.5 3 1.5-3"/></g></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></g></symbol>
+  <symbol id="i-bot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M12 2v4M9 3.5l1.5 1.5M15 3.5l-1.5 1.5"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></g></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M5 15a8 8 0 0014-4M19 9A8 8 0 005 13"/></g></symbol>
+  <symbol id="i-headphones" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="2" y="14" width="5" height="6" rx="1.5"/><rect x="17" y="14" width="5" height="6" rx="1.5"/></g></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l7 4V6l-7 4z"/><path d="M17 9a4 4 0 010 6"/></g></symbol>
+  <symbol id="i-banknote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/></g></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2"/></g></symbol>
+  <symbol id="i-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a1 1 0 011-1h5l2 2h8a1 1 0 011 1l-2 8H5z"/></g></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></g></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-5-5"/></g></symbol>
+  <symbol id="i-paperclip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l6-6a3 3 0 014 4l-8 8a5 5 0 01-7-7l7-7"/></g></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l3 3v10l-3 3H7l-3-3V7z"/></g></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2 1a12 12 0 006 6l1-2 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></g></symbol>
+  <symbol id="i-car" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V11l2-5h12l2 5v5"/><rect x="2" y="16" width="20" height="3" rx="1"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></g></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></g></symbol>
+  <symbol id="i-mouse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v6"/></g></symbol>
+  <symbol id="i-bar-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></g></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></g></symbol>
+  <symbol id="i-hash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></g></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+  <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></g></symbol>
+  <symbol id="i-at-sign" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-4 7.5"/></g></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></g></symbol>
+  <symbol id="i-ghost" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0114 0v9l-2.5-2-2 2-2.5-2-2 2-2.5-2z"/><circle cx="9.5" cy="10.5" r="1"/><circle cx="14.5" cy="10.5" r="1"/></g></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 01-1-8.9A5.5 5.5 0 0116.5 7 4.5 4.5 0 0117 16H7z"/></g></symbol>
+  <symbol id="i-disc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></g></symbol>
+</svg>
+
+<!-- Single consolidated Support button — everything (community, channel, owner, telegram, Marvel Nums
+     Assistant) lives behind one icon so nothing floats loose over the bottom nav on mobile. -->
+<div id="supportFab" class="support-fab">
+  <div class="sfab-menu" id="sfabMenu">
+    <button type="button" class="sfab-item" onclick="toggleAiChatFab();toggleSupportFab()"><svg class="icon i-message-circle" aria-hidden="true"><use href="#i-message-circle"/></svg> Marvel Nums Assistant</button>
+    <a href="https://chat.whatsapp.com/HBqJeik773M1pqEmIjfpXr" data-link="group" target="_blank" class="sfab-item"><svg class="wa-icon" aria-hidden="true"><use href="#wa-logo"/></svg> Join Community</a>
+    <a href="https://whatsapp.com/channel/0029Vb7ivq9HLHQcS4XgQu2Q" data-link="channel" target="_blank" class="sfab-item"><svg class="wa-icon" aria-hidden="true"><use href="#wa-logo"/></svg> Join Channel</a>
+    <a href="https://t.me/klslogs" data-link="telegram" target="_blank" class="sfab-item"><svg class="icon i-send" aria-hidden="true"><use href="#i-send"/></svg> Telegram</a>
+    <a href="https://wa.me/2349065518402" data-link="contact" target="_blank" class="sfab-item sfab-item-primary"><svg class="wa-icon" aria-hidden="true"><use href="#wa-logo"/></svg> Contact Owner</a>
+  </div>
+  <button type="button" class="sfab-toggle" onclick="toggleSupportFab()" aria-label="Support"><svg class="icon i-headset" aria-hidden="true"><use href="#i-headset"/></svg></button>
+</div>
+<div class="modal-overlay" id="aiChatOverlay">
+  <div class="modal-box" style="max-width:380px;padding:0;display:flex;flex-direction:column;height:min(560px,80vh)">
+ <button class="modal-x" onclick="toggleAiChatFab()"><svg class="icon i-x" aria-hidden="true"><use href="#i-x"/></svg></button>
+    <div style="padding:20px 20px 12px;border-bottom:1px solid var(--border)">
+ <h3 style="margin:0"><svg class="icon i-message-circle" aria-hidden="true"><use href="#i-message-circle"/></svg> Marvel Nums Assistant</h3>
+      <p style="color:var(--t2);font-size:12.5px;margin:4px 0 0">Ask about deposits, purchases, refunds, and more</p>
+    </div>
+    <div id="aiChatFabLog" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:16px 20px"></div>
+    <div id="aiChatQuickTopics" style="display:flex;gap:6px;flex-wrap:wrap;padding:0 20px 12px"></div>
+    <div style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border)">
+      <input type="text" id="aiChatFabInput" placeholder="Type a question…" style="flex:1" onkeydown="if(event.key==='Enter')sendAiChatFab()"/>
+      <button class="btn-primary" style="padding:10px 16px" onclick="sendAiChatFab()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="nav-brand" href="/dashboard" style="text-decoration:none">
+ <div class="brand-icon"><svg class="icon i-crown" aria-hidden="true"><use href="#i-crown"/></svg></div>
+      <div class="brand-words">
+        <span class="brand-ksl">Marvel Nums</span>
+        <span class="brand-full">KingBadBoi Log Sale</span>
+      </div>
+    </a>
+    <div class="nav-center" id="navCenter">
+      <a class="nav-link" href="/">Home</a>
+      <a class="nav-link" href="/marketplace">Marketplace</a>
+      <a class="nav-link" href="/tools">Tools & FMT</a>
+ <a class="nav-link" href="/games"><svg class="icon i-gamepad" aria-hidden="true"><use href="#i-gamepad"/></svg> Games</a>
+ <a class="nav-link" href="/buy-number"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Numbers</a>
+ <a class="nav-link" href="/giveaways"><svg class="icon i-gift" aria-hidden="true"><use href="#i-gift"/></svg> Giveaways</a>
+ <a class="nav-link" href="/groups"><svg class="icon i-users" aria-hidden="true"><use href="#i-users"/></svg> Groups</a>
+ <a class="nav-link" href="/messages"><svg class="icon i-mail" aria-hidden="true"><use href="#i-mail"/></svg> DMs</a>
+      <a class="nav-link" href="/support">Support</a>
+    </div>
+    <div class="nav-right">
+      <div id="navGuest" class="nav-guest" style="display:none">
+        <a class="btn-nav-login" href="/login">Login</a>
+        <a class="btn-nav-reg" href="/register">Get Started</a>
+      </div>
+      <div id="navUser" class="nav-user-area" style="display:none">
+        <a class="nav-balance-btn" href="/deposit">
+ <span class="bal-icon"><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg></span>
+          <span><span id="navBalance">₦0.00</span></span>
+        </a>
+      </div>
+      <div class="theme-toggle-wrap">
+        <button class="theme-btn" id="themeBtn" onclick="toggleThemeSimple()" title="Toggle theme" aria-label="Toggle theme">
+          <svg id="themeBtnIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/>
+          </svg>
+        </button>
+      </div>
+      <a href="https://wa.me/2349065518402" data-link="contact" target="_blank" class="nav-wa-btn" title="Chat with us on WhatsApp" aria-label="WhatsApp">
+        <svg class="wa-icon"><use href="#wa-logo"/></svg>
+      </a>
+      <div class="notif-wrap">
+        <a class="notif-btn" id="notifBtn" href="/notifications" title="Notifications" aria-label="Notifications">
+ <svg class="icon i-bell" aria-hidden="true"><use href="#i-bell"/></svg><span id="notifBadge" class="notif-badge" style="display:none">0</span>
+        </a>
+      </div>
+      <div class="nav-avatar-wrap" id="navAvatarWrap" style="display:none">
+        <button class="nav-avatar" id="navAvatarBtn" onclick="toggleUserMenu()">
+          <img id="navAvatarImg" src="" style="display:none" alt="Profile" onerror="this.style.display='none';document.getElementById('navInitial').style.display='block'"/>
+          <span id="navInitial">U</span>
+        </button>
+        <div class="nav-dropdown" id="navDropdown">
+          <div class="dropdown-header">
+            <img id="dropAvatarImg" src="" style="display:none" class="dropdown-avatar" alt="Profile" onerror="this.style.display='none'"/>
+            <div class="dh-name" id="dropName">User</div>
+            <div class="dh-email" id="dropEmail">email</div>
+          </div>
+          <div class="dropdown-divider"></div>
+ <a class="dd-item" href="/deposit"><span><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg></span> Deposit Funds</a>
+ <a class="dd-item" href="/referrals"><span><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg></span> Referrals</a>
+ <a class="dd-item" href="/purchases"><span><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg></span> My Purchases</a>
+ <a class="dd-item" href="/transactions"><span><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg></span> Transactions</a>
+ <a class="dd-item" href="/api-docs"><span><svg class="icon i-plug" aria-hidden="true"><use href="#i-plug"/></svg></span> API Docs</a>
+ <a class="dd-item" href="/settings"><span><svg class="icon i-settings" aria-hidden="true"><use href="#i-settings"/></svg></span> Settings</a>
+ <a class="dd-item" href="/terms"><span><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg></span> Terms &amp; Conditions</a>
+          <div class="dropdown-divider"></div>
+ <a class="dd-item dd-logout" href="#" onclick="logout()"><span><svg class="icon i-logout" aria-hidden="true"><use href="#i-logout"/></svg></span> Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+
+<div id="page-apidocs" class="page active">
+  <div class="page-hero">
+ <div class="ph-chip"><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg> Developers</div>
+    <h1>Marvel Nums API Documentation</h1>
+    <p>Connect your own scripts and apps to your Marvel Nums account</p>
+  </div>
+  <div class="section-wrap terms-wrap api-docs-wrap">
+
+    <div class="api-doc-section">
+      <h3>Getting Started</h3>
+      <p>Every Marvel Nums user can generate a personal <strong>API Key</strong> and <strong>API Secret</strong> from
+ <a href="/settings">Settings <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> API Access</a>. These two values authenticate every request
+        you make to the API — treat them like a password. Your secret is shown <strong>once</strong> at generation time and never again,
+        so save it somewhere safe immediately.</p>
+      <p>All endpoints are scoped to your own account only — you can check your own balance, list available items, view your
+        own purchase history, and buy items on your own behalf. You cannot access any other user's data.</p>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Jump to a section</h3>
+      <p class="api-doc-desc">Everything below is generated from the endpoints this server actually runs — Boost, Buy Number Server 1, Buy Number Server 2 and the Marketplace.</p>
+      <div class="api-quick-nav">
+        <a href="#sec-auth">Authentication</a>
+        <a href="#sec-tester">Live API tester</a>
+        <a href="#sec-marketplace">Marketplace API</a>
+        <a href="#sec-numbers1">Buy Number — Server 1</a>
+        <a href="#sec-numbers2">Buy Number — Server 2</a>
+        <a href="#sec-boost">Boost API</a>
+        <a href="#sec-errors">Errors &amp; limits</a>
+      </div>
+      <style>
+        .api-quick-nav{display:flex;flex-wrap:wrap;gap:8px}
+        .api-quick-nav a{display:inline-block;padding:7px 13px;border-radius:20px;border:1px solid var(--border,#dde);font-size:13px;font-weight:600}
+        .api-test-grid{display:grid;gap:10px}
+        .api-test-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--border,#dde);border-radius:10px;font-size:13px}
+        .api-test-row .att-name{font-weight:700;min-width:230px}
+        .api-test-row .att-state{margin-left:auto;font-weight:700}
+        .att-ok{color:#0788e8}.att-bad{color:#dc2626}.att-wait{opacity:.6}
+      </style>
+    </div>
+
+    <div class="api-doc-section" id="sec-tester">
+      <h3>Live API tester — confirm it works with your own key</h3>
+      <p class="api-doc-desc">Paste your key + secret and this page calls the real endpoints on this server, read-only.
+        Nothing is bought and your wallet is never charged — it only runs the browse/status calls for Boost,
+        Server 1 numbers, Server 2 numbers and the Marketplace so you can see exactly which ones answer.</p>
+      <div class="fg"><label>X-API-Key</label><input id="apiTestKey" placeholder="kls_..." autocomplete="off"/></div>
+      <div class="fg"><label>X-API-Secret</label><input id="apiTestSecret" type="password" placeholder="your secret" autocomplete="off"/></div>
+      <button class="btn-primary" type="button" onclick="runApiTests()" id="apiTestBtn">Run all checks</button>
+      <div id="apiTestOut" class="api-test-grid" style="margin-top:14px"></div>
+      <script>
+        const API_TESTS = [
+          ['Account (GET /api/v1/me)', '/api/v1/me', true],
+          ['Wallet balance (GET /api/v1/balance)', '/api/v1/balance', true],
+          ['Marketplace list (GET /api/v1/marketplace?limit=1)', '/api/v1/marketplace?limit=1', true],
+          ['Marketplace categories (GET /api/v1/categories)', '/api/v1/categories', true],
+          ['Tools (GET /api/v1/tools?limit=1)', '/api/v1/tools?limit=1', true],
+          ['Boost catalogue (GET /api/v1/boost/services)', '/api/v1/boost/services', true],
+          ['Boost wallet (GET /api/v1/boost/balance)', '/api/v1/boost/balance', true],
+          ['Boost orders (GET /api/v1/boost/orders?limit=1)', '/api/v1/boost/orders?limit=1', true],
+          ['Numbers Server 1 options (GET /api/v1/numbers/options)', '/api/v1/numbers/options', true],
+          ['Numbers Server 1 + 2 status (GET /api/numbers/servers)', '/api/numbers/servers', false],
+          ['Numbers Server 2 services (GET /api/numbers/server2/services)', '/api/numbers/server2/services', false]
+        ];
+        async function runApiTests(){
+          const key = document.getElementById('apiTestKey').value.trim();
+          const secret = document.getElementById('apiTestSecret').value.trim();
+          const out = document.getElementById('apiTestOut');
+          const btn = document.getElementById('apiTestBtn');
+          out.innerHTML = API_TESTS.map((t,i)=>'<div class="api-test-row" id="att'+i+'"><span class="att-name">'+t[0]+'</span><span class="att-state att-wait">waiting…</span></div>').join('');
+          btn.disabled = true; btn.textContent = 'Checking…';
+          let pass = 0;
+          for (let i=0;i<API_TESTS.length;i++){
+            const [, path, needsKey] = API_TESTS[i];
+            const row = document.querySelector('#att'+i+' .att-state');
+            try{
+              const headers = needsKey ? { 'X-API-Key': key, 'X-API-Secret': secret } : {};
+              const r = await fetch(path, { headers, cache:'no-store' });
+              let body = null; try { body = await r.json(); } catch(e){}
+              if (r.ok){ pass++; row.className='att-state att-ok'; row.textContent = '200 OK' + (Array.isArray(body) ? ' · '+body.length+' item(s)' : (body && body.disabled ? ' · switched off in admin' : '')); }
+              else { row.className='att-state att-bad'; row.textContent = r.status + ' ' + ((body && (body.error||body.message)) || r.statusText); }
+            }catch(e){ row.className='att-state att-bad'; row.textContent = 'network error: ' + e.message; }
+          }
+          btn.disabled = false; btn.textContent = 'Run all checks (' + pass + '/' + API_TESTS.length + ' passed)';
+        }
+      </script>
+    </div>
+
+    <div class="api-doc-section" id="sec-auth">
+      <h3>Authentication</h3>
+      <p>Every request must include these two headers:</p>
+      <div class="api-docs-block">X-API-Key: your_api_key
+X-API-Secret: your_api_secret</div>
+      <p>Requests missing either header, or with an invalid/revoked key, get a <code>401 Unauthorized</code> response.</p>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Base URL</h3>
+      <div class="api-docs-block" id="apiBaseUrlBlock">https://your-site.example.com/api/v1</div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Endpoints</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/me</code></td><td>Your account info (name, email, balance, Game ID)</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/balance</code></td><td>Your current wallet balance</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/purchases</code></td><td>Your full purchase history</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/purchases/:purchaseId</code></td><td>Re-fetch one specific old purchase's full details (account credentials/download link) by its purchase ID</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/listings</code></td><td>All available logs/tools (add <code>?type=tool</code> or <code>?type=log</code> to filter)</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/listings/:id</code></td><td>Details of one specific listing — includes <code>subAccounts</code> array (with <code>_id</code>, <code>label</code>, <code>price</code>, <code>sold</code>) when it's a multi-account folder listing</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/buy/:id</code></td><td>Purchase a listing using your wallet balance. For folder listings, optionally pass <code>{ "subAccountId": "..." }</code> to pick a specific account — omit it and the cheapest available one is bought automatically</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/buy-multi/:id</code></td><td>Buy several accounts from the same folder listing at once — body: <code>{ "subAccountIds": ["...", "..."] }</code>. All-or-nothing: if any account was already sold, or your balance can't cover the total, nothing is charged</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/numbers/options</code></td><td>Providers/countries currently available to rent a number for, with price</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/buy-number</code></td><td>Rent a number — body: <code>serviceId</code> + <code>serverId</code> + <code>country</code> from <code>/numbers/options</code> (or legacy <code>provider</code> + <code>country</code>, which picks the cheapest server); optional <code>expected_price</code></td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/get-sms</code></td><td>Poll for the OTP — query: <code>order_id</code></td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/cancel-number</code></td><td>Cancel before a code arrives and get refunded — body: <code>order_id</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: Check your balance</h3>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'bal-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'bal-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'bal-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="bal-curl">
+        <div class="api-docs-block">curl https://your-site.example.com/api/v1/balance \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"</div>
+      </div>
+      <div class="lang-panel" id="bal-js" style="display:none">
+        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/balance', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const data = await res.json();
+console.log(data.balance);</div>
+      </div>
+      <div class="lang-panel" id="bal-py" style="display:none">
+        <div class="api-docs-block">import requests
+
+res = requests.get(
+    "https://your-site.example.com/api/v1/balance",
+    headers={
+        "X-API-Key": "your_api_key",
+        "X-API-Secret": "your_api_secret"
+    }
+)
+print(res.json()["balance"])</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: List available items</h3>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'list-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'list-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'list-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="list-curl">
+        <div class="api-docs-block">curl "https://your-site.example.com/api/v1/listings?type=tool" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"</div>
+      </div>
+      <div class="lang-panel" id="list-js" style="display:none">
+        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/listings?type=tool', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const tools = await res.json();
+tools.forEach(t => console.log(t.title, t.price));</div>
+      </div>
+      <div class="lang-panel" id="list-py" style="display:none">
+        <div class="api-docs-block">import requests
+
+res = requests.get(
+    "https://your-site.example.com/api/v1/listings",
+    params={"type": "tool"},
+    headers={
+        "X-API-Key": "your_api_key",
+        "X-API-Secret": "your_api_secret"
+    }
+)
+for tool in res.json():
+    print(tool["title"], tool["price"])</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: Buy an item</h3>
+ <div class="info-box" style="margin-bottom:12px"><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg> No platform fee — you're charged exactly the item's listed price via the API, same as buying it through the marketplace. The response includes <code>itemPrice</code> and <code>totalCharged</code> (always equal) so you can confirm this.</div>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'buy-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'buy-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'buy-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="buy-curl">
+        <div class="api-docs-block">curl -X POST https://your-site.example.com/api/v1/buy/LISTING_ID_HERE \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"</div>
+      </div>
+      <div class="lang-panel" id="buy-js" style="display:none">
+        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/buy/LISTING_ID_HERE', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const result = await res.json();
+console.log(result.message, result.newBalance);</div>
+      </div>
+      <div class="lang-panel" id="buy-py" style="display:none">
+        <div class="api-docs-block">import requests
+
+res = requests.post(
+    "https://your-site.example.com/api/v1/buy/LISTING_ID_HERE",
+    headers={
+        "X-API-Key": "your_api_key",
+        "X-API-Secret": "your_api_secret"
+    }
+)
+result = res.json()
+print(result["message"], result["newBalance"])</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: Buying from a folder listing (multiple accounts under one item)</h3>
+      <div class="info-box" style="margin-bottom:12px"><svg class="icon i-folder" aria-hidden="true"><use href="#i-folder"/></svg> Some listings are "folders" containing several individually-priced accounts (e.g. "Twitter Logs Batch" with 20 accounts inside). Check <code>listingType === "folder"</code> and the <code>subAccounts</code> array from <code>GET /listings/:id</code> first to see what's available and each one's price.</div>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'folder-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'folder-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'folder-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="folder-curl">
+        <div class="api-docs-block"># Step 1 — see what's inside the folder and each account's price
+curl https://your-site.example.com/api/v1/listings/FOLDER_ID_HERE \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+
+# Step 2a — buy ONE specific account from it
+curl -X POST https://your-site.example.com/api/v1/buy/FOLDER_ID_HERE \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{"subAccountId":"SUB_ACCOUNT_ID_HERE"}'
+
+# Step 2b — or buy SEVERAL accounts from it in one call
+curl -X POST https://your-site.example.com/api/v1/buy-multi/FOLDER_ID_HERE \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{"subAccountIds":["SUB_ID_1","SUB_ID_2","SUB_ID_3"]}'</div>
+      </div>
+      <div class="lang-panel" id="folder-js" style="display:none">
+        <div class="api-docs-block">const headers = { 'X-API-Key': 'your_api_key', 'X-API-Secret': 'your_api_secret' };
+
+// 1. Look at what's available inside the folder
+const listing = await fetch(`https://your-site.example.com/api/v1/listings/${folderId}`, { headers }).then(r => r.json());
+const available = listing.subAccounts.filter(sa => !sa.sold);
+
+// 2a. Buy one specific account
+const one = await fetch(`https://your-site.example.com/api/v1/buy/${folderId}`, {
+  method: 'POST',
+  headers: { ...headers, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ subAccountId: available[0]._id })
+}).then(r => r.json());
+
+// 2b. Or buy several at once — all-or-nothing, nothing charged if any fail
+const many = await fetch(`https://your-site.example.com/api/v1/buy-multi/${folderId}`, {
+  method: 'POST',
+  headers: { ...headers, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ subAccountIds: available.slice(0, 3).map(sa => sa._id) })
+}).then(r => r.json());
+console.log(many.message, many.items); // many.items is an array of the delivered account details</div>
+      </div>
+      <div class="lang-panel" id="folder-py" style="display:none">
+        <div class="api-docs-block">import requests
+headers = {"X-API-Key": "your_api_key", "X-API-Secret": "your_api_secret"}
+
+# 1. Look at what's available inside the folder
+listing = requests.get(f"https://your-site.example.com/api/v1/listings/{folder_id}", headers=headers).json()
+available = [sa for sa in listing["subAccounts"] if not sa["sold"]]
+
+# 2a. Buy one specific account
+one = requests.post(
+    f"https://your-site.example.com/api/v1/buy/{folder_id}",
+    headers=headers, json={"subAccountId": available[0]["_id"]}
+).json()
+
+# 2b. Or buy several at once
+many = requests.post(
+    f"https://your-site.example.com/api/v1/buy-multi/{folder_id}",
+    headers=headers, json={"subAccountIds": [sa["_id"] for sa in available[:3]]}
+).json()
+print(many["message"], many["items"])</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: Getting a past purchase's details again</h3>
+      <div class="info-box" style="margin-bottom:12px"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Lost the account details from an old purchase, or need to look them up again later? Every successful <code>/buy</code>, <code>/buy-multi</code>, or on-site purchase returns a <code>purchaseId</code> — save it, then fetch that exact purchase any time with <code>GET /purchases/:purchaseId</code>.</div>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'old-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'old-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'old-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="old-curl">
+        <div class="api-docs-block">curl https://your-site.example.com/api/v1/purchases/PURCHASE_ID_HERE \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"</div>
+      </div>
+      <div class="lang-panel" id="old-js" style="display:none">
+        <div class="api-docs-block">const purchase = await fetch(`https://your-site.example.com/api/v1/purchases/${purchaseId}`, {
+  headers: { 'X-API-Key': 'your_api_key', 'X-API-Secret': 'your_api_secret' }
+}).then(r => r.json());
+console.log(purchase.logDetails); // the account credentials / info you were delivered</div>
+      </div>
+      <div class="lang-panel" id="old-py" style="display:none">
+        <div class="api-docs-block">import requests
+purchase = requests.get(
+    f"https://your-site.example.com/api/v1/purchases/{purchase_id}",
+    headers={"X-API-Key": "your_api_key", "X-API-Secret": "your_api_secret"}
+).json()
+print(purchase["logDetails"])</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section">
+      <h3>Example: Buy a Number</h3>
+ <div class="info-box" style="margin-bottom:12px"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Numbers are used to receive a one-time verification code from the provider you choose (WhatsApp, Telegram, etc). Prices here are separate from the site's own Buy Numbers page — check <code>/numbers/options</code> for what's currently available and its price. Want to see this exact flow (browse <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> buy <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> poll <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> done) built into a full page? <a href="/buy-number">/buy-number</a> on this site is that reference implementation — same four calls below, wired to a UI.</div>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'num-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'num-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'num-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="num-curl">
+        <div class="api-docs-block"># 1. See what's available
+curl https://your-site.example.com/api/v1/numbers/options \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+
+# 2. Rent a number
+curl -X POST https://your-site.example.com/api/v1/buy-number \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"WhatsApp","country":"United States"}'
+
+# 3. Poll for the code (repeat every few seconds until status is "received")
+curl "https://your-site.example.com/api/v1/get-sms?order_id=ORDER_ID_HERE" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+
+# 4. If no code arrives, cancel for a refund
+curl -X POST https://your-site.example.com/api/v1/cancel-number \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{"order_id":"ORDER_ID_HERE"}'</div>
+      </div>
+      <div class="lang-panel" id="num-js" style="display:none">
+        <div class="api-docs-block">const headers = {
+  'X-API-Key': 'your_api_key',
+  'X-API-Secret': 'your_api_secret',
+  'Content-Type': 'application/json'
+};
+
+// 1. See what's available
+const options = await (await fetch('https://your-site.example.com/api/v1/numbers/options', { headers })).json();
+
+// 2. Rent a number
+const order = await (await fetch('https://your-site.example.com/api/v1/buy-number', {
+  method: 'POST', headers, body: JSON.stringify({ provider: 'WhatsApp', country: 'United States' })
+})).json();
+
+// 3. Poll for the code
+async function pollForCode(orderId) {
+  const r = await (await fetch(`https://your-site.example.com/api/v1/get-sms?order_id=${orderId}`, { headers })).json();
+  if (r.status === 'received') return r.sms;
+  await new Promise(res => setTimeout(res, 5000));
+  return pollForCode(orderId);
+}
+const code = await pollForCode(order.order_id);</div>
+      </div>
+      <div class="lang-panel" id="num-py" style="display:none">
+        <div class="api-docs-block">import requests, time
+
+headers = {"X-API-Key": "your_api_key", "X-API-Secret": "your_api_secret"}
+
+# 1. See what's available
+options = requests.get("https://your-site.example.com/api/v1/numbers/options", headers=headers).json()
+
+# 2. Rent a number
+order = requests.post(
+    "https://your-site.example.com/api/v1/buy-number",
+    headers=headers, json={"provider": "WhatsApp", "country": "United States"}
+).json()
+
+# 3. Poll for the code
+while True:
+    r = requests.get(
+        "https://your-site.example.com/api/v1/get-sms",
+        headers=headers, params={"order_id": order["order_id"]}
+    ).json()
+    if r["status"] == "received":
+        print(r["sms"])
+        break
+    time.sleep(5)</div>
+      </div>
+    </div>
+
+    <div class="api-doc-section" id="sec-numbers1">
+      <h3>Buy Number — Server 1 (curated pool)</h3>
+      <p class="api-doc-desc">
+        Server 1 is the hand-picked pool: a short list of providers (WhatsApp, Telegram, …) and countries the admin
+        has priced and enabled. It is the fastest path — one call to list options, one to rent, then poll for the code.
+      </p>
+      <p>There are two equivalent ways in:</p>
+      <ul>
+        <li><b>Developer API (recommended)</b> — <code>/api/v1/*</code> with your <code>X-API-Key</code> + <code>X-API-Secret</code>.</li>
+        <li><b>Session endpoints</b> — <code>/api/numbers/*</code>, used by the site's own <a href="/buy-number">/buy-number</a> page; these need a signed-in session cookie/token instead of an API key.</li>
+      </ul>
+
+      <h3 style="margin-top:18px">Developer API (API key)</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Input</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/v1/numbers/options</code></td><td>—</td><td>Enabled providers + countries with your price each</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/api/v1/buy-number</code></td><td><code>{ serviceId, serverId, country, expected_price? }</code> or <code>{ provider, country }</code></td><td><code>{ order_id, number, price, expires_at }</code> — wallet is debited here</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/v1/get-sms</code></td><td><code>order_id</code> (query)</td><td><code>{ status: "waiting" | "received" | "cancelled", sms }</code></td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/api/v1/cancel-number</code></td><td><code>{ order_id }</code></td><td>Refunds you if no code has arrived yet</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:18px">Session endpoints (same pool, signed-in user)</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Input</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/servers</code></td><td>—</td><td>Which servers are switched on right now: <code>{ server1: { enabled }, server2: { enabled } }</code>. Call this first and hide the ones that are off.</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/options</code></td><td>—</td><td>Priced provider/country list for Server 1</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/live-services</code></td><td><code>country</code> (optional)</td><td>Live services with stock and price</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/live-countries</code></td><td>—</td><td>Countries currently holding stock</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/api/numbers/buy</code></td><td><code>{ serviceId, serverId, country, expectedPrice }</code></td><td>Rents the number and debits the wallet</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/status/:orderId</code></td><td>—</td><td>Poll for the OTP for one order</td></tr>
+          <tr><td><span class="api-method post">POST</span></td><td><code>/api/numbers/cancel/:orderId</code></td><td>—</td><td>Cancel + refund while no code has arrived</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/my-orders</code></td><td><code>limit</code> (optional)</td><td>Your recent number orders</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/my-orders/search</code></td><td><code>q</code></td><td>Search your own orders by number or order id</td></tr>
+          <tr><td><span class="api-method get">GET</span></td><td><code>/api/numbers/health</code></td><td>—</td><td>Upstream provider reachability — handy for a status page</td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:18px">Full flow (Server 1, developer API)</h3>
+      <div class="api-docs-block"># 1. What can I rent, and for how much?
+curl "$BASE/api/v1/numbers/options" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET"
+
+# 2. Rent one (wallet is charged here)
+curl -X POST "$BASE/api/v1/buy-number" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"provider":"WhatsApp","country":"United States"}'
+
+# 3. Poll every ~5s until status is "received"
+curl "$BASE/api/v1/get-sms?order_id=ORDER_ID" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET"
+
+# 4. Nothing arrived? Cancel and get refunded
+curl -X POST "$BASE/api/v1/cancel-number" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"order_id":"ORDER_ID"}'</div>
+
+      <h3 style="margin-top:18px">Server 1 errors and how to fix them</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Code</th><th>Message</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td>Server 1 is temporarily switched off</td><td>An admin disabled Server 1. Check <code>/api/numbers/servers</code> and use Server 2 meanwhile.</td></tr>
+          <tr><td><code>400</code></td><td>provider and country are required</td><td>Send both, spelled exactly as returned by <code>/numbers/options</code>. Never hand-type them.</td></tr>
+          <tr><td><code>400</code></td><td>Insufficient balance</td><td>Top up. The charge is the <code>price</code> field from <code>/numbers/options</code>.</td></tr>
+          <tr><td><code>400</code></td><td>Out of stock for that provider/country</td><td>Re-read <code>/numbers/options</code> (or <code>/api/numbers/live-services</code>) and pick another. Nothing was charged.</td></tr>
+          <tr><td><code>401</code></td><td>Unauthorized</td><td>Missing/revoked <code>X-API-Key</code> + <code>X-API-Secret</code>, or you called a <code>/api/numbers/*</code> session endpoint without being signed in.</td></tr>
+          <tr><td><code>404</code></td><td>Order not found</td><td>Use the <code>order_id</code> exactly as returned by the buy call — it belongs to your account only.</td></tr>
+          <tr><td><code>409</code></td><td>The price changed…</td><td>You sent <code>expected_price</code> and the live price differs. Nothing was charged; re-read <code>/numbers/options</code> and retry.</td></tr>
+          <tr><td><code>502</code></td><td>Provider unreachable / rejected</td><td>Upstream hiccup. Retry after a few seconds; nothing was charged.</td></tr>
+          <tr><td><code>502</code></td><td>We could not confirm this order with the provider</td><td>The provider did not answer in time and may have issued the number. <b>Do not retry.</b> The payment is held and is either refunded or the number is released to you after review; contact support with the returned <code>orderId</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="api-doc-section" id="sec-numbers2">
+      <h3>Server 2 Numbers API (all services &amp; countries)</h3>
+      <div class="info-box" style="margin-bottom:12px">
+        Server 2 is the large pool — hundreds of services and countries, live stock and live prices.
+        You always call it in the same order: <b>service → country → provider (price pool) → buy → poll</b>.
+        These four endpoints are session endpoints on <code>/api/numbers/server2/*</code>; the browse calls
+        need no auth, the buy call charges your wallet and needs you signed in.
+      </div>
+
+      <table class="api-endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Query / Body</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/numbers/server2/services</code></td>
+            <td><code>search</code> (optional)</td>
+            <td>Array of <code>{ code, name, emoji, popular }</code>, most popular first</td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/numbers/server2/countries</code></td>
+            <td><code>service</code> (required — the <code>code</code> from above)</td>
+            <td>Array of <code>{ id, name, flag, count, price }</code> — only countries with stock, cheapest first</td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/numbers/server2/providers</code></td>
+            <td><code>service</code>, <code>country</code> (both required)</td>
+            <td>Array of price pools <code>{ label, maxPrice, price, count, flag }</code>, cheapest first</td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/numbers/server2/operators</code></td>
+            <td><code>service</code>, <code>country</code></td>
+            <td>Mobile operators available for that pair — pass nothing and any operator is used</td>
+          </tr>
+          <tr>
+            <td><span class="api-method post">POST</span></td>
+            <td><code>/api/numbers/server2/buy</code></td>
+            <td><code>{ service, country, maxPrice }</code></td>
+            <td>The rented number + order id. Stock and price are re-checked live before your wallet is touched</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:18px">Full flow</h3>
+      <div class="lang-tabs">
+        <button class="lang-tab active" onclick="switchLangTab(this,'s2-curl')">cURL</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'s2-js')">JavaScript</button>
+        <button class="lang-tab" onclick="switchLangTab(this,'s2-py')">Python</button>
+      </div>
+      <div class="lang-panel" id="s2-curl">
+        <div class="api-docs-block"># 1. Find the service code (e.g. search for WhatsApp)
+curl "https://your-site.example.com/api/numbers/server2/services?search=whatsapp"
+
+# 2. Countries that have stock for that service
+curl "https://your-site.example.com/api/numbers/server2/countries?service=wa"
+
+# 3. Price pools ("providers") for that service + country
+curl "https://your-site.example.com/api/numbers/server2/providers?service=wa&country=187"
+
+# 4. Buy — maxPrice MUST be the pool's maxPrice value, copied exactly
+curl -X POST https://your-site.example.com/api/numbers/server2/buy \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_SESSION_TOKEN" \
+  -d '{"service":"wa","country":"187","maxPrice":0.42}'</div>
+      </div>
+      <div class="lang-panel" id="s2-js" style="display:none">
+        <div class="api-docs-block">const base = 'https://your-site.example.com/api/numbers/server2';
+
+// 1. service
+const services = await (await fetch(`${base}/services?search=whatsapp`)).json();
+const service = services[0].code;
+
+// 2. country (already sorted cheapest-first, so [0] is the cheapest in stock)
+const countries = await (await fetch(`${base}/countries?service=${service}`)).json();
+const country = countries[0].id;
+
+// 3. provider / price pool
+const pools = await (await fetch(`${base}/providers?service=${service}&country=${country}`)).json();
+const pool = pools[0]; // cheapest
+
+// 4. buy — send pool.maxPrice back untouched
+const order = await (await fetch(`${base}/buy`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  body: JSON.stringify({ service, country, maxPrice: pool.maxPrice })
+})).json();</div>
+      </div>
+      <div class="lang-panel" id="s2-py" style="display:none">
+        <div class="api-docs-block">import requests
+
+base = "https://your-site.example.com/api/numbers/server2"
+
+service = requests.get(f"{base}/services", params={"search": "whatsapp"}).json()[0]["code"]
+country = requests.get(f"{base}/countries", params={"service": service}).json()[0]["id"]
+pool    = requests.get(f"{base}/providers", params={"service": service, "country": country}).json()[0]
+
+order = requests.post(
+    f"{base}/buy",
+    headers={"Authorization": f"Bearer {token}"},
+    json={"service": service, "country": country, "maxPrice": pool["maxPrice"]}
+).json()</div>
+      </div>
+
+      <h3 style="margin-top:18px">Server 2 errors and how to fix them</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Status</th><th>Message you'll see</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td>Server 2 is temporarily switched off</td><td>An admin disabled Server 2 in the admin panel. Use Server 1, or wait until it's switched back on — retrying won't help.</td></tr>
+          <tr><td><code>400</code></td><td>service is required / service and country are required</td><td>You skipped a step. The order is fixed: services → countries → providers. Never guess a country id; take it from the countries response.</td></tr>
+          <tr><td><code>400</code></td><td>Please re-pick service, country and provider</td><td>Your buy body is missing one of <code>service</code>, <code>country</code>, <code>maxPrice</code>, or <code>maxPrice</code> came through as 0. Send the pool's <code>maxPrice</code> exactly as returned (a decimal, not the ₦ price).</td></tr>
+          <tr><td><code>400</code></td><td>That provider just sold out — please pick another one</td><td>Stock moves constantly. Re-call <code>/providers</code> and pick a fresh pool. Nothing was charged.</td></tr>
+          <tr><td><code>400</code></td><td>Insufficient balance</td><td>Top up your wallet. The ₦ amount charged is the pool's <code>price</code> field, not <code>maxPrice</code>.</td></tr>
+          <tr><td><code>400</code></td><td>Provider did not return a number</td><td>Upstream hiccup. Nothing was charged — just retry, and if it repeats pick a different pool or country.</td></tr>
+          <tr><td><code>401</code></td><td>Unauthorized</td><td>The buy call needs a signed-in session token; the three browse calls do not.</td></tr>
+          <tr><td><code>502</code></td><td>Any upstream error text</td><td>The upstream number provider is unreachable or rejected the request. Wait a few seconds and retry the same call — this is never caused by your request body.</td></tr>
+        </tbody>
+      </table>
+      <div class="info-box" style="margin-top:12px">
+        <b>Golden rule:</b> price and stock are re-verified server-side at the moment of purchase, so a stale
+        pool can only ever fail the buy — it can never overcharge you. Any failed buy leaves your balance untouched.
+      </div>
+    </div>
+
+
+
+    <div class="api-doc-section">
+      <h3 id="sec-boost">Boost API — social media growth (v1)</h3>
+      <div class="info-box" style="margin-bottom:12px">
+        Resell followers, likes, views and subscribers from your own app. Same catalogue, same prices
+        and the same upstream panel that powers the Marvel Nums Boost page. Every call uses your
+        <code>X-API-Key</code> / <code>X-API-Secret</code> pair, and orders are charged to your Marvel Nums wallet in <b>NGN</b>.
+        <br><br>
+        <b>There are no webhooks.</b> The upstream panel does not send callbacks, so neither do we —
+        poll <code>GET /api/v1/boost/order/:id</code> (it refreshes live from the provider on every call).
+        Once every 2–5 minutes is plenty.
+      </div>
+
+      <table class="api-endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Body / Query</th><th>Returns</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/v1/boost/services</code></td>
+            <td><code>platform</code>, <code>search</code> (both optional)</td>
+            <td>Catalogue: <code>serviceId, name, platform, min, max, refill, pricePer1000Ngn</code></td>
+          </tr>
+          <tr>
+            <td><span class="api-method post">POST</span></td>
+            <td><code>/api/v1/boost/quote</code></td>
+            <td><code>{ serviceId, quantity }</code></td>
+            <td>Exact <code>priceNgn</code> — nothing is charged</td>
+          </tr>
+          <tr>
+            <td><span class="api-method post">POST</span></td>
+            <td><code>/api/v1/boost/order</code></td>
+            <td><code>{ serviceId, link, quantity }</code></td>
+            <td><code>orderId</code>, <code>status</code>, <code>priceNgn</code>, new <code>balanceNgn</code></td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/v1/boost/order/:orderId</code></td>
+            <td>—</td>
+            <td>Live status: <code>status, bucket, startCount, remains</code></td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/v1/boost/orders</code></td>
+            <td><code>status=all|pending|delivered|failed</code>, <code>limit</code> 1–200</td>
+            <td>Your boost order history, newest first</td>
+          </tr>
+          <tr>
+            <td><span class="api-method post">POST</span></td>
+            <td><code>/api/v1/boost/order/:orderId/refill</code></td>
+            <td>—</td>
+            <td>Requests a refill (completed orders on refill-enabled services only)</td>
+          </tr>
+          <tr>
+            <td><span class="api-method get">GET</span></td>
+            <td><code>/api/v1/boost/balance</code></td>
+            <td>—</td>
+            <td><code>{ balanceNgn, currency }</code></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="api-doc-example">
+        <p class="api-doc-desc">Full flow with cURL — browse, price, order, then poll.</p>
+        <div class="api-docs-block"># 1. Find a service
+curl "$BASE/api/v1/boost/services?platform=Instagram&amp;search=followers" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET"
+
+# 2. Price 500 followers (nothing is charged)
+curl -X POST "$BASE/api/v1/boost/quote" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"serviceId":"1435","quantity":500}'
+
+# 3. Place the order (wallet is debited, auto-refunded if the provider rejects it)
+curl -X POST "$BASE/api/v1/boost/order" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"serviceId":"1435","link":"https://instagram.com/yourpage","quantity":500}'
+
+# 4. Poll until bucket != "pending"
+curl "$BASE/api/v1/boost/order/ORDER_ID_HERE" \
+  -H "X-API-Key: $KEY" -H "X-API-Secret: $SECRET"</div>
+      </div>
+
+      <div class="api-doc-example">
+        <p class="api-doc-desc">Node.js — with the error handling you actually want in production.</p>
+        <div class="api-docs-block">const BASE = 'https://klslogs.com';
+const HEADERS = {
+  'Content-Type': 'application/json',
+  'X-API-Key': process.env.KLS_API_KEY,
+  'X-API-Secret': process.env.KLS_API_SECRET,
+};
+
+async function kls(path, options = {}) {
+  const res = await fetch(BASE + path, { ...options, headers: HEADERS });
+  const text = await res.text();
+  let body;
+  try { body = JSON.parse(text); }
+  catch { throw new Error(`Non-JSON reply (HTTP ${res.status}): ${text.slice(0, 200)}`); }
+  if (!res.ok || body.ok === false) {
+    const err = new Error(body.error || `HTTP ${res.status}`);
+    err.status = res.status;
+    err.retryable = res.status === 502 || res.status === 503;
+    throw err;
+  }
+  return body;
+}
+
+async function boost(link, quantity) {
+  const { services } = await kls('/api/v1/boost/services?platform=Instagram&amp;search=followers');
+  const service = services.find(s =&gt; quantity &gt;= s.min &amp;&amp; quantity &lt;= s.max);
+  if (!service) throw new Error('No service accepts that quantity');
+
+  const quote = await kls('/api/v1/boost/quote', {
+    method: 'POST',
+    body: JSON.stringify({ serviceId: service.serviceId, quantity }),
+  });
+
+  const { balanceNgn } = await kls('/api/v1/boost/balance');
+  if (balanceNgn &lt; quote.priceNgn) throw new Error('Top up your Marvel Nums wallet first');
+
+  const order = await kls('/api/v1/boost/order', {
+    method: 'POST',
+    body: JSON.stringify({ serviceId: service.serviceId, link, quantity }),
+  });
+
+  for (;;) {                                   // no webhooks upstream — poll
+    await new Promise(r =&gt; setTimeout(r, 120000));
+    const { order: o } = await kls(`/api/v1/boost/order/${order.orderId}`);
+    if (o.bucket !== 'pending') return o;
+  }
+}
+
+boost('https://instagram.com/yourpage', 500)
+  .then(o =&gt; console.log('Finished:', o.status))
+  .catch(e =&gt; console.error('Boost failed:', e.message, '| retryable:', !!e.retryable));</div>
+      </div>
+
+      <div class="api-doc-example">
+        <p class="api-doc-desc">PHP — same flow with cURL and proper exceptions.</p>
+        <div class="api-docs-block">&lt;?php
+function kls($path, $method = 'GET', $payload = null) {
+    $ch = curl_init('https://klslogs.com' . $path);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER =&gt; true,
+        CURLOPT_CUSTOMREQUEST  =&gt; $method,
+        CURLOPT_TIMEOUT        =&gt; 40,
+        CURLOPT_HTTPHEADER     =&gt; [
+            'Content-Type: application/json',
+            'X-API-Key: ' . getenv('KLS_API_KEY'),
+            'X-API-Secret: ' . getenv('KLS_API_SECRET'),
+        ],
+    ]);
+    if ($payload !== null) curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+    $raw = curl_exec($ch);
+    $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $cerr = curl_error($ch);
+    curl_close($ch);
+
+    if ($raw === false) throw new Exception("Network error: $cerr");
+    $data = json_decode($raw, true);
+    if (json_last_error() !== JSON_ERROR_NONE) throw new Exception("Non-JSON reply (HTTP $status)");
+    if ($status &gt;= 400 || (isset($data['ok']) &amp;&amp; $data['ok'] === false))
+        throw new Exception(($data['error'] ?? "HTTP $status") . " [$status]");
+    return $data;
+}
+
+try {
+    $quote = kls('/api/v1/boost/quote', 'POST', ['serviceId' =&gt; '1435', 'quantity' =&gt; 500]);
+    echo "Price: NGN {$quote['priceNgn']}\n";
+    $order = kls('/api/v1/boost/order', 'POST', [
+        'serviceId' =&gt; '1435',
+        'link'      =&gt; 'https://instagram.com/yourpage',
+        'quantity'  =&gt; 500,
+    ]);
+    echo "Order {$order['orderId']} placed\n";
+    $state = kls('/api/v1/boost/order/' . $order['orderId']);
+    echo "Status: {$state['order']['status']}\n";
+} catch (Exception $e) {
+    echo 'Boost failed: ' . $e-&gt;getMessage() . "\n";
+}</div>
+      </div>
+
+      <h3 style="margin-top:18px">Boost errors and how to fix them</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Status</th><th>Meaning</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td><code>400</code></td><td>quantity out of range / bad link</td><td>The response names the field. Quantity must sit between the service's <code>min</code> and <code>max</code>; the link must be a full <code>http(s)://</code> URL.</td></tr>
+          <tr><td><code>401</code></td><td>Missing or invalid key pair</td><td>Check both headers, or regenerate in Settings → API Access.</td></tr>
+          <tr><td><code>402</code></td><td>Insufficient wallet balance</td><td>Top up, then retry. Never blind-retry this one.</td></tr>
+          <tr><td><code>404</code></td><td>Unknown serviceId or order</td><td>Re-fetch <code>/services</code> — the panel drops services regularly.</td></tr>
+          <tr><td><code>502</code></td><td>Provider rejected or unreachable</td><td><b>Nothing was charged</b> — your wallet is refunded inside the same request. Retry after a minute.</td></tr>
+          <tr><td><code>503</code></td><td>Boosting switched off</td><td>An admin disabled it, or the provider key is missing. Retry later.</td></tr>
+        </tbody>
+      </table>
+      <div class="info-box" style="margin-top:12px">
+        <b>Idempotency:</b> <code>POST /order</code> is not idempotent. If a request times out on your side,
+        call <code>GET /api/v1/boost/orders?limit=5</code> to check whether it landed before sending it again.
+      </div>
+    </div>
+
+
+    <div class="api-doc-section" id="sec-errors">
+      <h3>Errors</h3>
+      <table class="api-endpoint-table">
+        <thead><tr><th>Status</th><th>Meaning</th><th>What to do</th></tr></thead>
+        <tbody>
+ <tr><td><code>401</code></td><td>Missing or invalid API key/secret</td><td>Double-check the <code>X-API-Key</code>/<code>X-API-Secret</code> headers are set and match exactly what's shown in Settings <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> API Access. Regenerating your key there invalidates the old one immediately.</td></tr>
+          <tr><td><code>403</code></td><td>Account restricted</td><td>Your account has been limited — contact support, this isn't something a retry fixes.</td></tr>
+          <tr><td><code>404</code></td><td>Listing not found or no longer available</td><td>Re-fetch <code>/listings</code> or <code>/numbers/options</code> — the item may have sold out or been removed since you last checked.</td></tr>
+          <tr><td><code>400</code></td><td>Insufficient balance, sold out, or invalid request</td><td>Check the response body's <code>error</code> field for the specific reason — it's always a plain-English message, not just the code.</td></tr>
+          <tr><td><code>402</code></td><td>Insufficient balance (numbers endpoints)</td><td>Deposit funds before retrying — no partial/temporary state is created, so it's safe to just retry once the balance is topped up.</td></tr>
+          <tr><td><code>409</code></td><td>No numbers currently available for that provider/country</td><td>This is temporary stock, not a config issue — wait a few seconds and retry, or check <code>/numbers/options</code> again in case that provider/country is no longer listed at all.</td></tr>
+        </tbody>
+      </table>
+ <div class="info-box" style="margin-top:12px"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> <b>Numbers specifically:</b> your money is only ever taken if a real number was actually issued — a failed <code>/buy-number</code> call never touches your balance, so it's safe to retry — <b>except</b> a 502 "could not confirm this order" response, where your payment is held for review and you should not retry. Once you do have an order, it auto-refunds on its own if no code arrives in time — you don't have to call <code>/cancel-number</code> unless you want your balance back sooner than that.</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+ <button class="btn-primary" onclick="downloadApiDocs()"><svg class="icon i-arrow-down" aria-hidden="true"><use href="#i-arrow-down"/></svg> Download These Docs</button>
+ <a href="/settings" class="btn-primary" style="background:transparent;border:1px solid var(--border);color:var(--t2);text-decoration:none;display:inline-flex;align-items:center"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Settings</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+ <span class="footer-crown"><svg class="icon i-crown" aria-hidden="true"><use href="#i-crown"/></svg></span>
+      <div>
+        <div class="footer-name">Marvel Nums</div>
+ <div class="footer-tag">Verified Social Media Account Seller <svg class="icon i-alert-triangle" aria-hidden="true"><use href="#i-alert-triangle"/></svg>‼</div>
+      </div>
+    </div>
+    <div class="footer-links">
+      <a href="https://whatsapp.com/channel/0029Vb7ivq9HLHQcS4XgQu2Q" data-link="channel" target="_blank"><svg class="wa-icon"><use href="#wa-logo"/></svg> Channel</a>
+      <a href="https://chat.whatsapp.com/HBqJeik773M1pqEmIjfpXr" data-link="group" target="_blank"><svg class="wa-icon"><use href="#wa-logo"/></svg> Group</a>
+      <a href="https://wa.me/2349065518402" data-link="contact" target="_blank"><svg class="wa-icon"><use href="#wa-logo"/></svg> Contact</a>
+ <a href="/terms"><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg> Terms &amp; Conditions</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+ <div class="footer-visits"><svg class="icon i-user" aria-hidden="true"><use href="#i-user"/></svg> <span id="footerVisitCount">—</span> visitors</div>
+    <div class="footer-copy">© <span id="footerYear"></span> Marvel Nums. All rights reserved.</div>
+  </div>
+</footer>
+
+<!-- APP-STYLE BOTTOM TAB BAR (mobile only) -->
+<nav class="bottom-tabbar" id="bottomTabbar">
+  <button class="bt-item" id="btHome" onclick="window.location.href='/dashboard'">
+ <span class="bt-icon"><svg class="icon i-home" aria-hidden="true"><use href="#i-home"/></svg></span><span class="bt-label">Home</span>
+  </button>
+  <button class="bt-item" id="btMarket" onclick="window.location.href='/marketplace'">
+ <span class="bt-icon"><svg class="icon i-cart" aria-hidden="true"><use href="#i-cart"/></svg></span><span class="bt-label">Marketplace</span>
+  </button>
+  <button class="bt-item" id="btWallet" onclick="window.location.href='/deposit'">
+ <span class="bt-icon"><svg class="icon i-wallet" aria-hidden="true"><use href="#i-wallet"/></svg></span><span class="bt-label">Wallet</span>
+  </button>
+  <button class="bt-item" id="btChat" onclick="window.location.href='/groups'">
+ <span class="bt-icon"><svg class="icon i-message-circle" aria-hidden="true"><use href="#i-message-circle"/></svg></span><span class="bt-label">Chat</span>
+  </button>
+  <button class="bt-item" id="btProfile" onclick="window.location.href='/settings'">
+ <span class="bt-icon"><svg class="icon i-user" aria-hidden="true"><use href="#i-user"/></svg></span><span class="bt-label">Profile</span>
+  </button>
+</nav>
+
+<!-- ── Injected new API sections ── -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const wrap = document.querySelector('.api-docs-wrap');
+  if (!wrap) return;
+  wrap.insertAdjacentHTML('beforeend', `
+
+    <div class="api-doc-section">
+      <div class="api-doc-section-title"><svg class="icon i-folder-open" aria-hidden="true"><use href="#i-folder-open"/></svg> Categories</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/categories</div>
+      <p class="api-doc-desc">List all marketplace categories.</p>
+      <div class="api-docs-block">curl "$BASE/api/v1/categories" -H "X-API-Key: key" -H "X-API-Secret: secret"</div>
+      <div class="api-docs-block">{ "categories": [{ "id": "...", "name": "Twitter Accounts" }, ...] }</div>
+    </div>
+
+    <div class="api-doc-section">
+      <div class="api-doc-section-title"><svg class="icon i-cart" aria-hidden="true"><use href="#i-cart"/></svg> Marketplace (Logs + Tools)</div>
+      <div class="api-doc-method" id="sec-marketplace"><span class="method-badge method-get">GET</span> /api/v1/marketplace</div>
+      <p class="api-doc-desc">Browse all available items. Supports filtering and pagination.</p>
+      <table class="api-params-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>type</td><td>string</td><td><code>log</code>, <code>tool</code>, or omit for all</td></tr>
+        <tr><td>category</td><td>string</td><td>Filter by category name (exact match)</td></tr>
+        <tr><td>search</td><td>string</td><td>Search title/description</td></tr>
+        <tr><td>page</td><td>int</td><td>Page number (default: 1)</td></tr>
+        <tr><td>limit</td><td>int</td><td>Items per page, max 50 (default: 20)</td></tr>
+      </table>
+      <div class="api-docs-block">curl "$BASE/api/v1/marketplace?type=log&category=Twitter+Accounts&page=1&limit=10" \\
+  -H "X-API-Key: key" -H "X-API-Secret: secret"</div>
+      <div class="api-docs-block">{
+  "page": 1, "limit": 10, "total": 42, "totalPages": 5,
+  "items": [{
+    "id": "...", "title": "Twitter 1k followers", "description": "...",
+    "type": "log", "category": "Twitter Accounts", "price": 500,
+    "soldCount": 3, "stockLeft": 1, "soldOut": false,
+    "picture": null, "available": true, "createdAt": "2026-..."
+  }]
+}</div>
+    </div>
+
+    <div class="api-doc-section">
+      <div class="api-doc-section-title"><svg class="icon i-wrench" aria-hidden="true"><use href="#i-wrench"/></svg> Tools</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/tools</div>
+      <p class="api-doc-desc">Tools-only endpoint — same filters as /marketplace but returns only type=tool items with stock info.</p>
+      <div class="api-docs-block">curl "$BASE/api/v1/tools?search=cracker" \\
+  -H "X-API-Key: key" -H "X-API-Secret: secret"</div>
+      <div class="api-docs-block">{
+  "page": 1, "limit": 20, "total": 3,
+  "tools": [{
+    "id": "...", "title": "Email Cracker Pro", "category": "Tools",
+    "price": 1500, "soldCount": 10, "stockTotal": 50, "stockLeft": 40,
+    "soldOut": false, "createdAt": "2026-..."
+  }]
+}</div>
+    </div>
+
+    <div class="api-doc-section">
+      <div class="api-doc-section-title"><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg> Single Item Details</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/marketplace/:id</div>
+      <p class="api-doc-desc">Get full details for any single listing by its ID.</p>
+      <div class="api-docs-block">curl "$BASE/api/v1/marketplace/64a3fc..." \\
+  -H "X-API-Key: key" -H "X-API-Secret: secret"</div>
+      <div class="api-docs-block">{
+  "id": "...", "title": "...", "type": "log", "category": "Instagram",
+  "price": 300, "stockLeft": 2, "soldOut": false,
+  "averageRating": "4.5", "reviewCount": 8, "available": true
+}</div>
+    </div>
+
+    <div class="api-doc-section">
+      <div class="api-doc-section-title"><svg class="icon i-banknote" aria-hidden="true"><use href="#i-banknote"/></svg> Transaction History</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/transactions</div>
+      <p class="api-doc-desc">Your wallet's full transaction history (deposits, purchases, refunds).</p>
+      <table class="api-params-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>page</td><td>int</td><td>Page number (default: 1)</td></tr>
+        <tr><td>limit</td><td>int</td><td>Per page, max 50 (default: 20)</td></tr>
+      </table>
+      <div class="api-docs-block">curl "$BASE/api/v1/transactions?page=1&limit=20" \\
+  -H "X-API-Key: key" -H "X-API-Secret: secret"</div>
+      <div class="api-docs-block">{
+  "page": 1, "total": 24, "transactions": [{
+    "type": "deposit", "amount": 1000, "description": "Virtual Account deposit",
+    "status": "success", "createdAt": "2026-..."
+  }, {
+    "type": "purchase", "amount": 500, "description": "Purchased: Twitter 1k",
+    "status": "success", "createdAt": "2026-..."
+  }]
+}</div>
+    </div>
+
+  `);
+
+  // Style the new table
+  const style = document.createElement('style');
+  style.textContent = `
+    .api-params-table { width:100%; border-collapse:collapse; font-size:.82rem; margin:10px 0 12px; }
+    .api-params-table th { text-align:left; padding:6px 10px; background:var(--bg3,#14141f); color:var(--t2); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; }
+    .api-params-table td { padding:7px 10px; border-top:1px solid var(--border); color:var(--t1); }
+    .api-params-table code { background:var(--bg3,#14141f); padding:2px 6px; border-radius:4px; font-size:.8rem; }
+  `;
+  document.head.appendChild(style);
+
+  // ── Inject buying + purchases documentation ──────────────────────────────────
+  // reuse the wrap element declared above
+  if (!wrap) return;
+  wrap.insertAdjacentHTML('beforeend', `
+
+    <!-- BUY SINGLE LOG / TOOL -->
+    <div class="api-doc-section">
+      <div class="api-doc-section-title">🛒 Buy a Log or Tool (Single)</div>
+      <div class="api-doc-method"><span class="method-badge method-post">POST</span> /api/v1/buy/:id</div>
+      <p class="api-doc-desc">Purchase one item from the marketplace. Works for logs, tools, and folder listings. Debits your Marvel Nums wallet instantly and returns the item content (login details, tool link, download file, etc.).</p>
+      <table class="api-params-table">
+        <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        <tr><td>:id</td><td>string (URL)</td><td>✅</td><td>The listing ID from /marketplace or /listings</td></tr>
+        <tr><td>subAccountId</td><td>string (body)</td><td>Folder only</td><td>For folder listings — pick a specific sub-account. Omit to auto-pick the cheapest available one.</td></tr>
+      </table>
+      <div class="api-docs-block">curl -X POST "$BASE/api/v1/buy/64a3fc..." \\
+  -H "X-API-Key: your_key" \\
+  -H "X-API-Secret: your_secret" \\
+  -H "Content-Type: application/json" \\
+  -d '{}'</div>
+      <div class="api-docs-block">{
+  "message": "Purchase successful",
+  "newBalance": 4500,
+  "purchaseId": "64b1...",
+  "purchasedAt": "2026-08-08T10:23:00.000Z",
+  "itemPrice": 500,
+  "totalCharged": 500,
+  "deliveryType": "link",
+  "logDetails": "email@example.com:password123",
+  "toolLink": "https://tool-link-here.com",
+  "deliverableFile": "",
+  "deliverableFileName": ""
+}</div>
+      <div class="api-docs-block" style="border-color:rgba(255,199,0,.3);color:#ffc700">
+⚠️  Delivery types:
+  "link"     → use toolLink field
+  "details"  → use logDetails field (login credentials)
+  "file"     → use deliverableFile (base64 or URL) + deliverableFileName
+</div>
+    </div>
+
+    <!-- BUY MULTIPLE FROM FOLDER -->
+    <div class="api-doc-section">
+      <div class="api-doc-section-title">📦 Buy Multiple Accounts at Once</div>
+      <div class="api-doc-method"><span class="method-badge method-post">POST</span> /api/v1/buy-multi/:id</div>
+      <p class="api-doc-desc">Batch-purchase several sub-accounts from a folder listing in one API call. Max 50 per request. All or nothing — if any account is already sold, nothing is charged and an error is returned.</p>
+      <table class="api-params-table">
+        <tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+        <tr><td>:id</td><td>string (URL)</td><td>✅</td><td>Folder listing ID (listingType must be "folder")</td></tr>
+        <tr><td>subAccountIds</td><td>array of strings (body)</td><td>✅</td><td>Array of sub-account IDs to buy. Get IDs from GET /api/v1/listings/:id</td></tr>
+      </table>
+      <p class="api-doc-desc" style="margin-top:8px">💡 <b>Tip:</b> To buy multiple without picking IDs, call POST /api/v1/buy/:id repeatedly — each call auto-picks the cheapest available sub-account.</p>
+      <div class="api-docs-block">curl -X POST "$BASE/api/v1/buy-multi/64a3fc..." \\
+  -H "X-API-Key: your_key" \\
+  -H "X-API-Secret: your_secret" \\
+  -H "Content-Type: application/json" \\
+  -d '{"subAccountIds": ["64b1...", "64b2...", "64b3..."]}'</div>
+      <div class="api-docs-block">{
+  "message": "Batch purchase successful",
+  "count": 3,
+  "totalCharged": 1500,
+  "newBalance": 3000,
+  "purchases": [
+    {
+      "purchaseId": "64b1...",
+      "label": "Account 1",
+      "logDetails": "user1@gmail.com:pass1",
+      "toolLink": "",
+      "itemPrice": 500
+    },
+    {
+      "purchaseId": "64b2...",
+      "label": "Account 2",
+      "logDetails": "user2@gmail.com:pass2",
+      "toolLink": "",
+      "itemPrice": 500
+    }
+  ]
+}</div>
+    </div>
+
+    <!-- GET PURCHASE HISTORY -->
+    <div class="api-doc-section">
+      <div class="api-doc-section-title">🧾 Get All My Purchases</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/purchases</div>
+      <p class="api-doc-desc">Returns your full purchase history — every item you've ever bought, including the delivered content (log details, tool links, files). Store these on your end; this is how you retrieve what you bought.</p>
+      <table class="api-params-table">
+        <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+        <tr><td>page</td><td>int</td><td>Page number (default: 1)</td></tr>
+        <tr><td>limit</td><td>int</td><td>Per page, max 50 (default: 20)</td></tr>
+      </table>
+      <div class="api-docs-block">curl "$BASE/api/v1/purchases?page=1&limit=20" \\
+  -H "X-API-Key: your_key" \\
+  -H "X-API-Secret: your_secret"</div>
+      <div class="api-docs-block">[
+  {
+    "_id": "64b1...",
+    "logId": "64a3...",
+    "logTitle": "Twitter 1k Followers — Account 1",
+    "logType": "log",
+    "logDetails": "username:password123",
+    "toolLink": "",
+    "deliveryType": "details",
+    "deliverableFile": "",
+    "pricePaid": 500,
+    "purchasedAt": "2026-08-05T08:23:00.000Z"
+  }
+]</div>
+    </div>
+
+    <!-- GET SINGLE PURCHASE + LOG CONTENT -->
+    <div class="api-doc-section">
+      <div class="api-doc-section-title">🔍 Get One Purchase (+ Full Log Content)</div>
+      <div class="api-doc-method"><span class="method-badge method-get">GET</span> /api/v1/purchases/:purchaseId</div>
+      <p class="api-doc-desc">Retrieve a single past purchase by its ID — useful if you need to re-fetch the credentials, tool link, or download file without scrolling through your full history.</p>
+      <div class="api-docs-block">curl "$BASE/api/v1/purchases/64b1..." \\
+  -H "X-API-Key: your_key" \\
+  -H "X-API-Secret: your_secret"</div>
+      <div class="api-docs-block">{
+  "_id": "64b1...",
+  "logId": "64a3...",
+  "logTitle": "Facebook Verified Account",
+  "logType": "log",
+  "logDetails": "fbuser@gmail.com:securepass99",
+  "toolLink": "",
+  "deliveryType": "details",
+  "deliverableFile": "",
+  "deliverableFileName": "",
+  "pricePaid": 800,
+  "purchasedAt": "2026-08-05T08:23:00.000Z"
+}</div>
+    </div>
+
+    <!-- FULL WORKFLOW EXAMPLE -->
+    <div class="api-doc-section" style="border:1.5px solid rgba(0,212,106,.25);background:rgba(0,212,106,.04)">
+      <div class="api-doc-section-title" style="color:var(--green)">✅ Complete Buy-and-Retrieve Workflow</div>
+      <p class="api-doc-desc" style="margin-bottom:12px">Here's the full flow from browsing to receiving log credentials — copy this pattern into your app:</p>
+      <div class="api-docs-block">// Step 1: Browse marketplace for logs
+const listings = await fetch('$BASE/api/v1/marketplace?type=log&limit=20',
+  { headers: { 'X-API-Key': key, 'X-API-Secret': secret } }
+).then(r => r.json());
+
+// Step 2: Check your balance first
+const me = await fetch('$BASE/api/v1/me',
+  { headers: { 'X-API-Key': key, 'X-API-Secret': secret } }
+).then(r => r.json());
+console.log('Balance:', me.balance);
+
+// Step 3: Buy a specific log
+const purchase = await fetch('$BASE/api/v1/buy/' + listings.items[0].id, {
+  method: 'POST',
+  headers: {
+    'X-API-Key': key, 'X-API-Secret': secret,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({})
+}).then(r => r.json());
+
+// Step 4: Use the delivered content immediately
+if (purchase.deliveryType === 'details') {
+  console.log('Login credentials:', purchase.logDetails);
+} else if (purchase.deliveryType === 'link') {
+  console.log('Tool/account link:', purchase.toolLink);
+} else if (purchase.deliveryType === 'file') {
+  console.log('Download:', purchase.deliverableFileName, purchase.deliverableFile);
+}
+
+// Step 5: Re-retrieve anytime using purchaseId
+const again = await fetch('$BASE/api/v1/purchases/' + purchase.purchaseId,
+  { headers: { 'X-API-Key': key, 'X-API-Secret': secret } }
+).then(r => r.json());
+console.log('Re-fetched:', again.logDetails);</div>
+    </div>
+
+  `);
+});
+</script>
+
+<script src="js/money.js?v=20260910a"></script>
+<script src="script.js?v=20260910a"></script>
+ <script src="/js/announcements.js"></script>
+<script>fillApiBaseUrl();</script>
+<script src="js/i18n.js?v=20260910a" defer></script>
+<script src="js/country-select.js?v=20260910a" defer></script>
+<script src="js/global-pay.js?v=20260910a" defer></script>
+  <script src="js/wallet.js?v=20260910a" defer></script>
+<script src="js/dev-credit.js?v=20260910a" defer></script>
+<script src="/js/mobile-features.js" defer></script>
+<script src="/js/vpn-notice.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   public/css/pro-polish.css — studio finish pass (loaded last on every page)
+   ───────────────────────────────────────────────────────────────────────────
+   The goal is a site that reads like a product a studio shipped, not a template:
+   one type scale with stable metrics, a consistent card language, real focus
+   states, restrained motion, and a proper developer credit strip.
+
+   Presentation only. No selectors here change behaviour or layout logic — they
+   settle rhythm, contrast and detail on top of style.css / theme.css /
+   layout-polish.css.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --pro-radius: 16px;
+  --pro-radius-sm: 11px;
+  --pro-shadow: 0 1px 2px rgba(2, 8, 23, .05), 0 12px 34px -12px rgba(2, 8, 23, .18);
+  --pro-shadow-lift: 0 2px 4px rgba(2, 8, 23, .06), 0 22px 46px -16px rgba(2, 8, 23, .28);
+  --pro-ease: cubic-bezier(.22, .61, .36, 1);
+}
+
+/* ── 1. TYPE: one scale, stable metrics, no reflow on data updates ───────── */
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  letter-spacing: -0.005em;
+}
+
+h1, h2, h3, h4, h5 { letter-spacing: -0.02em; line-height: 1.18; text-wrap: balance; }
+p, li { text-wrap: pretty; }
+
+/* Prices, balances, counters and timers must never resize their container. */
+.price, .amount, .balance, .stat-value, .sc-val, .money, td, th, time, code, kbd {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* ── 2. CARDS + SURFACES: one language everywhere ────────────────────────── */
+
+.card, .panel, .box, .sec, .product-card, .stat-card, .tile {
+  border-radius: var(--pro-radius);
+  box-shadow: var(--pro-shadow);
+  transition: transform .22s var(--pro-ease), box-shadow .22s var(--pro-ease), border-color .22s var(--pro-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-card:hover, .tile:hover, .card.is-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--pro-shadow-lift);
+  }
+}
+
+/* ── 3. CONTROLS: real states, comfortable hit areas ─────────────────────── */
+
+button, .btn, a.btn, input, select, textarea { border-radius: var(--pro-radius-sm); }
+button, .btn, a.btn { transition: transform .16s var(--pro-ease), filter .16s var(--pro-ease), background-color .16s var(--pro-ease); }
+button:active, .btn:active { transform: translateY(1px); }
+button:disabled, .btn:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: var(--pro-radius-sm);
+}
+
+/* Nothing on a touch screen should be smaller than a fingertip. */
+@media (max-width: 640px) {
+  button, .btn, a.btn, .bt-item { min-height: 44px; }
+}
+
+/* ── 4. MOTION: present, but never in the way ────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── 5. IMAGES + TABLES ──────────────────────────────────────────────────── */
+
+img, video { max-width: 100%; height: auto; }
+table { border-collapse: separate; border-spacing: 0; }
+.table-wrap, .table-scroll { overflow: auto; -webkit-overflow-scrolling: touch; border-radius: var(--pro-radius-sm); }
+
+/* ── 6. DEVELOPER CREDIT STRIP (js/dev-credit.js) ────────────────────────── */
+
+.kls-devbar {
+  margin-top: 8px;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  background: color-mix(in srgb, currentColor 4%, transparent);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.kls-devbar-inner {
+  max-width: var(--kls-page-w, 1180px);
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 20px;
+  opacity: .88;
+}
+
+.kls-devbar-main { display: flex; align-items: center; gap: 9px; min-width: 0; }
+
+.kls-devbar-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 22%, transparent);
+  flex: 0 0 auto;
+}
+
+.kls-devbar-link, .kls-devbar-cta {
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+}
+.kls-devbar-link:hover, .kls-devbar-cta:hover { border-bottom-color: currentColor; }
+
+/* Keep the strip clear of the mobile tab bar when one is present. */
+body:has(.bottom-tabbar) .kls-devbar { padding-bottom: calc(78px + env(safe-area-inset-bottom, 0px)); }
+
+@media (max-width: 640px) {
+  .kls-devbar-inner { flex-direction: column; align-items: flex-start; }
+}

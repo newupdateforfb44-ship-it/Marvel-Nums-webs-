@@ -1,0 +1,179 @@
+/* ════════════════════════════════════════════════════════════════════════════
+ * redesign.css — 2026 refresh
+ *
+ * Three jobs:
+ *   1. Slightly smaller, calmer text everywhere (the site read "zoomed in").
+ *   2. A standard, familiar storefront layout for Marketplace + Tools.
+ *   3. A clearer home page that explains what King Social Hub actually is.
+ *
+ * It loads last, so it only refines what style.css / theme.css already define.
+ * ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Global text scale ──────────────────────────────────────────────────
+ * Everything on the site is sized off the root font size, so nudging it down
+ * shrinks the whole UI proportionally instead of breaking single components. */
+html { font-size: 10.1px; }
+body { font-size: .86rem; line-height: 1.55; letter-spacing: .002em; }
+@media (min-width: 1100px) { html { font-size: 10.4px; } }
+@media (max-width: 420px)  { html { font-size: 9.7px; } }
+
+.hero-h1 { font-size: clamp(27px, 5.2vw, 50px) !important; line-height: 1.08; letter-spacing: -.02em; }
+.hero-p { font-size: clamp(13.5px, 2vw, 16px) !important; line-height: 1.6; }
+.sec-h2 { font-size: clamp(19px, 3vw, 27px); letter-spacing: -.015em; }
+.page-hero h1 { font-size: clamp(21px, 3.4vw, 30px); }
+.page-hero p { font-size: 13px; }
+.prod-title { font-size: 14px; }
+.prod-desc { font-size: 12.2px; }
+.nav-link { font-size: 13px; }
+input, textarea, select, .input-field { font-size: 13.5px; }
+
+.bst-sr-only,
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── 2. Storefront: toolbar, chips, product grid ───────────────────────── */
+.mkt-toolbar {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  padding: 12px; margin-bottom: 14px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r16); box-shadow: var(--sh2);
+}
+.mkt-search-wrap { flex: 1 1 260px; }
+.mkt-search-wrap input { height: 42px; border-radius: 999px; padding-left: 38px; }
+.mkt-toolbar select, .mkt-toolbar .cat-dropdown-btn { height: 42px; border-radius: 999px; }
+
+.mkt-chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: none; }
+.mkt-chips::-webkit-scrollbar { display: none; }
+.mkt-chip {
+  flex: 0 0 auto; padding: 8px 15px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--card2); color: var(--t2);
+  font-size: 12.5px; font-weight: 650; white-space: nowrap; transition: .16s;
+  min-height: 38px;
+}
+.mkt-chip:hover { color: var(--t1); border-color: var(--gold); }
+.mkt-chip.active { background: var(--gold); border-color: var(--gold); color: #fff; }
+.mkt-chip:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Product grid: cards stay big enough to actually read on every screen. Below 620px we
+   drop to a single wide card per row instead of squeezing two — the old 2-up layout made
+   titles, prices and the Buy button almost unreadable on a phone. */
+.cards-grid {
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+@media (max-width: 620px) {
+  .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+  .cards-grid .prod-card .prod-img, .cards-grid .prod-card .prod-img-ph { aspect-ratio: 16 / 9; }
+  .cards-grid .prod-title { font-size: 16px; }
+  .cards-grid .prod-desc { font-size: 13.5px; -webkit-line-clamp: 3; }
+  .cards-grid .prod-price { font-size: 19px; }
+  .cards-grid .prod-select-btn { min-height: 46px; font-size: 15px; }
+}
+
+.prod-card {
+  display: flex; flex-direction: column; height: 100%;
+  border-radius: var(--r16); border: 1px solid var(--border);
+  background: var(--card); overflow: hidden;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.prod-card:hover { transform: translateY(-3px); border-color: var(--gold); box-shadow: var(--sh); }
+.prod-card .prod-img, .prod-card .prod-img-ph { aspect-ratio: 4 / 3; width: 100%; }
+.prod-card .prod-img img { width: 100%; height: 100%; object-fit: cover; }
+.prod-body { display: flex; flex-direction: column; gap: 5px; padding: 12px; flex: 1; }
+.prod-cat { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; font-weight: 800; opacity: .8; }
+.prod-title { font-weight: 750; line-height: 1.3; }
+.prod-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; opacity: .75; }
+.prod-footer { margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--border2); }
+.prod-price { font-size: 16px; font-weight: 850; }
+.prod-select-btn { min-height: 42px; border-radius: 11px; font-weight: 750; }
+.prod-select-btn:focus-visible, .prod-card a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.prod-badge { font-size: 10.5px; font-weight: 800; }
+
+/* Page heroes on Marketplace / Tools: compact and standard */
+.page-hero {
+  border-radius: 0 0 var(--r24) var(--r24);
+  padding: 26px 18px 22px; text-align: center;
+}
+.ph-chip { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; font-weight: 800; }
+
+/* ── 3. Home page ──────────────────────────────────────────────────────── */
+.kls-what { padding: 40px 0 8px; }
+.kls-what-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.kls-what-card {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 16px; border-radius: var(--r16);
+  border: 1px solid var(--border); background: var(--card);
+  color: inherit; text-decoration: none; transition: .18s;
+}
+.kls-what-card:hover { transform: translateY(-3px); border-color: var(--gold); text-decoration: none; box-shadow: var(--sh2); }
+.kls-what-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.kls-what-ico {
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--gold) 16%, transparent); color: var(--gold);
+}
+.kls-what-ico .icon { width: 19px; height: 19px; }
+.kls-what-card h3 { font-size: 14.5px; font-weight: 780; }
+.kls-what-card p { font-size: 12.5px; color: var(--t2); line-height: 1.55; }
+.kls-what-card .kls-go { margin-top: 4px; font-size: 12px; font-weight: 750; color: var(--gold); }
+
+.kls-steps { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.kls-step {
+  position: relative; padding: 16px 16px 16px 46px;
+  border-radius: var(--r16); border: 1px solid var(--border); background: var(--card);
+}
+.kls-step span.n {
+  position: absolute; left: 14px; top: 15px; width: 22px; height: 22px; border-radius: 8px;
+  display: grid; place-items: center; background: var(--gold); color: #fff;
+  font-size: 11.5px; font-weight: 850;
+}
+.kls-step h3 { font-size: 14px; font-weight: 760; margin-bottom: 3px; }
+.kls-step p { font-size: 12.4px; color: var(--t2); line-height: 1.55; }
+
+.why-card, .faq-item { border-radius: var(--r16); }
+.why-card h3 { font-size: 14.5px; }
+.why-card p { font-size: 12.5px; }
+
+/* Comfortable tap targets across the refreshed surfaces */
+.mkt-chip, .prod-select-btn, .kls-what-card, .sec-more { touch-action: manipulation; }
+
+
+/* ── Chat & DM avatars ──────────────────────────────────────────
+   Shown next to a sender's name. A real photo appears ONLY when that user uploaded one;
+   everyone else gets their initial, never a stock placeholder image. */
+.chat-msg-author { display: inline-flex; align-items: center; gap: 6px; }
+.chat-msg-avatar {
+  width: 22px; height: 22px; border-radius: 50%; object-fit: cover; flex: 0 0 auto;
+  border: 1px solid var(--border);
+}
+.chat-msg-avatar-ph {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, var(--gold), #b8860b);
+  color: #fff; font-size: 11px; font-weight: 700; line-height: 1; border: 0;
+}
+.cgi-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+
+/* ── Homepage "browse by category" tiles ───────────────────────── */
+.cat-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+.cat-tile {
+  display: flex; align-items: center; gap: 10px; padding: 16px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--card);
+  color: var(--t1); text-decoration: none; font-weight: 600;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.cat-tile:hover { transform: translateY(-2px); border-color: var(--gold); }
+.cat-tile .cat-tile-count { margin-left: auto; font-size: 12px; color: var(--t2); font-weight: 500; }
+@media (max-width: 620px) { .cat-tiles { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+/* Groups / Direct Messages are separate full pages now — this is the pill link between them. */
+.chat-page-switch a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--card); color: var(--t1); font-size: 14px; font-weight: 600;
+  text-decoration: none; transition: border-color .15s ease, color .15s ease;
+}
+.chat-page-switch a:hover { border-color: var(--gold); color: var(--gold); }

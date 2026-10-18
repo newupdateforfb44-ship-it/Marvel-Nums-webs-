@@ -1,0 +1,186 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   public/css/admin-pro.css — admin panel finish pass
+   ───────────────────────────────────────────────────────────────────────────
+   Loaded LAST inside admin.html. Three jobs, no behaviour changes:
+
+   1. STABLE TEXT — one type scale, tabular figures for every number, fixed
+      line-heights and min-heights so a value refreshing from "—" to "₦1,204,000"
+      never nudges the layout. Long emails/IDs truncate with an ellipsis instead
+      of stretching a card.
+
+   2. NO ENDLESS SCROLLING — the shell fills the viewport: the sidebar scrolls
+      on its own, the content pane scrolls on its own, and every long table gets
+      its own capped scroll area with a sticky header row. You always keep the
+      section title, the tab you are on and the table headings in view.
+
+   3. FINISH — calmer cards, clearer section headers, consistent spacing.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --adm-topbar-h: 58px;
+  --adm-pane-gap: 18px;
+}
+
+/* ── 1. TYPE: one scale, stable metrics ──────────────────────────────────── */
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, Segoe UI, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+}
+
+h1, h2, h3, h4, .sec-title, .tb-name {
+  font-family: 'Sora', 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* Numbers must never resize the box they live in. */
+.sc-val, .tbl td, .tbl th, .stat-card, .money, code {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.stat-card { min-height: 104px; display: flex; flex-direction: column; justify-content: center; }
+.sc-val { font-size: 21px; line-height: 1.2; min-height: 26px; }
+.sc-lbl { font-size: 11.5px; line-height: 1.35; min-height: 16px; }
+
+/* Unbreakable strings (emails, ids, hashes) truncate instead of stretching. */
+.tbl td, .tbl th { white-space: nowrap; }
+.tbl td.wrap, .tbl td[data-wrap] { white-space: normal; }
+.tbl td code, .tbl td .email, .ellipsis {
+  display: inline-block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+/* ── 2. SHELL: fixed viewport, independent scroll panes ──────────────────── */
+
+@media (min-width: 901px) {
+  html, body { height: 100%; }
+  body { overflow: hidden; }
+
+  .layout {
+    display: flex;
+    height: calc(100vh - var(--adm-topbar-h));
+    min-height: 0;
+    align-items: stretch;
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .main {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    padding: 20px 24px 40px;
+    max-width: 1180px;
+    scrollbar-width: thin;
+  }
+}
+
+.main::-webkit-scrollbar, .sidebar::-webkit-scrollbar { width: 9px; }
+.main::-webkit-scrollbar-thumb, .sidebar::-webkit-scrollbar-thumb {
+  background: var(--border2); border-radius: 9px;
+}
+
+/* The section title stays pinned while you read a long section. */
+.sec-title {
+  position: sticky;
+  top: -2px;
+  z-index: 5;
+  background: linear-gradient(to bottom, var(--card) 78%, transparent);
+  padding: 10px 0 10px;
+  margin-bottom: 4px;
+  font-size: 14.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sec {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r16, 16px);
+  padding: 16px 18px 18px;
+  margin-bottom: var(--adm-pane-gap);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .02), 0 12px 32px rgba(0, 0, 0, .18);
+}
+
+/* ── Tables: capped height, sticky headings, own scrollbar ───────────────── */
+
+.table-wrap {
+  max-height: 58vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg2);
+}
+
+.table-wrap .tbl { width: 100%; border-collapse: separate; border-spacing: 0; }
+
+.table-wrap .tbl thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg3, #13131e);
+  border-bottom: 1px solid var(--border2);
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--t2);
+  padding: 10px 12px;
+}
+
+.table-wrap .tbl tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.table-wrap .tbl tbody tr:hover td { background: rgba(255, 255, 255, .022); }
+.table-wrap .tbl tbody tr:last-child td { border-bottom: 0; }
+
+/* Long free-text blocks (logs, audit trails) scroll in place too. */
+.log-box, .scroll-box, #selfCheckResults { max-height: 52vh; overflow: auto; overscroll-behavior: contain; }
+
+/* ── 3. NAV + CONTROLS ───────────────────────────────────────────────────── */
+
+.sidebar { padding: 14px 12px 28px; }
+.nav-search { position: sticky; top: 0; z-index: 3; background: var(--bg2); padding-bottom: 10px; }
+
+.nav-item, .sidebar a, .sidebar button {
+  border-radius: 10px;
+  transition: background .16s, color .16s;
+}
+
+.btn-gold, button { font-family: inherit; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Small screens keep normal page scrolling — panes stay readable. */
+@media (max-width: 900px) {
+  .main { padding: 16px 14px 40px; }
+  .table-wrap { max-height: 62vh; }
+  .sec-title { position: static; }
+}
+
+/* Operations overview cards (admin → Operations tab) */
+.ops-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:12px}
+.ops-card{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--card2,var(--card));display:flex;flex-direction:column;gap:5px}
+.ops-card .ops-lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--t2)}
+.ops-card .ops-val{font-size:23px;font-weight:800;line-height:1.15}
+.ops-card small{font-size:11.5px;color:var(--t2)}
+.ops-card.warn{border-color:#f59e0b;background:rgba(245,158,11,.09)}

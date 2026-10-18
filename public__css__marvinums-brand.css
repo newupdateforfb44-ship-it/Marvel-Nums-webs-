@@ -1,0 +1,123 @@
+
+/* MARVINUMS global visual layer — presentation only; preserves page structure and functionality. */
+:root{
+ --mz-cyan:#16c8ff; --mz-blue:#1769ff; --mz-pink:#ff1768; --mz-ink:#050817;
+ --mz-glass:rgba(5,12,32,.78); --mz-edge:rgba(38,177,255,.28);
+}
+html { background:#040817; }
+html[data-theme="light"] { background:#eef2fb; }
+
+/* Backgrounds: your three artworks, mixed per page group (see js/marvinums-brand.js).
+   Body is transparent so the artwork shows; an overlay keeps text readable in BOTH themes. */
+body{
+ background:transparent !important; background-color:transparent !important; background-image:none !important;
+ color:var(--t1,#edf7ff);
+ --mz-ov:linear-gradient(180deg,rgba(2,6,24,.30),rgba(2,6,24,.62));
+ --mz-img:url('/img/marvinums-bg-social.webp');
+}
+html[data-theme] body{--mz-ov:linear-gradient(180deg,rgba(2,6,24,.28),rgba(2,6,24,.58))}
+body::before{
+ content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+ background-image:var(--mz-ov),var(--mz-img);
+ background-size:cover; background-position:center; background-repeat:no-repeat;
+}
+body.mz-bg-social{--mz-img:url('/img/marvinums-bg-social.webp')}
+body.mz-bg-hero{--mz-img:url('/img/marvinums-bg-social.webp')}
+body.mz-bg-speed{--mz-img:url('/img/marvinums-bg-speed.webp')}
+body.mz-bg-phone{--mz-img:url('/img/marvinums-bg-phone.webp')}
+
+/* Header: dark glass in dark theme, light glass in light theme (fixes invisible Login text) */
+.navbar,.topbar,.app-header,.sidebar,.bottom-tabbar{ backdrop-filter:blur(18px) saturate(1.25); }
+html[data-theme="dark"] .navbar,html[data-theme="dark"] .app-header,html[data-theme="dark"] .topbar{background:rgba(3,8,27,.88)!important;border-color:rgba(35,170,255,.2)!important}
+html[data-theme="light"] .navbar,html[data-theme="light"] .app-header,html[data-theme="light"] .topbar{background:rgba(255,255,255,.92)!important;border-color:rgba(23,105,255,.18)!important}
+.brand-icon,.dbfl-crown-svg{
+ background: url('/img/marvinums-logo.webp') center/cover no-repeat !important;
+ border:1px solid rgba(28,194,255,.45)!important;
+ box-shadow:0 0 22px rgba(0,157,255,.28)!important;
+}
+.brand-icon>svg,.dbfl-crown-svg>svg{display:none!important}
+.brand-ksl,.brand-name,.site-brand{
+ color:#f2f9ff!important;
+ background:linear-gradient(95deg,#fff 0%,#25c9ff 52%,#ff3e87 100%);
+ -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+.btn-primary,.btn-gold,.btn-nav-reg,.hero-cta,.buy-btn,.prod-select-btn,
+button.primary{
+ background:linear-gradient(115deg,#087cff,#15d2ff 58%,#ec2677)!important;
+ color:#fff!important;border:1px solid rgba(87,205,255,.45)!important;
+ box-shadow:0 8px 28px rgba(0,132,255,.22)!important;
+}
+.card,.kls-card,.stat-card,.panel,.box,.glass,.section-card,.tool-card,.log-card,
+.prod-card,.modal-content,.settings-card,.wallet-card{
+ border-color:rgba(44,174,255,.2)!important;
+ box-shadow:0 14px 36px rgba(0,0,0,.16);
+}
+input,select,textarea{max-width:100%}
+img{max-width:100%}
+html[data-theme="light"] .brand-ksl,html[data-theme="light"] .brand-name,html[data-theme="light"] .site-brand{
+ background:linear-gradient(95deg,#0a2a73 0%,#1769ff 55%,#e0155f 100%);
+ -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+@media(max-width:700px){
+ /* phones are portrait: pick the part of each artwork that shows its best bit */
+ body.mz-bg-social::before,body.mz-bg-hero::before{background-position:6% center}
+ body.mz-bg-phone::before{background-position:78% center}
+ body.mz-bg-speed::before{background-position:50% center}
+ .brand-icon{flex-shrink:0}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* Marvel Nums is dark-only: hide the light/dark toggles */
+#themeBtn,#mThemeToggle,#dshThemeBtn,.theme-toggle-wrap{display:none!important}
+
+/* Phones: keep logo + name + Login + Get Started on one row (no cut-off) */
+@media(max-width:480px){
+ .nav-inner{gap:6px!important;padding:0 10px!important}
+ .brand-ksl{font-size:15px!important;letter-spacing:0!important;gap:3px!important}
+ .brand-verified{width:12px!important;height:12px!important}
+ .nav-guest{display:flex;gap:5px}
+ .btn-nav-login,.btn-nav-reg{padding:7px 10px!important;font-size:12px!important;white-space:nowrap;min-height:0!important}
+ .kls-lang-btn{padding:6px 7px!important}
+}
+/* Readability of body text over busy artwork */
+.hero-p,.welcome-hero p{text-shadow:0 1px 8px rgba(2,6,24,.85);color:#c4cfe6!important}
+
+/* Page wrappers that painted a solid colour over the artwork */
+.dsh-shell{background:transparent!important}
+
+/* ── Brand accent: blue + red/pink instead of the old green ─────────────── */
+html:root[data-theme]{
+ --gold:#0788e8; --gold2:#0a6fd0; --gold3:#5cd3ff;
+ --blue:#0788e8; --blue2:#0a6fd0; --green:#0788e8;
+ --accent:#0788e8; --primary:#0788e8;
+}
+/* Dashboard balance card (was solid green) */
+.dsh-balance-card{
+ background:linear-gradient(135deg,#0766d6 0%,#0a8fe8 48%,#e5246a 100%)!important;
+ box-shadow:0 10px 30px rgba(7,136,232,.38),0 4px 18px rgba(229,36,106,.22)!important;
+}
+.dsh-balance-card .dsh-add-btn,.dsh-balance-card button{color:#0766d6}
+
+/* Dashboard: remaining green brand bits -> blue/pink (success ticks/amounts stay green on purpose) */
+.dsh-avatar{background:linear-gradient(135deg,#0788e8,#e5246a)!important}
+.svc-blue{background:#e8f4ff!important;color:#0788e8!important}
+.svc-emerald{background:#e8f4ff!important;color:#0a6fd0!important}
+.dsh-promo{background:linear-gradient(135deg,#0766d6 0%,#0a8fe8 50%,#e5246a 100%)!important}
+.dsh-icon-btn:hover{background:rgba(7,136,232,.16)!important}
+
+/* Shared header + chips on inner pages */
+.nav-avatar{background:linear-gradient(135deg,#0788e8,#e5246a)!important;color:#fff!important}
+.nav-balance-btn{background:rgba(7,136,232,.12)!important;border-color:rgba(7,136,232,.32)!important;color:#5cd3ff!important}
+.ph-chip{background:rgba(7,136,232,.14)!important;color:#5cd3ff!important}
+
+/* Success / money-in states stay green on purpose */
+.dsh-activity-amt.credit,.dsh-activity-status.ok{color:#22c55e!important}
+.dsh-stat-dot,.pdot{background:#22c55e!important}
+.online-pill{color:#22c55e!important}
+
+/* Brighter artworks get a slightly darker overlay + text shadow so headings stay readable */
+html[data-theme] body.mz-bg-speed{--mz-ov:linear-gradient(180deg,rgba(2,6,24,.46),rgba(2,6,24,.76))}
+html[data-theme] body.mz-bg-phone{--mz-ov:linear-gradient(180deg,rgba(2,6,24,.36),rgba(2,6,24,.66))}
+.page-hero h1,.page-hero p,.ph-sub,.hub-back,.boost-hub .lead,.boost-hub h1{text-shadow:0 1px 10px rgba(2,6,24,.9)}

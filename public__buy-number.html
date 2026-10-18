@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Buy Numbers — Marvel Nums</title>
+<meta name="description" content="Rent a virtual number for SMS/OTP verification on Marvel Nums."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<meta name="theme-color" content="#0788e8"/>
+<!-- shared site stylesheet: loaded before this page's own <style> so page rules still win -->
+<link rel="stylesheet" href="style.css?v=20260910a"/>
+<link rel="stylesheet" href="/css/marketplace-standard.css?v=1"/>
+<link rel="stylesheet" href="/css/numbers-redesign.css?v=2"/>
+  <link rel="stylesheet" href="/css/app-structure.css?v=3"/>
+<script>
+function PRICE(n) { return window.KLSMoney ? window.KLSMoney.price(n) : '₦' + Number(n || 0).toLocaleString('en-NG'); }
+function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+  (function(){
+    try {
+      var pref = 'dark'; /* dark-only brand */
+      var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+      document.documentElement.setAttribute('data-theme', effective);
+    } catch(e) {}
+  })();
+</script>
+<style>
+  .icon{width:1em;height:1em;flex-shrink:0;vertical-align:-0.15em;display:inline-block;color:currentColor}
+  /* ── THEME (dark default, light override via data-theme attr set in the inline script above) ── */
+  :root, [data-theme="dark"] {
+    --bg:#08080f; --card:#131320; --card2:#1a1a2b; --card3:#1c1c2a;
+    --border:#252535; --border2:#2e2e42; --border-hover:#3e3e5a;
+    --t1:#eeeef5; --t2:#8888a8; --t2b:#aaaacc;
+    --navbar-bg:rgba(10,10,20,.92);
+    --gold:#0788e8; --green:#00d46a; --red:#ff4757; --blue:#4ade80;
+  }
+  [data-theme="light"] {
+    --bg:#f4f6fb; --card:#ffffff; --card2:#f7f9fc; --card3:#eef1f8;
+    --border:#dde3ee; --border2:#ccd5e6; --border-hover:#b3bfd6;
+    --t1:#1a2035; --t2:#636c85; --t2b:#454e66;
+    --navbar-bg:rgba(255,255,255,.92);
+    --gold:#0a6fd0; --green:#00a854; --red:#e5373d; --blue:#0788e8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--t1);font-family:'Plus Jakarta Sans',sans-serif;padding-bottom:40px;transition:background .25s,color .25s;font-size:12px}
+  a{color:var(--blue)}
+  .navbar{position:sticky;top:0;z-index:50;background:var(--navbar-bg);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;transition:background .25s,border-color .25s}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1);font-weight:800}
+  .brand-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4ade80,#0788e8);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .back-btn{padding:8px 14px;border-radius:8px;background:#4ade80;color:#fff;text-decoration:none;font-weight:700;font-size:13px}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px}
+  .hero{text-align:center;padding:20px 8px 24px}
+  .chip{display:inline-block;background:rgba(74,222,128,.12);color:#4ade80;padding:5px 14px;border-radius:20px;font-size:12.5px;font-weight:700;margin-bottom:10px}
+  h1{font-size:23px;margin:0 0 8px}
+  .hero p{color:var(--t2);font-size:14px;margin:0;line-height:1.5}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;transition:background .25s,border-color .25s}
+  .card h3{margin:0 0 14px;font-size:15px;color:var(--t1)}
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--t2);margin-bottom:6px}
+  select,input{width:100%;padding:11px;border:1px solid var(--border2);border-radius:9px;background:var(--card3);color:var(--t1);font-size:14px;font-family:inherit;margin-bottom:12px;transition:background .25s,color .25s,border-color .25s;outline:none}
+  select:focus,input:focus{border-color:var(--gold)}
+  select:disabled{opacity:.5}
+  .price-box{display:none;background:rgba(74,222,128,.1);border:1px solid #4ade80;border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .price-box b{color:#4ade80;font-size:18px}
+  .btn{width:100%;padding:13px;border:none;border-radius:10px;background:#4ade80;color:#fff;font-weight:700;font-size:14.5px;cursor:pointer;font-family:inherit}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--t1)}
+  .btn-danger{background:transparent;border:1px solid #ff4757;color:#ff4757}
+  .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+  .btn-row .btn{flex:1;min-width:120px}
+  .fb{font-size:13px;margin-top:8px;min-height:0}
+  .fb.err{color:#ff4757}
+  .fb.ok{color:#00d46a}
+  .empty{text-align:center;padding:34px 12px;color:var(--t2)}
+  .empty .icon{font-size:38px;margin-bottom:8px}
+  .phone-display{text-align:center}
+  .phone-num{font-size:24px;font-weight:800;letter-spacing:.5px;margin:10px 0}
+  .countdown{font-size:34px;font-weight:800;color:#4ade80;margin:8px 0;font-variant-numeric:tabular-nums}
+  .lock-note{background:rgba(255,199,0,.1);border:1px solid #ffc700;color:#ffc700;border-radius:10px;padding:10px 12px;font-size:12.5px;margin:12px 0;text-align:left}
+  .code-box{display:none;background:rgba(0,212,106,.1);border:1.5px solid #00d46a;border-radius:10px;padding:16px;margin:14px 0;text-align:center}
+  .code-box .code{font-size:26px;font-weight:800;letter-spacing:3px;color:#00d46a}
+  .status-note{font-size:13.5px;margin-top:10px;color:var(--t2)}
+  .status-note.ok{color:#00d46a}
+  .rules{list-style:none;padding:0;margin:0;font-size:13px;color:var(--t2b);line-height:1.8}
+  .rules li{padding-left:22px;position:relative;margin-bottom:6px}
+ .rules li:before{content:"<svg class="icon i-check" aria-hidden="true"><use href="#i-check"/></svg>";position:absolute;left:0;color:#00d46a;font-weight:800}
+  .order-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .order-row:last-child{border-bottom:none}
+  .order-row .meta{color:var(--t2);font-size:11.5px;margin-top:2px}
+  .order-row{cursor:pointer}
+  .bal-card{background:linear-gradient(135deg,rgba(74,222,128,.16),rgba(47,125,224,.05));border:1px solid rgba(74,222,128,.35);border-radius:14px;padding:16px 18px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .bal-card .lbl{font-size:12px;color:var(--t2);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .bal-card .amt{font-size:24px;font-weight:800;color:var(--t1);margin-top:2px}
+  .bal-refresh{background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);color:#4ade80;font-size:12.5px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer;font-family:inherit}
+  .wa-note{background:rgba(0,212,106,.08);border:1px solid rgba(0,212,106,.35);border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12.5px;line-height:1.6;text-align:left}
+  .wa-note b{color:#00d46a}
+
+  /* Icon-tile selects — a real <select> sits invisible on top of a styled tile so it stays a
+     normal, fully-accessible native dropdown while looking like a custom component. */
+  .select-tile{position:relative;display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:12px;cursor:pointer;transition:background .25s,border-color .25s}
+  .select-tile:hover{border-color:var(--border-hover)}
+  .st-icon{width:38px;height:38px;flex-shrink:0;background:rgba(74,222,128,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .st-body{flex:1;min-width:0}
+  .st-label{font-size:10.5px;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:2px}
+  .st-value{font-size:14.5px;font-weight:700;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .st-chev{color:var(--t2);font-size:16px;flex-shrink:0}
+  .select-tile select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px}
+
+  .an-count-chip{background:rgba(74,222,128,.15);color:#4ade80;font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px}
+  .an-table-wrap{overflow-x:auto}
+  .an-table{width:100%;border-collapse:collapse;font-size:12.5px;white-space:nowrap}
+  .an-table th{text-align:left;color:var(--t2);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;padding:0 10px 8px;font-weight:700}
+  .an-table td{padding:10px;border-top:1px solid var(--border)}
+  .an-table tr:hover td{background:rgba(74,222,128,.04)}
+  .an-code{font-weight:800;color:#00d46a;font-family:monospace;font-size:13px}
+  .an-waiting{color:var(--t2);font-style:italic}
+  .an-time{color:#4ade80;font-weight:700;font-variant-numeric:tabular-nums}
+
+  .ann-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999;padding:20px}
+  .ann-overlay.show{display:flex}
+  .ann-box{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:32px 26px;max-width:360px;width:100%;text-align:center;animation:annPop .25s ease;transition:background .25s,border-color .25s}
+  @keyframes annPop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+  .ann-icon{width:76px;height:76px;margin:0 auto 18px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px}
+  .ann-box h2{margin:0 0 14px;font-size:22px}
+  .ann-box p{color:var(--t2b);font-size:14px;line-height:1.7;margin:0 0 22px}
+  .ann-box p b{color:var(--t1)}
+  .ann-btn{width:100%;background:linear-gradient(135deg,#4ade80,#0788e8);color:#fff;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer}
+
+  /* ══ STANDARD BLUE + BLACK SKIN ═══════════════════════════════════════════
+     One accent (blue) on true black surfaces, so the numbers page reads as a
+     single, deliberate product screen instead of five different accent colours
+     (gold, amber, green, blue) competing on the same page. Declared last so it
+     wins over the rules above without touching them. */
+  :root, [data-theme="dark"] {
+    --nb-blue:#0788e8; --nb-blue-2:#0a6fd0; --nb-blue-soft:rgba(7,136,232,.14);
+    --bg:#05060b; --card:#0c0f18; --card2:#111522; --card3:#151a29;
+    --border:#1c2233; --border2:#26304a; --border-hover:#38466b;
+    --t1:#eef2fb; --t2:#8792ad; --t2b:#aab4cc;
+    --navbar-bg:rgba(5,6,11,.92);
+    --gold:var(--nb-blue); --blue:var(--nb-blue);
+  }
+  [data-theme="light"] {
+    --nb-blue:#0a6fd0; --nb-blue-2:#166534; --nb-blue-soft:rgba(10,111,208,.10);
+    --bg:#f5f7fc; --card:#ffffff; --card2:#f7f9fd; --card3:#eef2fa;
+    --border:#dde4f0; --border2:#c8d3e6; --border-hover:#a9b8d4;
+    --t1:#0a0d14; --t2:#5b6580; --t2b:#3d465c;
+    --navbar-bg:rgba(255,255,255,.94);
+    --gold:var(--nb-blue); --blue:var(--nb-blue);
+  }
+  a { color: var(--nb-blue); }
+  .brand-icon { background: linear-gradient(135deg, var(--nb-blue), var(--nb-blue-2)); }
+  .back-btn,
+  .btn,
+  .ann-btn { background: var(--nb-blue); color: #fff; }
+  .ann-btn { background: linear-gradient(135deg, var(--nb-blue), var(--nb-blue-2)); }
+  .btn-outline { background: transparent; color: var(--t1); border: 1px solid var(--border2); }
+  .chip,
+  .an-count-chip { background: var(--nb-blue-soft); color: var(--nb-blue); }
+  .price-box { background: var(--nb-blue-soft); border-color: var(--nb-blue); }
+  .price-box b,
+  .countdown,
+  .an-time,
+  .bal-refresh { color: var(--nb-blue); }
+  .bal-card { background: linear-gradient(135deg, var(--nb-blue-soft), transparent);
+              border-color: color-mix(in srgb, var(--nb-blue) 35%, transparent); }
+  .bal-refresh { background: var(--nb-blue-soft); border-color: color-mix(in srgb, var(--nb-blue) 40%, transparent); }
+  .st-icon,
+  .ann-icon { background: var(--nb-blue-soft); border-color: color-mix(in srgb, var(--nb-blue) 30%, transparent); }
+  /* Amber notice re-tuned to the blue scale — it is information, not a warning. */
+  .lock-note { background: var(--nb-blue-soft); border-color: color-mix(in srgb, var(--nb-blue) 40%, transparent); color: var(--t2b); }
+  .lock-note b { color: var(--nb-blue); }
+  .an-table tr:hover td { background: var(--nb-blue-soft); }
+
+  /* ══ DEEP BLUE + WHITE TYPE POLISH ════════════════════════════════════════
+     The page is one deep-blue accent on near-black (dark) / near-white (light)
+     surfaces. These rules only make the text that matters *stick*: headings,
+     prices, the OTP code, wallet balance and the numbers in the tables get more
+     weight, tighter tracking and real contrast, while supporting copy stays
+     quieter. Sizes are clamped so nothing shrinks below a readable size on a
+     phone or blows up on desktop. */
+  h1, h2, h3 { color: var(--t1); letter-spacing: -.015em; text-wrap: balance; }
+  .hero h1 { font-size: clamp(24px, 6.4vw, 34px); font-weight: 900; line-height: 1.14; }
+  .hero p { font-size: clamp(13.5px, 3.5vw, 15.5px); line-height: 1.65; color: var(--t2b); max-width: 46ch; }
+  .card h3 { font-size: clamp(16px, 4.2vw, 18.5px); font-weight: 850; }
+  .card h3 + p, .srv-note { color: var(--t2b); }
+  .card ol, .card ol li { color: var(--t2b); }
+  .card ol b, .srv-note b, .card p b { color: var(--t1); font-weight: 800; }
+
+  /* Wallet balance — the single loudest number on the page. */
+  .bal-card .lbl { font-size: 11px; font-weight: 800; letter-spacing: .09em;
+                   text-transform: uppercase; color: var(--t2); }
+  .bal-card .amt { font-size: clamp(24px, 7vw, 32px); font-weight: 900; line-height: 1.1;
+                   letter-spacing: -.02em; color: var(--t1);
+                   font-variant-numeric: tabular-nums; }
+
+  /* Price row — blue on blue-tint, heavier so it reads at a glance. */
+  .price-box { font-size: 13px; font-weight: 700; letter-spacing: .01em; }
+  .price-box span { color: var(--t2b); text-transform: uppercase; font-size: 11px;
+                    font-weight: 800; letter-spacing: .09em; }
+  .price-box b { font-size: clamp(18px, 5vw, 22px); font-weight: 900;
+                 letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+
+  /* Step + tile labels: quiet label, loud value. */
+  .step-label { color: var(--nb-blue); }
+  .st-label { color: var(--t2); font-weight: 800; letter-spacing: .09em; }
+  .st-value { font-size: clamp(14px, 3.9vw, 15.5px); font-weight: 800; color: var(--t1); }
+
+  /* Active numbers table — codes and countdowns must be unmistakable. */
+  .an-table th { font-size: 10.5px; font-weight: 800; letter-spacing: .09em;
+                 text-transform: uppercase; color: var(--t2); }
+  .an-table td { color: var(--t1); font-size: 13.5px; }
+  .an-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+             font-size: clamp(15px, 4.4vw, 18px); font-weight: 900; letter-spacing: .09em;
+             color: var(--nb-blue); background: var(--nb-blue-soft);
+             padding: 4px 9px; border-radius: 8px; display: inline-block; }
+  .an-waiting { color: var(--t2); font-style: italic; font-size: 12.5px; }
+  .an-time, .countdown { font-variant-numeric: tabular-nums; font-weight: 900;
+                         letter-spacing: .01em; }
+  .an-count-chip { font-weight: 900; font-variant-numeric: tabular-nums; }
+
+  /* Held-funds notice: readable body copy, blue emphasis on the amount. */
+  .lock-note { font-size: 12.8px; line-height: 1.6; }
+  .lock-note b { font-weight: 900; font-variant-numeric: tabular-nums; }
+
+  .chip, .stock-chip { font-weight: 800; letter-spacing: .05em; }
+  .btn, .ann-btn, .back-btn, .bal-refresh { letter-spacing: .01em; font-weight: 800; }
+
+  /* Light theme is white-on-deep-blue rather than grey-on-grey: push the
+     muted tones darker so small print stays legible outdoors on a phone. */
+  [data-theme="light"] { --t2:#4a5570; --t2b:#2a3348; }
+  [data-theme="light"] .hero h1 { color: #0a1330; }
+  [data-theme="light"] .an-code { color: var(--nb-blue-2); }
+
+  @media (max-width: 420px) {
+    .bal-card .amt { font-size: 26px; }
+    .an-table td, .an-table th { padding-left: 8px; padding-right: 8px; }
+    .lock-note { font-size: 13px; }
+  }
+</style>
+  <link rel="stylesheet" href="theme.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260910a"/>
+ <link rel="stylesheet" href="/css/announce.css"/>
+  <link rel="stylesheet" href="/css/redesign.css?v=20260910a"/>
+  <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="stylesheet" href="/css/mobile-fix.css">
+<script src="/js/kls-ui.js?v=1"></script>
+<script>
+/* Safety net: if the pop-up helper file failed to load, still ask before spending money (never silently do nothing). */
+if (typeof window.kslConfirm !== 'function') {
+  window.kslConfirm = function (m) { return Promise.resolve(window.confirm(m)); };
+}
+</script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-phone">
+<!-- Shared UI icon sprite (replaces emoji site-wide) — referenced via <svg class="icon i-NAME"><use href="#i-NAME"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></g></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></g></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M11 5l-7 7 7 7"/></g></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></g></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></g></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/></g></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6z"/></g></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16l1-9-5 4-4-7-4 7-5-4z"/></g></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></g></symbol>
+    <symbol id="i-message-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 01-11.9 7.8L4 21l1.2-5A8.5 8.5 0 1121 12z"/></g></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17"/><path d="M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7"/></g></symbol>
+    <symbol id="i-smartphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></g></symbol>
+    <symbol id="i-credit-card" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></g></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></g></symbol>
+    <symbol id="i-gamepad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 10v4M5 12h4M15 11h.01M18 13h.01"/></g></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12"/><path d="M3 9h18M12 9v12M12 9c-2-4-6-4-6-1s3 1 6 1M12 9c2-4 6-4 6-1s-3 1-6 1"/></g></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 015.7 5l-5 5-2.4-2.4-5 5a2 2 0 01-2.8-2.8l5-5L7.8 8.7a4 4 0 015-5.7L10 6l1 1z"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 8a3 3 0 010 6M21 20a6 6 0 00-6-6.5"/></g></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H19v14a3 3 0 01-3 3H8a3 3 0 003-3V6a3 3 0 00-3-3z"/><path d="M8 3a3 3 0 00-3 3v11a3 3 0 003 3"/></g></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.6 12.6a2 2 0 002 1.4h8.6a2 2 0 002-1.6L22 8H6"/></g></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></g></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0v5l2 3H4l2-3z"/><path d="M10 20a2 2 0 004 0"/></g></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 01-6 6 6 6 0 01-6-6z"/><path d="M12 17v5"/></g></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.6 7.6 0 00-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 001.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 001.7-1l2.4 1 2-3.5z"/></g></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></g></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></g></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></g></symbol>
+    <symbol id="i-book-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1z"/><path d="M12 6v14"/></g></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></g></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></g></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></g></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 01-8 0z"/><path d="M6 5H4v2a3 3 0 003 3M18 5h2v2a3 3 0 01-3 3"/><path d="M10 15h4v3h-4zM8 21h8"/></g></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M7 21v-7h10v7"/></g></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.8L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></g></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v3"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-6a1 1 0 00-1-1h-4a2 2 0 000 4h5"/></g></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 16l-5.5-5.5L4 21"/></g></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/></g></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></g></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 1 5 5 5 9 0 3-1 5-2 6l-3 3-3-3c-1-1-2-3-2-6 0-4 2-8 5-9z"/><circle cx="12" cy="9" r="2"/><path d="M9 17l-3 4M15 17l3 4"/></g></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M10 10v9M14 10v9M19 10v9"/><path d="M3 21h18"/></g></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 6l4 4"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14A8 8 0 1110 4a6.5 6.5 0 0010 10z"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></g></symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 3l3 6 3-6"/><path d="M10.5 13.5l1.5 3 1.5-3"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></g></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M12 2v4M9 3.5l1.5 1.5M15 3.5l-1.5 1.5"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></g></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M5 15a8 8 0 0014-4M19 9A8 8 0 005 13"/></g></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="2" y="14" width="5" height="6" rx="1.5"/><rect x="17" y="14" width="5" height="6" rx="1.5"/></g></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l7 4V6l-7 4z"/><path d="M17 9a4 4 0 010 6"/></g></symbol>
+    <symbol id="i-banknote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/></g></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2"/></g></symbol>
+    <symbol id="i-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a1 1 0 011-1h5l2 2h8a1 1 0 011 1l-2 8H5z"/></g></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></g></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-5-5"/></g></symbol>
+    <symbol id="i-paperclip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l6-6a3 3 0 014 4l-8 8a5 5 0 01-7-7l7-7"/></g></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l3 3v10l-3 3H7l-3-3V7z"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2 1a12 12 0 006 6l1-2 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></g></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V11l2-5h12l2 5v5"/><rect x="2" y="16" width="20" height="3" rx="1"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></g></symbol>
+    <symbol id="i-mouse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v6"/></g></symbol>
+    <symbol id="i-bar-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></g></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></g></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></g></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></g></symbol>
+    <symbol id="i-at-sign" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-4 7.5"/></g></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></g></symbol>
+    <symbol id="i-ghost" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0114 0v9l-2.5-2-2 2-2.5-2-2 2-2.5-2z"/><circle cx="9.5" cy="10.5" r="1"/><circle cx="14.5" cy="10.5" r="1"/></g></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 01-1-8.9A5.5 5.5 0 0116.5 7 4.5 4.5 0 0117 16H7z"/></g></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></g></symbol>
+</svg>
+
+
+<script>
+  // Auth guard — self-contained, no dependency on script.js
+  (function(){
+    try { if (!localStorage.getItem('ksl_token')) { window.location.replace('/login'); } } catch(e) {}
+  })();
+</script>
+
+<nav class="navbar">
+ <a href="/dashboard" class="brand"><span class="brand-icon"><svg class="icon i-crown" aria-hidden="true"><use href="#i-crown"/></svg></span> Marvel Nums Numbers</a>
+  <div style="display:flex;gap:8px">
+ <a href="/number-history" class="back-btn"><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg> History</a>
+ <a href="/dashboard" class="back-btn"><svg class="icon i-grid" aria-hidden="true"><use href="#i-grid"/></svg> Dashboard</a>
+  </div>
+</nav>
+
+<!-- ANNOUNCEMENT — shown once (remembered for 7 days) so returning visitors aren't nagged every time -->
+<div class="ann-overlay" id="annOverlay">
+  <div class="ann-box">
+ <div class="ann-icon"><svg class="icon i-megaphone" aria-hidden="true"><use href="#i-megaphone"/></svg></div>
+ <h2>Announcement <svg class="icon i-rocket" aria-hidden="true"><use href="#i-rocket"/></svg></h2>
+    <p><b>Pick a server</b>, then a country and service. Live stock and prices are shown before you pay.</p>
+    <button class="ann-btn" onclick="dismissAnnouncement()">Got it</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- Full-page server view header: always offers the way back to the number servers -->
+  <div class="srv-topbar" id="numTopBar" style="display:none">
+    <button type="button" class="tb-back" onclick="backToServers()">
+      <svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to numbers
+    </button>
+    <span class="tb-title" id="numTopBarTitle">Server 1</span>
+    <span class="tb-spacer"></span>
+    <a class="tb-link" href="/number-history">History →</a>
+  </div>
+
+  <div class="hero" id="numHero">
+ <div class="chip"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Buy Numbers</div>
+    <h1>Rent a Virtual Number</h1>
+    <p>Get a real number for SMS/OTP verification. Your payment is only ever kept if a code actually arrives — otherwise it's refunded automatically.</p>
+  </div>
+
+  <!-- BALANCE -->
+  <div class="bal-card">
+    <div>
+      <div class="lbl">Wallet Balance</div>
+      <div class="amt"><span id="numBalDisplay">—</span></div>
+    </div>
+ <button class="bal-refresh" onclick="loadBalance()"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh</button>
+  </div>
+
+  <!-- READ BEFORE BUYING — every buyer must have WhatsApp installed first -->
+  <div class="how-card" id="numHowToCard" style="display:none;margin-bottom:16px">
+    <h3>Read This Before You Buy</h3>
+    <div class="how-steps">
+      <div class="how-step"><span class="step-n">1</span><div>Install and open the app you want to verify <i>before</i> you buy — the code only lasts a few minutes.</div></div>
+      <div class="how-step"><span class="step-n">2</span><div>Enter the number you buy here and request the code.</div></div>
+      <div class="how-step"><span class="step-n">3</span><div>Your code appears automatically in <b>Active Numbers</b>.</div></div>
+      <div class="how-step"><span class="step-n">4</span><div>No code? Cancel (allowed 2 minutes after buying) for a full refund.</div></div>
+    </div>
+  </div>
+
+  <style>
+    /* Server switcher — Server 1 vs Server 2 */
+    .srv-tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+    .srv-tab{flex:1 1 150px;padding:12px 10px;border-radius:12px;border:1px solid var(--border2,#2a2a40);
+      background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;text-align:left;line-height:1.35}
+    .srv-tab .srv-sub{display:block;font-weight:500;font-size:11.5px;opacity:.7;margin-top:3px}
+    .srv-tab.active{border-color:var(--gold,#f4b942);box-shadow:0 0 0 1px var(--gold,#f4b942) inset}
+    .srv-tab[disabled]{opacity:.45;cursor:not-allowed}
+    .srv-note{font-size:12.5px;line-height:1.5;margin:0;opacity:.85}
+    .srv-search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--border2,#2a2a40);
+      background:transparent;color:inherit;font:inherit;margin-bottom:10px}
+    .stock-chip{font-size:11px;opacity:.7}
+    .step-label{font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
+      opacity:.75;margin:14px 0 8px}
+    .quick-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+    .chip.on{border-color:#4ade80;background:rgba(74,222,128,.16)}
+    .chip-btn{padding:7px 12px;border-radius:999px;border:1px solid var(--border2,#2a2a40);background:transparent;color:inherit;font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid var(--border2,#2a2a40);
+      background:transparent;color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+    .chip:hover,.chip.active{border-color:var(--gold,#f4b942)}
+    .hdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#94a3b8;margin-right:7px;vertical-align:middle}
+    .hdot.up{background:#22c55e}.hdot.down{background:#ef4444}.hdot.off{background:#94a3b8}
+
+    /* Server picker — a calm, standard "pick your server" list row, the way the
+       established number sites do it: icon, name, one line of detail, a quiet
+       status pill and a chevron. No shouting badges, no pulsing. */
+    .srv-grid{display:grid;gap:10px;grid-template-columns:1fr}
+    @media(min-width:620px){.srv-grid{grid-template-columns:1fr 1fr}}
+    .srv-card{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;
+      gap:13px;text-align:left;padding:15px 14px;border-radius:14px;cursor:pointer;width:100%;
+      border:1px solid var(--border2,#2a2a40);background:var(--card2,transparent);
+      color:inherit;font:inherit;transition:border-color .15s ease,background .15s ease}
+    .srv-card:hover{border-color:#22c55e;background:rgba(34,197,94,.06)}
+    .srv-card[disabled]{opacity:.5;cursor:not-allowed}
+    .srv-card .srv-ico{width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;
+      background:rgba(34,197,94,.13);color:#22c55e}
+    .srv-card .srv-ico .icon{width:20px;height:20px}
+    .srv-card .srv-body{min-width:0}
+    .srv-card h4{margin:0 0 3px;font-size:14.5px;line-height:1.3}
+    .srv-card .srv-sub{display:block;font-size:11.5px;opacity:.72;line-height:1.45;font-weight:500}
+    .srv-card .srv-chev{color:var(--t2,#8888a8);display:flex;align-items:center}
+    .srv-card .srv-chev .icon{width:17px;height:17px}
+    /* Quiet availability pill: green when the server is taking orders, grey when not. */
+    .online-pill{display:inline-flex;align-items:center;gap:5px;margin-bottom:5px;
+      padding:3px 9px;border-radius:999px;background:rgba(34,197,94,.13);color:#0788e8;
+      font-size:10.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+    .online-pill .pdot{width:6px;height:6px;border-radius:50%;background:currentColor}
+    .online-pill.off{background:rgba(148,163,184,.16);color:#64748b}
+
+    /* Full-page server view: sticky "back to numbers" bar at the top */
+    .srv-topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+      padding:10px 12px;margin:0 0 12px;border-radius:14px;backdrop-filter:blur(10px);
+      background:color-mix(in srgb,var(--bg,#0b0b14) 82%,transparent);border:1px solid var(--border2,#2a2a40)}
+    .srv-topbar .tb-back{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;
+      border:1px solid #22c55e;background:rgba(34,197,94,.12);color:#22c55e;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+    .srv-topbar .tb-title{font-weight:800;font-size:14px}
+    .srv-topbar .tb-spacer{flex:1}
+    .srv-topbar a.tb-link{font-size:12.5px;font-weight:700;color:var(--gold,#f4b942)}
+
+    /* Search suggestions — tap a related result and the select is filled in for you */
+    .sugg-wrap{position:relative}
+    .sugg{position:absolute;left:0;right:0;top:100%;z-index:30;margin-top:-6px;max-height:270px;overflow:auto;
+      border:1px solid var(--border2,#2a2a40);border-radius:12px;background:var(--card,#14141f);display:none;
+      box-shadow:0 18px 40px rgba(0,0,0,.35)}
+    .sugg.show{display:block}
+    .sugg-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;background:transparent;
+      border:0;border-bottom:1px solid var(--border2,#2a2a40);color:inherit;font:inherit;font-size:13px;text-align:left;cursor:pointer}
+    .sugg-item:last-child{border-bottom:0}
+    .sugg-item:hover,.sugg-item.active{background:rgba(34,197,94,.12)}
+    .sugg-item .si-name{font-weight:700}
+    .app-ico{width:22px;height:22px;border-radius:6px;object-fit:contain;background:rgba(255,255,255,.06);padding:2px;flex:0 0 auto}
+    .app-ico-fb{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center;flex:0 0 auto}
+    .app-ico-name{font-weight:700}
+    .st-value .app-ico{width:20px;height:20px}
+    .st-value{display:flex;align-items:center;gap:8px}
+    .chip .app-ico{width:18px;height:18px}
+    .chip{display:inline-flex;align-items:center;gap:7px}
+    .sugg-item .si-meta{margin-left:auto;font-size:11.5px;opacity:.7;white-space:nowrap}
+    .sugg-empty{padding:12px;font-size:12.5px;opacity:.7}
+
+    .sort-row{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+
+    /* Instructions panel that stays pinned on Server 1, on every step */
+    .instr-panel{position:sticky;top:64px;z-index:20;border:1px solid #25D366;border-radius:14px;
+      background:color-mix(in srgb,#25D366 8%,transparent);padding:12px 14px;margin-bottom:14px}
+    .instr-panel h4{margin:0;font-size:13.5px;display:flex;align-items:center;gap:8px}
+    .instr-panel .ip-toggle{margin-left:auto;border:0;background:transparent;color:inherit;font:inherit;
+      font-size:11.5px;font-weight:800;cursor:pointer;opacity:.8}
+    .instr-panel ol{margin:10px 0 0;padding-left:18px;font-size:13px;line-height:1.7}
+    .copy-steps{display:grid;gap:8px;margin-top:12px}
+    .copy-step{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;
+      border:1px solid var(--border2,#2a2a40)}
+    .copy-step .cs-n{width:22px;height:22px;border-radius:50%;background:rgba(34,197,94,.18);color:#22c55e;
+      display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:0 0 auto}
+    .copy-step .cs-body{min-width:0}
+    .copy-step .cs-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.04em;opacity:.7;font-weight:800}
+    .copy-step .cs-val{font-size:13.5px;font-weight:700;word-break:break-all}
+    .copy-step .cs-btn{margin-left:auto;padding:7px 11px;border-radius:9px;border:1px solid #22c55e;
+      background:rgba(34,197,94,.12);color:#22c55e;font:inherit;font-size:12px;font-weight:800;cursor:pointer;flex:0 0 auto}
+  </style>
+
+  <!-- SERVER SWITCHER — the only thing shown until a server is tapped -->
+  <div class="card" id="numServerCard">
+    <div class="number-section-index">01 / SELECT YOUR SERVICE</div>
+    <h3>What kind of number do you need?</h3>
+    <p class="srv-note" style="margin:-4px 0 12px">Choose the number service that fits what you need.</p>
+    <div class="srv-grid">
+      <button type="button" class="srv-card" id="srvTab1" onclick="selectServer('server1')">
+        <span class="srv-ico"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg></span>
+        <span class="srv-body">
+          <span class="online-pill" id="srvPill1"><span class="pdot"></span>Online</span>
+          <h4>Server 1</h4>
+          <span class="srv-sub">Live server catalog · countries · services · prices</span>
+          <span class="srv-sub" id="srvHealth1">Checking availability…</span>
+        </span>
+        <span class="srv-chev"><svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
+      </button>
+      <button type="button" class="srv-card" id="srvTab2" onclick="selectServer('server2')">
+        <span class="srv-ico"><svg class="icon i-globe" aria-hidden="true"><use href="#i-globe"/></svg></span>
+        <span class="srv-body">
+          <span class="online-pill" id="srvPill2"><span class="pdot"></span>Online</span>
+          <h4>Server 2 — All services</h4>
+          <span class="srv-sub">Every service &amp; country · live prices</span>
+          <span class="srv-sub" id="srvHealth2">Checking availability…</span>
+        </span>
+        <span class="srv-chev"><svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg></span>
+      </button>
+    </div>
+    <p class="srv-note" id="srvNote" style="margin-top:12px">Select a server to open its full page — instructions, rules and buying form.</p>
+    <p class="srv-note" style="margin-top:8px">
+      Already bought? <a href="/order-status" style="color:var(--gold,#f4b942)">Track your orders live →</a>
+      · <a href="/number-history" style="color:var(--gold,#f4b942)">Number history →</a>
+    </p>
+  </div>
+
+  <!-- Everything below only appears once a server is picked -->
+  <div class="card" id="numServerIntro" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <h3 style="margin:0" id="numServerIntroTitle">Server 1</h3>
+      <button type="button" class="bal-refresh" onclick="backToServers()">← Change server</button>
+    </div>
+    <div id="numServerNotice" class="wa-note" style="margin-top:10px"></div>
+    <div class="step-label" style="margin-bottom:6px">How buying works on this server</div>
+    <ol style="margin:0;padding-left:20px;font-size:13.5px;line-height:1.7" id="numServerSteps"></ol>
+    <div class="step-label" style="margin:14px 0 6px">Notifications you will get</div>
+    <ul class="rules" id="numServerNotifs"></ul>
+  </div>
+
+
+  <!-- STEP 2A: Server 1 — pick a number -->
+  <div class="card" id="numPickStep" style="display:none">
+    <h3>Choose your number <span class="stock-chip">Server 1</span></h3>
+
+    <div class="srv-note" style="margin-bottom:12px;border:1px solid var(--gold,#f4b942);border-radius:12px;padding:10px 12px">
+      <b>Heads up:</b> Server 1 is <b>not only USA WhatsApp anymore</b> — it now has <b>USA / Canada numbers for many different services</b>, and every other country the provider has in stock. Prices are live and shown before you pay.
+    </div>
+
+    <div id="numEmptyState" class="empty" style="display:none">
+      <div class="icon"><svg class="icon i-wrench" aria-hidden="true"><use href="#i-wrench"/></svg></div>
+      <p style="font-weight:800;color:#eeeef5;margin-bottom:6px">No numbers available right now</p>
+      <p style="font-size:13px">Check back shortly, or reach out via chat if you need one urgently.</p>
+    </div>
+
+    <div id="numPickerForm">
+      <div class="step-label">Step 1 — Select a server</div>
+      <div class="select-tile" style="margin-bottom:12px">
+        <div class="st-icon">🖥️</div><div class="st-body"><div class="st-label">Server</div><div class="st-value">Choose the server that offers your service</div></div>
+        <select id="numNovaServerSelect" onchange="onNovaServerChange()"><option value="">Loading servers…</option></select>
+      </div>
+      <div id="numCountryStep">
+      <div class="step-label">Step 2 — Search &amp; pick the country</div>
+      <div class="sugg-wrap">
+        <input class="srv-search" id="s1CountrySearch" autocomplete="off" placeholder="Type a country — USA, Canada, UK…"
+               oninput="filterS1Countries()" onfocus="filterS1Countries()" autocorrect="off" spellcheck="false" name="s1-country-search-nofill" readonly onfocusin="this.removeAttribute('readonly')"/>
+        <div class="sugg" id="s1CountrySugg"></div>
+      </div>
+      <div class="quick-chips" id="s1CountryChips"></div>
+      <div class="select-tile">
+ <div class="st-icon"><svg class="icon i-globe" aria-hidden="true"><use href="#i-globe"/></svg></div>
+        <div class="st-body">
+          <div class="st-label">Select Country</div>
+          <div class="st-value" id="numCountryValueText">Loading…</div>
+        </div>
+        <div class="st-chev">⌄</div>
+        <select id="numCountrySelect" autocomplete="off" onchange="s1UserPickedCountry = true; onNumCountryChange()"><option value="">Loading…</option></select>
+      </div>
+
+      </div><!-- /numCountryStep -->
+      <div class="step-label" id="numSvcStepLabel">Step 3 — Search &amp; pick the service</div>
+      <div class="quick-chips" id="s1PopularChips"></div>
+      <div id="numSyncRow" style="display:none;font-size:12.5px;opacity:.75;margin:-4px 0 8px"><span id="numSyncedAt"></span> <a href="#" id="numRefreshBtn" onclick="refreshNumServices();return false" style="margin-left:8px;font-weight:700;color:#0788e8">⟳ Refresh</a></div>
+      <div class="sugg-wrap">
+        <input class="srv-search" id="s1ServiceSearch" autocomplete="off" placeholder="Type a service — WhatsApp, Telegram, Google…"
+               oninput="filterS1Services()" onfocus="filterS1Services()" disabled/>
+        <div class="sugg" id="s1ServiceSugg"></div>
+      </div>
+      <div class="select-tile" id="numProviderTile">
+ <div class="st-icon"><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg></div>
+        <div class="st-body">
+          <div class="st-label">Select Service</div>
+          <div class="st-value" id="numProviderValueText">Select a country first</div>
+        </div>
+        <div class="st-chev">⌄</div>
+        <select id="numProviderSelect" onchange="onNumProviderChange()" disabled><option value="">Select a country first</option></select>
+      </div>
+
+      <div class="price-box" id="numPriceBox">
+        <span>Price</span><b id="numPriceDisplay">—</b>
+      </div>
+
+      <div id="numFeedback" class="fb"></div>
+ <button class="btn" id="numBuyBtn" disabled onclick="buyNumber()"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Buy This Number</button>
+    </div>
+  </div>
+
+  <!-- STEP 2B: Server 2 — service → country → provider -->
+  <div class="card" id="numPickStep2" style="display:none">
+    <h3>2. Choose a Number <span class="stock-chip">Server 2</span></h3>
+
+    <div id="numEmptyState2" class="empty" style="display:none">
+      <div class="icon"><svg class="icon i-wrench" aria-hidden="true"><use href="#i-wrench"/></svg></div>
+      <p style="font-weight:800;color:#eeeef5;margin-bottom:6px">Server 2 is unavailable right now</p>
+      <p style="font-size:13px">Please try Server 1, or check back shortly.</p>
+    </div>
+
+    <div id="numPickerForm2">
+      <div class="step-label">Step 1 — Search &amp; pick the service</div>
+      <div class="sugg-wrap">
+        <input class="srv-search" id="g2ServiceSearch" autocomplete="off"
+               placeholder="Type a service — WhatsApp, Telegram, Google, Instagram…"
+               oninput="filterG2Services()" onfocus="filterG2Services()"/>
+        <!-- Related matches: tapping one selects that service in the box below automatically -->
+        <div class="sugg" id="g2ServiceSugg"></div>
+      </div>
+      <div class="quick-chips" id="g2PopularChips"></div>
+
+      <div class="select-tile">
+ <div class="st-icon"><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg></div>
+        <div class="st-body">
+          <div class="st-label">Select Service</div>
+          <div class="st-value" id="g2ServiceValueText">Loading…</div>
+        </div>
+        <div class="st-chev">⌄</div>
+        <select id="g2ServiceSelect" onchange="onG2ServiceChange()"><option value="">Loading…</option></select>
+      </div>
+
+      <div class="step-label">Step 2 — Search &amp; pick the country</div>
+      <div class="sugg-wrap">
+        <input class="srv-search" id="g2CountrySearch" autocomplete="off"
+               placeholder="Type a country — Nigeria, USA, India…"
+               oninput="filterG2Countries()" onfocus="filterG2Countries()" disabled/>
+        <div class="sugg" id="g2CountrySugg"></div>
+      </div>
+
+      <div class="select-tile">
+ <div class="st-icon"><svg class="icon i-globe" aria-hidden="true"><use href="#i-globe"/></svg></div>
+        <div class="st-body">
+          <div class="st-label">Select Country</div>
+          <div class="st-value" id="g2CountryValueText">Select a service first</div>
+        </div>
+        <div class="st-chev">⌄</div>
+        <select id="g2CountrySelect" onchange="onG2CountryChange()" disabled><option value="">Select a service first</option></select>
+      </div>
+
+      <div id="g2OperatorWrap" style="display:none">
+        <div class="step-label">Step 3 — Pick the mobile operator</div>
+        <div class="select-tile">
+          <div class="st-icon"><svg class="icon i-plug" aria-hidden="true"><use href="#i-plug"/></svg></div>
+          <div class="st-body">
+            <div class="st-label">Select Operator</div>
+            <div class="st-value" id="g2OperatorValueText">Any operator (recommended)</div>
+          </div>
+          <div class="st-chev">⌄</div>
+          <select id="g2OperatorSelect" onchange="onG2OperatorChange()"><option value="any">Any operator (recommended)</option></select>
+        </div>
+        <p class="srv-note" style="margin:-2px 0 10px">“Any operator” gives the best chance of getting a number instantly. Pick a specific operator only if the service you are verifying needs it.</p>
+      </div>
+
+      <div class="step-label" id="g2PoolStepLabel">Step 4 — Pick a provider (price pool)</div>
+      <div class="pool-guide">
+        <span>🐢 <b>Pool 1–3:</b> lower SMS delivery rate. Use only when price matters most.</span>
+        <span>⚡ <b>Pool 4 and above:</b> recommended for faster SMS delivery.</span>
+      </div>
+      <div class="quick-chips">
+        <button type="button" class="chip" onclick="pickRecommendedG2Provider()">⚡ Pick recommended fast pool</button>
+        <button type="button" class="chip" onclick="pickCheapestG2Provider()">💸 Pick cheapest in stock</button>
+      </div>
+
+      <div class="select-tile">
+ <div class="st-icon"><svg class="icon i-plug" aria-hidden="true"><use href="#i-plug"/></svg></div>
+        <div class="st-body">
+          <div class="st-label">Select Provider</div>
+          <div class="st-value" id="g2ProviderValueText">Select a country first</div>
+        </div>
+        <div class="st-chev">⌄</div>
+        <select id="g2ProviderSelect" onchange="onG2ProviderChange()" disabled><option value="">Select a country first</option></select>
+      </div>
+
+
+      <div class="price-box" id="g2PriceBox" style="display:none">
+        <span>Price</span><b id="g2PriceDisplay">—</b>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 4px">
+        <span class="stock-chip" id="g2StockStatus">Availability updates automatically</span>
+        <button type="button" class="bal-refresh" id="g2RefreshBtn" onclick="refreshG2Availability(true)">
+          <svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Check availability
+        </button>
+      </div>
+
+      <div id="g2Feedback" class="fb"></div>
+ <button class="btn" id="g2BuyBtn" disabled onclick="buyNumberServer2()"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Buy This Number</button>
+
+    </div>
+  </div>
+
+
+  <!-- ACTIVE NUMBERS — live table, no page refresh needed to see a code land -->
+  <div class="card" id="activeNumbersCard" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3 style="margin:0"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Active Numbers</h3>
+      <span class="an-count-chip" id="anCountChip">0</span>
+    </div>
+    <p style="font-size:12px;color:#8888a8;margin:0 0 12px">No need to refresh the page to get the code.</p>
+    <div class="an-table-wrap">
+      <table class="an-table">
+        <thead><tr><th></th><th>Service</th><th>Phone</th><th>Code</th><th>Time</th></tr></thead>
+        <tbody id="activeNumbersBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="card" id="numRulesCard" style="display:none">
+ <h3><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> How It Works &amp; Refund Rules</h3>
+    <ul class="rules">
+      <li>Your wallet is charged the moment you buy — this reserves a real, working number for you</li>
+      <li>You have about 20 minutes to receive your SMS/OTP code on that number</li>
+      <li>If a code arrives in time, the sale is final — you keep the code</li>
+      <li>If no code arrives before time runs out, you're refunded automatically — no action needed</li>
+      <li>Want your money back sooner? Tap "Cancel &amp; Refund" any time before a code arrives</li>
+      <li>Once a code has been delivered, that number can no longer be cancelled or refunded</li>
+    </ul>
+  </div>
+
+  <!-- STEP 2: Waiting for code -->
+  <div class="card" id="numWaitStep" style="display:none">
+    <h3>2. Your Number</h3>
+    <div class="phone-display">
+      <div class="phone-num" id="numPhoneDisplay">—</div>
+      <div class="countdown" id="numCountdown">--:--</div>
+ <div class="lock-note"><svg class="icon i-lock" aria-hidden="true"><use href="#i-lock"/></svg> <span id="numLockedAmount">0</span> is locked from your wallet while this number is active — not lost, just held. It's only finalized if a code arrives; otherwise it returns to your balance automatically.</div>
+
+      <div id="numWaNote" class="wa-note" style="display:none">
+      </div>
+
+      <div id="numCodeBox" class="code-box">
+        <div class="code" id="numCodeDisplay">—</div>
+      </div>
+
+      <p id="numStatusNote" class="status-note">⏳ Waiting for your code…</p>
+
+      <!-- Step-by-step copy buttons so nothing has to be typed by hand -->
+      <div class="copy-steps" id="numCopySteps">
+        <div class="copy-step">
+          <span class="cs-n">1</span>
+          <span class="cs-body"><span class="cs-lbl">Phone number</span><span class="cs-val" id="csPhone">—</span></span>
+          <button type="button" class="cs-btn" onclick="copyStep('phone')">Copy</button>
+        </div>
+        <div class="copy-step">
+          <span class="cs-n">2</span>
+          <span class="cs-body"><span class="cs-lbl">Country code only</span><span class="cs-val" id="csCode">—</span></span>
+          <button type="button" class="cs-btn" onclick="copyStep('dial')">Copy</button>
+        </div>
+        <div class="copy-step">
+          <span class="cs-n">3</span>
+          <span class="cs-body"><span class="cs-lbl">Number without country code</span><span class="cs-val" id="csLocal">—</span></span>
+          <button type="button" class="cs-btn" onclick="copyStep('local')">Copy</button>
+        </div>
+        <div class="copy-step" id="csOtpRow" style="display:none">
+          <span class="cs-n">4</span>
+          <span class="cs-body"><span class="cs-lbl">OTP code / link</span><span class="cs-val" id="csOtp">Waiting…</span></span>
+          <button type="button" class="cs-btn" onclick="copyStep('otp')">Copy</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:12px">
+ <button class="btn btn-outline" id="numCopyBtn" onclick="copyNumberOrCode()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy Number</button>
+ <button class="btn btn-danger" id="numCancelBtn" onclick="cancelNumberOrder()"><svg class="icon i-x" aria-hidden="true"><use href="#i-x"/></svg> Cancel &amp; Refund</button>
+      </div>
+ <button class="btn btn-outline" style="margin-top:10px" onclick="resetNumberFlow()"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Rent Another Number</button>
+    </div>
+  </div>
+
+  <!-- History lives on its own page — this is just the doorway to it -->
+  <div class="card" id="numOrdersCard" style="display:none">
+ <h3><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg> Your order history</h3>
+    <p style="font-size:13px;color:#8888a8;margin:0 0 12px">
+      Every number you have ever bought — with its code, status and refunds — is kept on its own page so this
+      page stays focused on buying.
+    </p>
+    <div id="numOrdersList" style="display:none"></div>
+ <a class="btn btn-outline" href="/number-history" style="display:flex;align-items:center;justify-content:center;gap:8px">
+      <svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg> Open number history
+    </a>
+ <a class="btn btn-outline" href="/order-status" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px">
+      <svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Track a live order
+    </a>
+  </div>
+</div>
+
+<script>
+// ── Sync with the main site's theme toggle ─────────────────────────────────────────────
+// The main site stores theme in localStorage as 'ksl_theme' and sets data-theme on <html>.
+// This page is self-contained but we listen for localStorage changes (from other tabs) and
+// also poll every 500ms for same-tab changes via the theme button (which sets data-theme on
+// <html> via the same inline script block above, no sync needed for that — it's instant).
+// We use MutationObserver so switching theme with the main-site button reflects here too.
+new MutationObserver(() => {
+  // nothing extra needed — CSS vars react automatically to data-theme on <html>
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+window.addEventListener('storage', e => {
+  if (e.key !== 'ksl_theme') return;
+  const theme = e.newValue;
+  if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
+});
+
+// The auth token every authenticated call on this page relies on — this was being referenced in
+// half a dozen places (loadBalance, req, buyNumber, etc.) but never actually declared anywhere,
+// which meant every one of those throws "bnToken is not defined" the moment it runs. That's the
+// root cause of the balance never loading and the page generally not working.
+const bnToken = localStorage.getItem('ksl_token');
+
+async function req(url, method = 'GET', body = null, needsAuth = false, timeoutMs = 45000) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (needsAuth && bnToken) headers['Authorization'] = 'Bearer ' + bnToken;
+  // A request can never hang forever: after the timeout the customer gets a clear message instead of a frozen button.
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: ctl.signal });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  } catch (e) {
+    if (e && e.name === 'AbortError') throw new Error(method === 'POST' ? 'This is taking longer than expected. Check “Active Numbers” below — if your number was issued it will appear there; if not, you were not charged. Then try again.' : 'The server is slow right now. Please try again.');
+    throw e;
+  } finally { clearTimeout(timer); }
+}
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtN(n) { return Number(n || 0).toLocaleString('en-NG'); }
+function setFb(el, msg, type) { if (!el) return; el.textContent = msg; el.className = 'fb ' + (type || ''); }
+// Turns a 2-letter ISO country code into its flag emoji (e.g. "US" -> 🇺🇸) via the regional-
+// indicator-symbol trick — no image assets needed, works everywhere emoji render.
+function flagEmoji(code) {
+ if (!code || code.length !== 2) { const c = (typeof numCountries !== 'undefined' && numCountries.find(x => x.code === code)); return (c && c.flag) || '🌍'; }
+  return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+}
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 20px;border-radius:8px;font-size:13.5px;z-index:999';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+let numCountries = [];
+let numServices = [];
+let numPollTimer = null;
+let numCountdownTimer = null;
+let numCurrentOrder = null;
+let numNovaServers = [];
+let selectedNovaServerId = '';
+
+async function loadBalance() {
+  const el = document.getElementById('numBalDisplay');
+  if (!bnToken) { el.textContent = '—'; return; }
+  try {
+    const me = await req('/api/user/me', 'GET', null, true);
+    window._numBal = Number(me.balance) || 0;
+    el.textContent = AMT(me.balance);
+  } catch (e) { el.textContent = '—'; }
+}
+
+// Countries are fetched live, same as the admin panel — no static list to go stale.
+async function loadNumOptions() {
+  const emptyState = document.getElementById('numEmptyState');
+  const pickerForm = document.getElementById('numPickerForm');
+  const serverSelect = document.getElementById('numNovaServerSelect');
+  try {
+    [numNovaServers, numCountries] = await Promise.all([
+      req('/api/numbers/nova-servers', 'GET', null, false),
+      req('/api/numbers/live-countries', 'GET', null, false)
+    ]);
+    if (!numNovaServers.length || !numCountries.length) throw new Error('No servers or countries are available right now.');
+    serverSelect.innerHTML = '<option value="">Select a server…</option>' + numNovaServers.map(s => `<option value="${Number(s.id)}">${esc(s.name)}</option>`).join('');
+    const countrySelect = document.getElementById('numCountrySelect');
+    countrySelect.innerHTML = '<option value="">Select a country…</option>' + numCountries.map(c => `<option value="${esc(c.code)}">${flagEmoji(c.code)} ${esc(c.name)}${c.pinned ? ' ⭐' : ''}</option>`).join('');
+    document.getElementById('s1CountryChips').innerHTML = numCountries.filter(c => c.pinned).map(c => `<button type="button" class="chip-btn" onclick="pickS1Country('${esc(c.code)}')">${flagEmoji(c.code)} ${esc(c.name)}</button>`).join('');
+    emptyState.style.display = 'none'; pickerForm.style.display = 'block'; clearS1Selection();
+  } catch (e) {
+    emptyState.style.display = 'block'; pickerForm.style.display = 'none';
+    const msg = emptyState.querySelector('p:last-child'); if (msg) msg.textContent = e.message || 'Could not load servers right now. Please try again or contact the administrator.';
+  }
+}
+function onNovaServerChange() {
+  selectedNovaServerId = document.getElementById('numNovaServerSelect').value;
+  clearS1Selection();
+  const srv = numNovaServers.find(s => String(s.id) === String(selectedNovaServerId));
+  const isUsa = !!(srv && srv.scope === 'usa');
+  const countryStep = document.getElementById('numCountryStep');
+  const svcLabel = document.getElementById('numSvcStepLabel');
+  const countrySelect = document.getElementById('numCountrySelect');
+  countrySelect.disabled = !selectedNovaServerId;
+  document.getElementById('s1CountrySearch').disabled = !selectedNovaServerId;
+  document.getElementById('s1CountrySearch').placeholder = selectedNovaServerId ? 'Type a country — UK, Ghana, India…' : 'Select a server first';
+  // USA servers only sell USA numbers: skip the country step and go straight to services.
+  if (countryStep) countryStep.style.display = isUsa ? 'none' : '';
+  if (svcLabel) svcLabel.textContent = isUsa ? 'Step 2 — Search & pick the service' : 'Step 3 — Search & pick the service';
+  if (isUsa) {
+    const usa = numCountries.find(c => /^(us|usa)$/i.test(String(c.code)) || /united states/i.test(c.name));
+    const code = usa ? usa.code : 'USA';
+    if (![...countrySelect.options].some(o => o.value === code)) countrySelect.insertAdjacentHTML('beforeend', `<option value="${esc(code)}">🇺🇸 USA</option>`);
+    countrySelect.value = code;
+    s1UserPickedCountry = true;
+    onNumCountryChange();
+  }
+}
+
+// Services for the chosen country. The last list seen on this device is painted instantly, then refreshed
+// quietly in the background; a first-time pull shows what has arrived so far and keeps filling in.
+const S1_CACHE_PREFIX = 'kls_s1svc_';
+let s1LoadToken = 0, s1PartialTimer = null, s1PartialTries = 0;
+function s1CacheGet(k) { try { const v = JSON.parse(localStorage.getItem(S1_CACHE_PREFIX + k) || 'null'); return Array.isArray(v) && v.length ? v : null; } catch (e) { return null; } }
+function s1CacheSet(k, list) { try { localStorage.setItem(S1_CACHE_PREFIX + k, JSON.stringify(list)); } catch (e) {} }
+
+function renderS1Services(list, keepId) {
+  const providerSelect = document.getElementById('numProviderSelect');
+  const providerValueText = document.getElementById('numProviderValueText');
+  numServices = list;
+  renderS1PopularChips();
+  providerSelect.innerHTML = '<option value="">Select a provider…</option>' +
+    list.map(s => `<option value="${esc(s.serviceId)}" data-name="${esc(s.provider)}" data-icon="${esc(s.icon || '')}" data-meta="${esc(PRICE(s.price))}">${esc(s.emoji || '')} ${esc(s.provider)} — ${PRICE(s.price)}</option>`).join('');
+  providerSelect.disabled = false;
+  const ss = document.getElementById('s1ServiceSearch'); ss.disabled = false;
+  if (keepId && list.some(x => x.serviceId === keepId)) { providerSelect.value = keepId; onNumProviderChange(); }
+  else {
+    providerValueText.textContent = 'Select a provider…';
+    document.getElementById('numPriceBox').style.display = 'none';
+    document.getElementById('numBuyBtn').disabled = true;
+    ss.value = '';
+  }
+  const sr = document.getElementById('numSyncRow');
+  if (sr && list[0] && list[0].syncedAt) {
+    sr.style.display = 'block';
+    document.getElementById('numSyncedAt').textContent = list[0].partial ? 'Loading more services…' : ((list[0].stale ? 'Showing saved list · ' : '') + 'Updated ' + new Date(list[0].syncedAt).toLocaleString());
+  }
+}
+
+async function onNumCountryChange(refresh) {
+  const country = document.getElementById('numCountrySelect').value;
+  if (!selectedNovaServerId) { showToast('Select a server first'); return; }
+  const providerSelect = document.getElementById('numProviderSelect');
+  const countryValueText = document.getElementById('numCountryValueText');
+  const providerValueText = document.getElementById('numProviderValueText');
+  const priceBox = document.getElementById('numPriceBox');
+  const buyBtn = document.getElementById('numBuyBtn');
+  priceBox.style.display = 'none';
+  buyBtn.disabled = true;
+  clearTimeout(s1PartialTimer); s1PartialTries = 0;
+  const token = ++s1LoadToken;
+  numServices = [];
+  const countryEntry = numCountries.find(c => c.code === country);
+  countryValueText.textContent = countryEntry ? `${flagEmoji(countryEntry.code)} ${countryEntry.name}` : 'Select a country…';
+  if (!country) {
+    providerSelect.innerHTML = '<option value="">Select a country first</option>';
+    providerSelect.disabled = true;
+    providerValueText.textContent = 'Select a country first';
+    return;
+  }
+  const cacheKey = selectedNovaServerId + '_' + country;
+  const cached = refresh === true ? null : s1CacheGet(cacheKey);
+  if (cached) renderS1Services(cached);
+  else {
+    providerSelect.innerHTML = '<option value="">Loading…</option>';
+    providerSelect.disabled = true;
+    providerValueText.textContent = 'Loading services…';
+  }
+  await loadS1Services(country, refresh === true, token, !!cached);
+}
+
+async function loadS1Services(country, refresh, token, hadCache) {
+  const providerSelect = document.getElementById('numProviderSelect');
+  const providerValueText = document.getElementById('numProviderValueText');
+  const cacheKey = selectedNovaServerId + '_' + country;
+  try {
+    const fresh = await req(`/api/numbers/live-services?country=${encodeURIComponent(country)}&serverId=${encodeURIComponent(selectedNovaServerId)}${refresh ? '&refresh=1' : ''}`, 'GET', null, true);
+    if (token !== s1LoadToken) return; // customer changed country/server mid-load
+    if (!Array.isArray(fresh) || !fresh.length) {
+      numServices = [];
+      providerSelect.innerHTML = '<option value="">No services on this server for this country</option>';
+      providerSelect.disabled = true;
+      providerValueText.innerHTML = 'Nothing in stock on this server for this country — try another server, or <a href="#" onclick="onNumCountryChange(true);return false">tap to refresh</a>';
+      document.getElementById('numPriceBox').style.display = 'none';
+      document.getElementById('numBuyBtn').disabled = true;
+      return;
+    }
+    const partial = !!fresh[0].partial;
+    if (!partial) s1CacheSet(cacheKey, fresh);
+    renderS1Services(fresh, providerSelect.value);
+    // First-time pull still paging in: pick up the rest every few seconds without disturbing the customer.
+    if (partial && s1PartialTries < 25) {
+      s1PartialTries++;
+      s1PartialTimer = setTimeout(() => { if (token === s1LoadToken) loadS1Services(country, false, token, true); }, 3000);
+    }
+  } catch (e) {
+    if (token !== s1LoadToken || hadCache) return; // keep showing the saved list if the refresh fails
+    numServices = [];
+    providerSelect.innerHTML = '<option value="">Failed to load — try again</option>';
+    providerValueText.innerHTML = esc(e.message || 'Failed to load') + ' — <a href="#" onclick="onNumCountryChange(true);return false">tap to retry</a>';
+  }
+}
+
+async function refreshNumServices() {
+  const b = document.getElementById('numRefreshBtn'); if (b) b.textContent = 'Refreshing…';
+  await onNumCountryChange(true);
+  if (b) b.textContent = '⟳ Refresh';
+}
+
+function onNumProviderChange() {
+  const serviceId = document.getElementById('numProviderSelect').value;
+  const priceBox = document.getElementById('numPriceBox');
+  const priceDisplay = document.getElementById('numPriceDisplay');
+  const providerValueText = document.getElementById('numProviderValueText');
+  const buyBtn = document.getElementById('numBuyBtn');
+  const match = numServices.find(s => s.serviceId === serviceId);
+  if (!match) { priceBox.style.display = 'none'; buyBtn.disabled = true; return; }
+  providerValueText.innerHTML = svcLabelHtml({ name: match.provider, icon: match.icon, emoji: match.emoji }, 20);
+  priceDisplay.textContent = PRICE(match.price);
+  priceBox.style.display = 'flex';
+  buyBtn.disabled = false;
+}
+
+// Wipes any country/service the browser restored (Safari/Chrome back-forward cache, form
+// autofill) so the website never chooses a country on the customer's behalf.
+function clearS1Selection() {
+  const cs = document.getElementById('numCountrySelect'); if (cs) cs.value = '';
+  const cq = document.getElementById('s1CountrySearch'); if (cq) cq.value = '';
+  const ct = document.getElementById('numCountryValueText'); if (ct) ct.textContent = 'Select a country…';
+  const ps = document.getElementById('numProviderSelect');
+  if (ps) { ps.innerHTML = '<option value="">Select a country first</option>'; ps.disabled = true; }
+  const pt = document.getElementById('numProviderValueText'); if (pt) pt.textContent = 'Select a country first';
+  const sq = document.getElementById('s1ServiceSearch'); if (sq) { sq.value = ''; sq.disabled = true; }
+  const pb = document.getElementById('numPriceBox'); if (pb) pb.style.display = 'none';
+  const bb = document.getElementById('numBuyBtn'); if (bb) bb.disabled = true;
+  numServices = [];
+  renderS1PopularChips();
+}
+let s1UserPickedCountry = false;
+// Browsers (iOS Safari especially) restore/autofill form values after load — wipe anything the customer didn't pick.
+window.addEventListener('pageshow', () => { if (!numCurrentOrder) { s1UserPickedCountry = false; clearS1Selection(); } });
+window.addEventListener('load', () => setTimeout(() => { if (!s1UserPickedCountry && !numCurrentOrder) clearS1Selection(); }, 300));
+
+// ── Server 1 search (same feel as Server 2) ──
+function filterS1Countries() {
+  const q = document.getElementById('s1CountrySearch').value.trim().toLowerCase();
+  const list = numCountries.filter(c => !q || c.name.toLowerCase().includes(q) || String(c.code).toLowerCase() === q);
+  showSugg('s1CountrySugg', list.length ? list.slice(0, 40).map(c =>
+    `<button type="button" class="sugg-item" onclick="pickS1Country('${esc(c.code)}')"><span style="font-size:20px">${flagEmoji(c.code)}</span>
+       <span class="si-name">${esc(c.name)}</span><span class="si-meta">${c.pinned ? '⭐ popular' : esc(c.code)}</span></button>`).join('')
+    : `<div class="sugg-empty">No country matches “${esc(q)}”.</div>`);
+}
+function pickS1Country(code, silent) {
+  s1UserPickedCountry = true;
+  hideSugg('s1CountrySugg');
+  const c = numCountries.find(x => x.code === code);
+  document.getElementById('s1CountrySearch').value = c ? c.name : '';
+  document.getElementById('numCountrySelect').value = code;
+  onNumCountryChange();
+  if (!silent) showToast((c ? c.name : 'Country') + ' selected');
+}
+// ── Service suggestions (logo + name): shown only AFTER server + country are chosen, built from what is
+// actually in stock there. The search box still finds every other service. ──
+const S1_POPULAR_KEYS = ['whatsapp', 'telegram', 'google', 'instagram', 'facebook', 'tiktok', 'twitter', 'snapchat', 'discord', 'linkedin', 'viber', 'microsoft', 'amazon', 'netflix', 'paypal', 'uber'];
+function renderS1PopularChips() {
+  const box = document.getElementById('s1PopularChips'); if (!box) return;
+  const picks = [];
+  S1_POPULAR_KEYS.forEach(k => {
+    const m = numServices.filter(s => String(s.provider).toLowerCase().includes(k) && !picks.includes(s))
+      .sort((a, b) => a.provider.length - b.provider.length || a.price - b.price)[0];
+    if (m) picks.push(m);
+  });
+  box.innerHTML = picks.slice(0, 10).map(s =>
+    `<button type="button" class="chip" onclick="pickS1Service('${esc(s.serviceId)}')">${svcLabelHtml({ name: s.provider, icon: s.icon, emoji: s.emoji }, 18)}</button>`).join('');
+}
+function filterS1Services() {
+  const q = document.getElementById('s1ServiceSearch').value.trim().toLowerCase();
+  if (!numServices.length) { showSugg('s1ServiceSugg', '<div class="sugg-empty">Pick a server and country first.</div>'); return; }
+  const list = numServices.filter(s => !q || s.provider.toLowerCase().includes(q));
+  showSugg('s1ServiceSugg', list.length ? list.slice(0, 60).map(s =>
+    `<button type="button" class="sugg-item" onclick="pickS1Service('${esc(s.serviceId)}')">${svcIconHtml({ icon: s.icon, emoji: s.emoji }, 24)}
+       <span class="si-name">${esc(s.provider)}</span><span class="si-meta">${PRICE(s.price)}</span></button>`).join('')
+    : `<div class="sugg-empty">No service matches “${esc(q)}”.</div>`);
+}
+function pickS1Service(id) {
+  hideSugg('s1ServiceSugg');
+  const s = numServices.find(x => x.serviceId === id);
+  document.getElementById('s1ServiceSearch').value = s ? s.provider : '';
+  document.getElementById('numProviderSelect').value = id;
+  onNumProviderChange();
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sugg-wrap')) { hideSugg('s1CountrySugg'); hideSugg('s1ServiceSugg'); }
+});
+
+async function buyNumber() {
+  const serviceId = document.getElementById('numProviderSelect').value;
+  const country = document.getElementById('numCountrySelect').value;
+  const fb = document.getElementById('numFeedback');
+  const btn = document.getElementById('numBuyBtn');
+  const match = numServices.find(s => s.serviceId === serviceId);
+  if (!serviceId || !country || !match) return setFb(fb, 'Please select a country and provider', 'err');
+  if (!bnToken) { window.location.href = '/login'; return; }
+  const _srv = numNovaServers.find(x => String(x.id) === String(selectedNovaServerId));
+  const _cty = numCountries.find(x => x.code === country);
+  if (!await kslConfirm(`Buy a ${match.provider} number${_cty ? ' (' + _cty.name + ')' : ''}${_srv ? ' on ' + _srv.name : ''} for ${PRICE(match.price)}? It is deducted from your wallet now and automatically refunded if no code arrives within 20 minutes. You can also cancel for a full refund while you wait.`, { title: 'Confirm purchase', okText: 'Yes, buy it', cancelText: 'No, go back' })) return;
+
+  // Show the deduction on screen immediately — the server takes the money before it orders anything.
+  try { if (typeof window._numBal === 'number') document.getElementById('numBalDisplay').textContent = AMT(Math.max(0, window._numBal - Number(match.price || 0))); } catch (_) {}
+  btn.disabled = true; btn.textContent = 'Placing your order…'; setFb(fb, 'Placing your order — this can take up to a minute. Please don’t close the page.', 'ok');
+  try {
+    const order = await req('/api/numbers/buy', 'POST', { country, serviceId, provider: match.provider, serverId: Number(selectedNovaServerId), expectedPrice: match.price }, true, 90000);
+    order.amountPaid = order.amountPaid || match.price || 0;
+    setFb(fb, '', '');
+    showNumWaitStep(order);
+    loadBalance();
+  } catch (e) {
+    if (/insufficient balance/i.test(e.message)) {
+      fb.innerHTML = `<svg class="icon i-x-circle" aria-hidden="true"><use href="#i-x-circle"/></svg> ${esc(e.message)} — <a href="/deposit">fund your wallet</a>`;
+      fb.className = 'fb err';
+    } else if (/no longer available|no longer in the live|price changed|pricing changed/i.test(e.message)) {
+ fb.innerHTML = ` ${esc(e.message)}`;
+      fb.className = 'fb err';
+      onNumCountryChange();
+    } else {
+ setFb(fb, ' ' + e.message, 'err');
+    }
+    loadBalance();
+    try { fb.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
+  } finally {
+ btn.disabled = false; btn.textContent = ' Buy This Number';
+  }
+}
+
+function showNumWaitStep(order) {
+  numCurrentOrder = order;
+  document.getElementById('numPickStep').style.display = 'none';
+  document.getElementById('numPickStep2').style.display = 'none';
+  document.getElementById('numServerCard').style.display = 'none';
+  document.getElementById('numHero').style.display = 'none';
+  document.getElementById('numTopBar').style.display = 'flex';
+  document.getElementById('numServerIntro').style.display = 'none';
+  document.getElementById('numHowToCard').style.display = 'none';
+  document.getElementById('numRulesCard').style.display = 'none';
+
+  document.getElementById('numWaitStep').style.display = 'block';
+  document.getElementById('numPhoneDisplay').textContent = order.phoneNumber;
+  document.getElementById('numLockedAmount').textContent = AMT(order.amountPaid);
+  document.getElementById('numCodeBox').style.display = 'none';
+  document.getElementById('numCopyBtn').style.display = 'inline-block';
+ document.getElementById('numCopyBtn').textContent = ' Copy Number';
+  document.getElementById('numCancelBtn').style.display = 'inline-block';
+  const waNote = document.getElementById('numWaNote'); if (waNote) waNote.style.display = 'none';
+  renderCopySteps();
+  // Server 2 covers dozens of
+  // unrelated services, so a one-size instruction like this would be misleading there.
+  renderWaInstructions(false);
+  const statusNote = document.getElementById('numStatusNote');
+  statusNote.textContent = '⏳ Waiting for your code…';
+  statusNote.className = 'status-note';
+
+  clearInterval(numCountdownTimer);
+  const expiry = new Date(order.expiresAt).getTime();
+  numCountdownTimer = setInterval(() => {
+    const secondsLeft = Math.max(0, Math.round((expiry - Date.now()) / 1000));
+    const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const s = String(secondsLeft % 60).padStart(2, '0');
+    const el = document.getElementById('numCountdown');
+    if (el) el.textContent = `${m}:${s}`;
+    if (secondsLeft <= 0) clearInterval(numCountdownTimer);
+  }, 1000);
+
+  clearInterval(numPollTimer);
+  numPollTimer = setInterval(() => pollNumberStatus(order.orderId), 5000);
+  pollNumberStatus(order.orderId);
+}
+
+async function pollNumberStatus(orderId) {
+  const statusNote = document.getElementById('numStatusNote');
+  try {
+    const data = await req(`/api/numbers/status/${orderId}`, 'GET', null, true);
+    if (data.status === 'delivered') {
+      clearInterval(numPollTimer); clearInterval(numCountdownTimer);
+      numCurrentOrder.code = data.code;
+      numCurrentOrder.otpLink = data.otpLink || numCurrentOrder.otpLink;
+      renderCopySteps();
+      document.getElementById('numCodeBox').style.display = 'block';
+      document.getElementById('numCodeDisplay').textContent = data.code;
+ document.getElementById('numCopyBtn').textContent = ' Copy Code';
+      document.getElementById('numCancelBtn').style.display = 'none';
+ statusNote.textContent = ' Code received! This purchase is now final.';
+      statusNote.className = 'status-note ok';
+      loadNumOrders();
+    } else if (data.status === 'expired') {
+      clearInterval(numPollTimer); clearInterval(numCountdownTimer);
+      document.getElementById('numCancelBtn').style.display = 'none';
+      statusNote.textContent = '⏱ No code arrived in time — refunded to your wallet automatically.';
+      statusNote.className = 'status-note ok';
+      loadNumOrders();
+    }
+  } catch (e) { /* transient poll errors are silent — next tick retries */ }
+}
+
+async function cancelNumberOrder() {
+  if (!numCurrentOrder) return;
+  const statusNote = document.getElementById('numStatusNote');
+  const cancelBtn = document.getElementById('numCancelBtn');
+  if (!await kslConfirm('Cancel this number and get refunded now? You will not be able to receive a code on it afterward.')) return;
+  cancelBtn.disabled = true; cancelBtn.textContent = 'Cancelling…';
+  try {
+    const r = await req(`/api/numbers/cancel/${numCurrentOrder.orderId}`, 'POST', null, true);
+    clearInterval(numPollTimer); clearInterval(numCountdownTimer);
+ statusNote.textContent = r?.providerCancelled
+      ? 'Cancelled on the provider too — refunded to your wallet in full.'
+      : 'Refunded to your wallet in full. The provider order closes automatically.';
+    showToast(r?.providerMessage || 'Cancelled and refunded');
+    statusNote.className = 'status-note ok';
+    cancelBtn.style.display = 'none';
+    loadNumOrders();
+  } catch (e) {
+ showToast(' ' + e.message);
+  } finally {
+ cancelBtn.disabled = false; cancelBtn.textContent = ' Cancel & Refund';
+  }
+}
+
+// Splits +1 415 555 0100 into the pieces every app asks for separately.
+function numberParts(phone) {
+  const digits = String(phone || '').replace(/[^0-9]/g, '');
+  const dial = digits.startsWith('1') ? '1' : digits.slice(0, Math.max(1, digits.length - 10));
+  return { full: '+' + digits, dial: '+' + dial, local: digits.slice(dial.length) };
+}
+
+function renderCopySteps() {
+  if (!numCurrentOrder) return;
+  const parts = numberParts(numCurrentOrder.phoneNumber);
+  document.getElementById('csPhone').textContent = parts.full;
+  document.getElementById('csCode').textContent = parts.dial;
+  document.getElementById('csLocal').textContent = parts.local;
+  const otp = numCurrentOrder.otpLink || numCurrentOrder.code;
+  const row = document.getElementById('csOtpRow');
+  row.style.display = otp ? 'flex' : 'none';
+  if (otp) document.getElementById('csOtp').textContent = otp;
+}
+
+function copyStep(which) {
+  if (!numCurrentOrder) return;
+  const parts = numberParts(numCurrentOrder.phoneNumber);
+  const value = which === 'phone' ? parts.full
+    : which === 'dial' ? parts.dial
+    : which === 'local' ? parts.local
+    : (numCurrentOrder.otpLink || numCurrentOrder.code || '');
+  if (!value) return showToast('Nothing to copy yet');
+  navigator.clipboard?.writeText(value).then(() => showToast('Copied ' + value)).catch(() => showToast('Copy failed — long-press to copy'));
+}
+
+function copyNumberOrCode() {
+  if (!numCurrentOrder) return;
+  const text = numCurrentOrder.code || numCurrentOrder.phoneNumber;
+  navigator.clipboard?.writeText(text).then(() => showToast('Copied')).catch(() => {});
+}
+
+function resetNumberFlow() {
+  clearInterval(numPollTimer); clearInterval(numCountdownTimer);
+  numCurrentOrder = null;
+  s1UserPickedCountry = false;
+  document.getElementById('numWaitStep').style.display = 'none';
+  document.getElementById('numServerCard').style.display = 'block';
+  selectServer(activeNumberServer); // shows whichever server picker they were on
+
+  document.getElementById('numCountrySelect').value = '';
+  document.getElementById('numCountryValueText').textContent = 'Select a country…';
+  document.getElementById('numProviderSelect').innerHTML = '<option value="">Select a country first</option>';
+  document.getElementById('numProviderSelect').disabled = true;
+  document.getElementById('numProviderValueText').textContent = 'Select a country first';
+  document.getElementById('numPriceBox').style.display = 'none';
+  document.getElementById('numBuyBtn').disabled = true;
+  loadNumOptions();
+}
+
+async function loadNumOrders() {
+  const list = document.getElementById('numOrdersList');
+  if (!bnToken) { list.innerHTML = 'Log in to see your purchase history.'; return; }
+  try {
+    const orders = await req('/api/numbers/my-orders', 'GET', null, true);
+    renderActiveNumbers(orders.filter(o => o.status === 'pending'));
+    if (!orders.length) { list.innerHTML = 'No purchases yet.'; return; }
+    list.innerHTML = orders.map(o => `
+      <div class="order-row" onclick="window.location.href='/number-history?order=${o.id}'">
+        <span>${esc(o.provider)} — ${esc(o.country)}<div class="meta">${esc(o.phoneNumber)} · ${new Date(o.createdAt).toLocaleDateString('en-NG',{day:'numeric',month:'short'})}</div></span>
+        <b style="color:${o.status === 'delivered' ? '#00d46a' : '#8888a8'}">${o.status === 'delivered' ? '<svg class="icon i-check-circle" aria-hidden="true"><use href="#i-check-circle"/></svg> OTP received' : o.status === 'expired' ? 'Refunded' : o.status === 'cancelled' ? 'Cancelled' : '⏳ Pending'} ›</b>
+      </div>
+    `).join('');
+  } catch (e) { list.innerHTML = 'Could not load orders.'; }
+}
+
+// "Active Numbers" — a live table of everything still waiting for a code, so the customer can
+// see it land without needing to refresh the page (a background interval keeps this current).
+function renderActiveNumbers(activeOrders) {
+  const card = document.getElementById('activeNumbersCard');
+  const body = document.getElementById('activeNumbersBody');
+  const countChip = document.getElementById('anCountChip');
+  countChip.textContent = activeOrders.length;
+  if (!activeOrders.length) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  body.innerHTML = activeOrders.map(o => {
+    const countryEntry = numCountries.find(c => c.name === o.country);
+ const flag = countryEntry ? flagEmoji(countryEntry.code) : '';
+    const secondsLeft = o.expiresAt ? Math.max(0, Math.round((new Date(o.expiresAt) - Date.now()) / 1000)) : 0;
+    const mm = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+    const ss = String(secondsLeft % 60).padStart(2, '0');
+    return `<tr onclick="window.location.href='/number-history?order=${o.id}'" style="cursor:pointer">
+      <td style="font-size:18px">${flag}</td>
+      <td>${esc(o.provider)}</td>
+      <td>${esc(o.phoneNumber)}</td>
+      <td>${o.code ? `<span class="an-code">${esc(o.code)}</span>` : '<span class="an-waiting">waiting…</span>'}</td>
+      <td class="an-time">${mm}:${ss}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════ SERVER SWITCHER + SERVER 2 (all services) ══════════════════════
+let activeNumberServer = 'server1';
+let numServersInfo = [];
+let g2Services = [], g2Countries = [], g2Providers = [], g2Operators = [];
+let g2ProviderMode = 'pools';        // 'pools' | 'operators' | 'both' — set by the admin panel
+let g2DefaultOperator = 'any';
+
+async function loadNumServers() {
+  try { numServersInfo = await req('/api/numbers/servers', 'GET', null, false); }
+  catch (e) { numServersInfo = [{ id: 'server1', enabled: true }, { id: 'server2', enabled: true }]; }
+  const s1 = numServersInfo.find(s => s.id === 'server1');
+  const s2 = numServersInfo.find(s => s.id === 'server2');
+  g2ProviderMode = s2?.providerMode || 'pools';
+  g2DefaultOperator = s2?.defaultOperator || 'any';
+  document.getElementById('srvTab1').disabled = !(s1 && s1.enabled);
+  document.getElementById('srvTab2').disabled = !(s2 && s2.enabled);
+  // Nothing is pre-selected — the customer first sees only "Server 1" and "Server 2", and the
+  // instructions, notifications, rules and buying form only appear once they tap one.
+  loadNumServerHealth();
+  clearInterval(window._srvHealthTimer);
+  window._srvHealthTimer = setInterval(loadNumServerHealth, 60000);
+}
+
+// Live status dots so customers can see when a server is temporarily unavailable.
+async function loadNumServerHealth() {
+  let health;
+  try { health = await req('/api/numbers/health', 'GET', null, false); }
+  catch (e) { return; }
+  (health.servers || []).forEach(s => {
+    const n = s.id === 'server2' ? '2' : '1';
+    // The old inline status dot was dropped from the card markup — the pill
+    // carries the state now — so treat it as optional.
+    const dot = document.getElementById('srvDot' + n);
+    const note = document.getElementById('srvHealth' + n);
+    if (!note) return;
+    const state = !s.enabled ? 'off' : s.online ? 'up' : 'down';
+    if (dot) {
+      dot.className = 'hdot ' + state;
+      dot.title = !s.enabled ? 'Switched off' : s.online ? 'Online' : 'Temporarily unavailable';
+    }
+    note.textContent = !s.enabled ? 'Switched off right now'
+      : s.online ? 'Online — buying works normally'
+      : 'Temporarily unavailable — please try again shortly';
+    const pill = document.getElementById('srvPill' + n);
+    if (pill) {
+      const online = state === 'up';
+      pill.classList.toggle('off', !online);
+      pill.innerHTML = `<span class="pdot"></span>${online ? 'Online' : (state === 'off' ? 'Switched off' : 'Offline')}`;
+    }
+    if (state === 'down') document.getElementById('srvTab' + n).disabled = true;
+  });
+}
+
+
+// Per-server guidance shown only after the customer taps that server.
+const SERVER_GUIDE = {
+  server1: {
+    title: 'Server 1 — Live Numbers',
+    notice: '<b>Live numbers:</b> choose a server first, then a country and service. The price is confirmed again by the backend before your wallet is charged.',
+    steps: [
+      'Install and open the app you want to verify <i>before</i> buying.',
+      'Select the <b>server</b> that contains the service.',
+      'Search and pick the <b>country</b>.',
+      'Search and pick the <b>service</b> — each one shows its icon and live price.',
+      'Tap <b>Buy This Number</b> — your wallet is charged and the number is reserved for you.',
+      'Your code lands automatically in <b>Active Numbers</b> — no refresh needed.',
+      'No code in time? You are refunded automatically, or tap <b>Cancel &amp; Refund</b> yourself.'
+    ],
+    notifs: [
+      'Live countdown showing how long is left on your number',
+      'Instant on-page alert the moment your OTP code arrives',
+      'Automatic refund notice if no code arrives before time runs out',
+      'Wallet balance updates immediately after every charge or refund'
+    ]
+  },
+  server2: {
+    title: 'Server 2 — All services & countries',
+    notice: 'Stock and prices here change every few seconds. Availability is re-checked automatically and once more right before your wallet is charged, so you never pay a stale price.',
+    steps: [
+      'Install the app you want to verify <i>before</i> buying.',
+      'Search and pick the <b>service</b> (WhatsApp, Telegram, Google…).',
+      'Search and pick the <b>country</b>.',
+      'If operator choice is on, pick <b>Any operator</b> (recommended) or a specific one.',
+      'Pick a provider pool. <b>Pool 4 and above is recommended for faster SMS delivery</b>; Pools 1–3 have a lower SMS delivery rate.',
+      'Tap <b>Buy This Number</b>, confirm the live price, and the number is reserved for you.',
+      'Your code appears automatically in <b>Active Numbers</b>; no code in time means an automatic refund.'
+    ],
+    notifs: [
+      'Live stock counter and "checked at" time for the provider you picked',
+      'A confirmation prompt if the price changed before you paid',
+      'Instant on-page alert when your OTP code arrives',
+      'Automatic refund notice, plus an immediate wallet balance update'
+    ]
+  }
+};
+
+function selectServer(id) {
+  const info = numServersInfo.find(s => s.id === id);
+  if (info && !info.enabled) { showToast('That server is switched off right now'); return; }
+  activeNumberServer = id;
+
+  // The old WhatsApp-specific notice is not applicable to NovaSolution — Server 2
+  // covers many other services where this doesn't apply, so it only shows here, every time
+  // Server 1 is opened (not on general page load, and not for Server 2).
+  if (id === 'server1' && !localStorage.getItem('kls_s1_news')) { document.getElementById('annOverlay').classList.add('show'); localStorage.setItem('kls_s1_news', '1'); }
+  else document.getElementById('annOverlay').classList.remove('show');
+
+  // Full-page server view: the chooser and hero step aside, a sticky "Back to numbers"
+  // bar takes their place so the customer is never stranded inside a server.
+  document.getElementById('numServerCard').style.display = 'none';
+  document.getElementById('numHero').style.display = 'none';
+  const bar = document.getElementById('numTopBar');
+  bar.style.display = 'flex';
+  document.getElementById('numTopBarTitle').textContent =
+    id === 'server2' ? 'Server 2' : 'Server 1';
+
+  document.getElementById('numPickStep').style.display = id === 'server1' ? 'block' : 'none';
+  document.getElementById('numPickStep2').style.display = id === 'server2' ? 'block' : 'none';
+
+  // Reveal the full explanation, rules and notifications for the chosen server.
+  const guide = SERVER_GUIDE[id];
+  if (id === 'server1' && !s1UserPickedCountry && !numCurrentOrder) clearS1Selection(); // never arrive with a country already chosen
+  document.getElementById('numServerIntro').style.display = 'block';
+  document.getElementById('numServerIntroTitle').textContent = guide.title;
+  document.getElementById('numServerNotice').innerHTML = guide.notice;
+  document.getElementById('numServerSteps').innerHTML = guide.steps.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('numServerNotifs').innerHTML = guide.notifs.map(t => `<li>${t}</li>`).join('');
+  renderWaInstructions();
+  // Server 1's instructions live in the pinned panel below (renderWaInstructions); Server 2
+  // covers dozens of unrelated services, so this WhatsApp-specific card never applies there.
+  document.getElementById('numHowToCard').style.display = 'none';
+  document.getElementById('numRulesCard').style.display = 'block';
+  document.getElementById('numOrdersCard').style.display = 'block';
+  document.getElementById('srvNote').textContent = info?.description || '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'server2') {
+    applyG2ProviderMode();
+    if (!g2Services.length) loadG2Services();
+  }
+}
+
+function renderWaInstructions() {
+  // Old WhatsApp-only instructions were removed from both servers.
+  const panel = document.getElementById('waInstrPanel'); if (panel) panel.remove();
+}
+
+function toggleWaInstructions() {
+  const collapsed = localStorage.getItem('kls_wa_instr') === 'hidden';
+  localStorage.setItem('kls_wa_instr', collapsed ? 'shown' : 'hidden');
+  renderWaInstructions(true);
+}
+
+// Back to the bare "Server 1 / Server 2" choice — hides everything server-specific again.
+function backToServers() {
+  ['numServerIntro', 'numHowToCard', 'numRulesCard', 'numOrdersCard', 'numPickStep', 'numPickStep2', 'numTopBar']
+    .forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+  renderWaInstructions(false);
+  document.getElementById('numServerCard').style.display = 'block';
+  document.getElementById('numHero').style.display = '';
+  document.getElementById('srvNote').textContent = 'Select a server to open its full page — instructions, rules and buying form.';
+  hideSugg('g2ServiceSugg'); hideSugg('g2CountrySugg');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function loadG2Services() {
+  const sel = document.getElementById('g2ServiceSelect');
+  const empty = document.getElementById('numEmptyState2');
+  const form = document.getElementById('numPickerForm2');
+  // Instant start: paint the list saved on this device first, then refresh it behind the scenes.
+  let fromCache = false;
+  if (!g2Services.length) {
+    try {
+      const c = JSON.parse(localStorage.getItem('kls_g2_services') || 'null');
+      if (Array.isArray(c) && c.length) {
+        g2Services = c; fromCache = true;
+        empty.style.display = 'none'; form.style.display = 'block';
+        renderG2Services(g2Services); renderG2PopularChips();
+      }
+    } catch (e) {}
+  }
+  try {
+    const fresh = await req('/api/numbers/server2/services', 'GET', null, false);
+    if (!fresh.length) { if (!fromCache) { empty.style.display = 'block'; form.style.display = 'none'; } return; }
+    try { localStorage.setItem('kls_g2_services', JSON.stringify(fresh)); } catch (e) {}
+    const changed = JSON.stringify(fresh) !== JSON.stringify(g2Services);
+    g2Services = fresh;
+    empty.style.display = 'none'; form.style.display = 'block';
+    // Never disturb a service the customer has already picked.
+    if (changed && !document.getElementById('g2ServiceSelect').value) { renderG2Services(g2Services); renderG2PopularChips(); }
+    prefetchG2Popular();
+  } catch (e) {
+    if (!fromCache) { empty.style.display = 'block'; form.style.display = 'none'; }
+  }
+}
+
+// Quietly pre-load the country lists of the most popular services so the first tap is instant.
+let g2Prefetched = false;
+function prefetchG2Popular() {
+  if (g2Prefetched) return; g2Prefetched = true;
+  const codes = g2Services.filter(s => s.popular).slice(0, 8).map(s => s.code);
+  codes.forEach((c, i) => setTimeout(() => {
+    if (g2CountriesCache.has(c)) return;
+    req(`/api/numbers/server2/countries?service=${encodeURIComponent(c)}`, 'GET', null, false).then(r => g2CountriesCache.set(c, r)).catch(() => {});
+  }, 600 * (i + 1)));
+}
+function g2ServiceLabel(s) { return `${s.emoji || '📱'} ${s.name}`; }
+
+// Real app logo (simple-icons CDN, served by our API as `icon`). Falls back to the
+// emoji only if the brand mark fails to load, so a row never looks broken.
+function svcIconHtml(s, size) {
+  const px = size || 22;
+  const fallback = esc(s.emoji || '📱');
+  if (!s || !s.icon) return `<span class="app-ico-fb" style="font-size:${px - 4}px">${fallback}</span>`;
+  return `<img class="app-ico" src="${esc(s.icon)}" alt="" width="${px}" height="${px}" loading="lazy"
+     onerror="this.outerHTML='<span class=\'app-ico-fb\' style=\'font-size:${px - 4}px\'>${fallback}</span>'"/>`;
+}
+function svcLabelHtml(s, size) {
+  return `${svcIconHtml(s, size)}<span class="app-ico-name">${esc(s.name)}</span>`;
+}
+
+function renderG2Services(list) {
+  const sel = document.getElementById('g2ServiceSelect');
+  if (!list.length) {
+    sel.innerHTML = '<option value="">No service matches that search</option>';
+    document.getElementById('g2ServiceValueText').textContent = 'No match';
+    return;
+  }
+  const opt = s => `<option value="${esc(s.code)}" data-name="${esc(s.name)}" data-icon="${esc(s.icon || '')}">${esc(g2ServiceLabel(s))}</option>`;
+  const popular = list.filter(s => s.popular);
+  const rest = list.filter(s => !s.popular).slice().sort((a, b) => a.name.localeCompare(b.name));
+  // Everything that is not "most popular" is grouped A, B, C … Z so a service is easy to find.
+  const letters = new Map();
+  rest.forEach(s => {
+    const L = /^[a-z]/i.test(s.name) ? s.name[0].toUpperCase() : '#';
+    if (!letters.has(L)) letters.set(L, []);
+    letters.get(L).push(s);
+  });
+  const groups = [...letters.entries()]
+    .sort((a, b) => (a[0] === '#' ? 1 : b[0] === '#' ? -1 : a[0].localeCompare(b[0])))
+    .map(([L, items]) => `<optgroup label="${L} (${items.length})">${items.map(opt).join('')}</optgroup>`)
+    .join('');
+  sel.innerHTML = '<option value="">Select a service…</option>' +
+    (popular.length ? `<optgroup label="⭐ Most popular">${popular.map(opt).join('')}</optgroup>` : '') +
+    groups;
+  document.getElementById('g2ServiceValueText').textContent = 'Select a service…';
+}
+
+// Nicknames people actually type, mapped to the words that appear in the real service names,
+// so "wa", "insta" or "x" still find WhatsApp, Instagram and Twitter.
+const G2_SEARCH_ALIASES = {
+  wa: 'whatsapp', whatsap: 'whatsapp', wapp: 'whatsapp', watsapp: 'whatsapp', business: 'whatsapp',
+  tg: 'telegram', telegramm: 'telegram', fb: 'facebook', face: 'facebook', meta: 'facebook',
+  ig: 'instagram', insta: 'instagram', x: 'twitter', tweet: 'twitter', tt: 'tiktok', tik: 'tiktok',
+  g: 'google', gmail: 'google', youtube: 'google', yt: 'google', snap: 'snapchat', dc: 'discord',
+  ms: 'microsoft', outlook: 'microsoft', hotmail: 'microsoft', ali: 'alipay', bin: 'binance',
+  uber: 'uber', olx: 'olx', amz: 'amazon', paypal: 'paypal', cash: 'cashapp', open: 'openai',
+  chatgpt: 'openai', ai: 'openai', linked: 'linkedin', li: 'linkedin', vi: 'viber', wc: 'wechat'
+};
+
+// "Related" match: exact code, word-start match, plain substring, alias substitution and a
+// loose in-order letter match (so "whatsap"/"whstapp" still finds WhatsApp). Best matches first.
+function g2ServiceScore(service, q) {
+  const name = service.name.toLowerCase();
+  const code = String(service.code).toLowerCase();
+  const alias = G2_SEARCH_ALIASES[q];
+  if (code === q || name === q) return 100;
+  if (name.startsWith(q) || code.startsWith(q)) return 90;
+  if (name.split(/[^a-z0-9]+/).some(w => w.startsWith(q))) return 80;
+  if (name.includes(q) || code.includes(q)) return 70;
+  if (alias && (name.includes(alias) || code.includes(alias))) return 65;
+  if (q.length >= 3 && looseMatch(name, q)) return 40;
+  if (q.length >= 4 && looseMatch(name, q.slice(0, -1))) return 30;
+  return 0;
+}
+
+// Every letter of the query appears in order somewhere in the name — forgives typos and gaps.
+function looseMatch(haystack, needle) {
+  let i = 0;
+  for (const ch of haystack) { if (ch === needle[i]) i++; if (i === needle.length) return true; }
+  return false;
+}
+
+// ── Related-match suggestions ───────────────────────────────────────────────
+// Typing shows the services/countries related to what was typed; tapping one fills the
+// matching select box in automatically, so nothing has to be hunted for in a long list.
+function hideSugg(id) { const el = document.getElementById(id); if (el) el.classList.remove('show'); }
+
+function showSugg(id, html) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+
+function g2RelatedServices(q) {
+  return g2Services
+    .map(s => ({ s, score: g2ServiceScore(s, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score || (b.s.popular ? 1 : 0) - (a.s.popular ? 1 : 0) || a.s.name.localeCompare(b.s.name))
+    .map(x => x.s);
+}
+
+// Client-side filter so searching feels instant (the full list is already loaded).
+function filterG2Services() {
+  const q = document.getElementById('g2ServiceSearch').value.trim().toLowerCase();
+  if (!q) { renderG2Services(g2Services); hideSugg('g2ServiceSugg'); return; }
+  const related = g2RelatedServices(q);
+  renderG2Services(related);
+  showSugg('g2ServiceSugg', related.length
+    ? related.slice(0, 25).map(s =>
+        `<button type="button" class="sugg-item" onclick="pickSuggestedService('${esc(s.code)}')">
+           ${svcIconHtml(s, 24)}<span class="si-name">${esc(s.name)}</span>
+           <span class="si-meta">${s.popular ? '⭐ popular' : esc(s.code)}</span>
+         </button>`).join('')
+    : `<div class="sugg-empty">Nothing related to “${esc(q)}” — try a shorter word.</div>`);
+}
+
+// Tap a suggestion → the service select is set and the country step loads on its own.
+function pickSuggestedService(code) {
+  hideSugg('g2ServiceSugg');
+  const svc = g2Services.find(s => s.code === code);
+  document.getElementById('g2ServiceSearch').value = svc ? svc.name : '';
+  renderG2Services(g2Services);
+  const sel = document.getElementById('g2ServiceSelect');
+  sel.value = code;
+  onG2ServiceChange();
+  showToast((svc ? svc.name : 'Service') + ' selected');
+}
+
+// Same idea for countries.
+function pickSuggestedCountry(id) {
+  hideSugg('g2CountrySugg');
+  const c = g2Countries.find(x => x.id === id);
+  document.getElementById('g2CountrySearch').value = c ? c.name : '';
+  renderG2Countries(sortedG2Countries());
+  const sel = document.getElementById('g2CountrySelect');
+  sel.value = id;
+  onG2CountryChange();
+  showToast((c ? c.name : 'Country') + ' selected');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.sugg-wrap')) { hideSugg('g2ServiceSugg'); hideSugg('g2CountrySugg'); }
+});
+
+// One-tap chips for the services people actually buy — no scrolling, no typing.
+function renderG2PopularChips() {
+  const box = document.getElementById('g2PopularChips');
+  if (!box) return;
+  const popular = g2Services.filter(s => s.popular).slice(0, 8);
+  box.innerHTML = popular.map(s =>
+    `<button type="button" class="chip" onclick="quickPickG2Service('${esc(s.code)}')">${svcLabelHtml(s, 18)}</button>`
+  ).join('');
+}
+
+function quickPickG2Service(code) {
+  const search = document.getElementById('g2ServiceSearch');
+  search.value = '';
+  renderG2Services(g2Services);
+  const sel = document.getElementById('g2ServiceSelect');
+  sel.value = code;
+  onG2ServiceChange();
+}
+
+// Country search — related matches (name, ISO-ish start, typo-tolerant) with suggestions.
+let g2CountrySort = 'price'; // cheapest-first is now the only/default sort — the A→Z toggle was removed for a simpler, more standard picker
+
+function setG2CountrySort(mode) {
+  g2CountrySort = mode;
+  renderG2Countries(sortedG2Countries());
+}
+
+function sortedG2Countries(list) {
+  const arr = (list || g2Countries).slice();
+  return g2CountrySort === 'price'
+    ? arr.sort((a, b) => a.price - b.price || b.count - a.count)
+    : arr.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function g2CountryScore(c, q) {
+  const n = c.name.toLowerCase();
+  if (n === q) return 100;
+  if (n.startsWith(q)) return 90;
+  if (n.split(/[^a-z0-9]+/).some(w => w.startsWith(q))) return 80;
+  if (n.includes(q)) return 70;
+  if (q.length >= 3 && looseMatch(n, q)) return 40;
+  return 0;
+}
+
+function filterG2Countries() {
+  const q = document.getElementById('g2CountrySearch').value.trim().toLowerCase();
+  if (!q) { renderG2Countries(sortedG2Countries()); hideSugg('g2CountrySugg'); return; }
+  const related = g2Countries
+    .map(c => ({ c, score: g2CountryScore(c, q) }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score || a.c.name.localeCompare(b.c.name))
+    .map(x => x.c);
+  renderG2Countries(related);
+  showSugg('g2CountrySugg', related.length
+    ? related.slice(0, 25).map(c =>
+        `<button type="button" class="sugg-item" onclick="pickSuggestedCountry('${esc(c.id)}')">
+           <span class="si-name">${esc((c.flag || '🌍') + ' ' + c.name)}</span>
+           <span class="si-meta">${PRICE(c.price)} · ${c.count} left</span>
+         </button>`).join('')
+    : `<div class="sugg-empty">No country related to “${esc(q)}”.</div>`);
+}
+
+function renderG2Countries(list) {
+  const sel = document.getElementById('g2CountrySelect');
+  const text = document.getElementById('g2CountryValueText');
+  if (!list.length) {
+    sel.innerHTML = '<option value="">No country matches that search</option>';
+    sel.disabled = true; text.textContent = 'No match';
+    return;
+  }
+  const opt = c => `<option value="${esc(c.id)}">${esc((c.flag || '🌍') + ' ' + c.name)} — ${PRICE(c.price)} (${c.count} left)</option>`;
+  let inner;
+  if (g2CountrySort === 'price') {
+    inner = list.map(opt).join('');
+  } else {
+    // A, B, C … Z groups so any country is found in one glance.
+    const letters = new Map();
+    list.forEach(c => {
+      const L = /^[a-z]/i.test(c.name) ? c.name[0].toUpperCase() : '#';
+      if (!letters.has(L)) letters.set(L, []);
+      letters.get(L).push(c);
+    });
+    inner = [...letters.entries()]
+      .sort((a, b) => (a[0] === '#' ? 1 : b[0] === '#' ? -1 : a[0].localeCompare(b[0])))
+      .map(([L, items]) => `<optgroup label="${L} (${items.length})">${items.map(opt).join('')}</optgroup>`)
+      .join('');
+  }
+  sel.innerHTML = '<option value="">Select a country…</option>' + inner;
+  sel.disabled = false;
+  text.textContent = 'Select a country…';
+}
+
+
+// Picks the cheapest provider currently in stock so buyers never have to compare pools.
+function pickCheapestG2Provider() {
+  if (!g2Providers.length) { showToast('Pick a service and country first'); return; }
+  let best = 0;
+  g2Providers.forEach((p, i) => { if (p.price < g2Providers[best].price) best = i; });
+  const sel = document.getElementById('g2ProviderSelect');
+  sel.value = String(best);
+  onG2ProviderChange();
+}
+
+// Prefer Pool 4+ because those tiers generally deliver SMS faster. If only lower pools
+// are in stock, select the highest available one so the customer still gets the best option.
+function pickRecommendedG2Provider() {
+  if (!g2Providers.length) { showToast('Pick a service and country first'); return; }
+  let best = g2Providers.findIndex((p, i) => {
+    const match = String(p.label || '').match(/Pool\s*(\d+)/i);
+    return Number(match?.[1] || i + 1) >= 4;
+  });
+  if (best < 0) best = g2Providers.length - 1;
+  document.getElementById('g2ProviderSelect').value = String(best);
+  onG2ProviderChange();
+}
+
+
+
+
+// Shows/hides the operator step and renumbers the pool step according to the admin setting.
+function applyG2ProviderMode() {
+  const wrap = document.getElementById('g2OperatorWrap');
+  const poolLabel = document.getElementById('g2PoolStepLabel');
+  const showOps = g2ProviderMode === 'operators' || g2ProviderMode === 'both';
+  if (wrap) wrap.style.display = showOps ? 'block' : 'none';
+  if (poolLabel) poolLabel.textContent = showOps ? 'Step 4 — Pick a provider (price pool)' : 'Step 3 — Pick a provider (price pool)';
+}
+
+// Loads the operators Grizzly sells for the chosen country.
+async function loadG2Operators(country) {
+  const sel = document.getElementById('g2OperatorSelect');
+  const text = document.getElementById('g2OperatorValueText');
+  if (!sel) return;
+  if (!(g2ProviderMode === 'operators' || g2ProviderMode === 'both') || !country) {
+    g2Operators = [];
+    sel.innerHTML = '<option value="any">Any operator (recommended)</option>';
+    if (text) text.textContent = 'Any operator (recommended)';
+    return;
+  }
+  sel.innerHTML = '<option value="any">Loading operators…</option>';
+  try {
+    g2Operators = await req('/api/numbers/server2/operators?country=' + encodeURIComponent(country), 'GET', null, false);
+  } catch (e) { g2Operators = [{ code: 'any', name: 'Any operator (recommended)' }]; }
+  if (!g2Operators.length) g2Operators = [{ code: 'any', name: 'Any operator (recommended)' }];
+  sel.innerHTML = g2Operators.map(o => `<option value="${esc(o.code)}">${esc(o.name)}</option>`).join('');
+  sel.value = g2Operators.some(o => o.code === g2DefaultOperator) ? g2DefaultOperator : 'any';
+  onG2OperatorChange();
+}
+
+function onG2OperatorChange() {
+  const sel = document.getElementById('g2OperatorSelect');
+  const text = document.getElementById('g2OperatorValueText');
+  const chosen = g2Operators.find(o => o.code === sel.value);
+  if (text) text.textContent = chosen ? chosen.name : 'Any operator (recommended)';
+}
+
+function selectedG2Operator() {
+  if (!(g2ProviderMode === 'operators' || g2ProviderMode === 'both')) return g2DefaultOperator || 'any';
+  return document.getElementById('g2OperatorSelect')?.value || 'any';
+}
+
+function resetG2Providers(msg) {
+  const sel = document.getElementById('g2ProviderSelect');
+  sel.innerHTML = `<option value="">${esc(msg)}</option>`;
+  sel.disabled = true;
+  document.getElementById('g2ProviderValueText').textContent = msg;
+  document.getElementById('g2PriceBox').style.display = 'none';
+  document.getElementById('g2BuyBtn').disabled = true;
+}
+
+// Stored copies, like Server 1: once a service/country has been opened, it opens instantly next
+// time and the fresh numbers slot in behind it.
+const g2CountriesCache = new Map(), g2ProvidersCache = new Map();
+async function onG2ServiceChange() {
+  const service = document.getElementById('g2ServiceSelect').value;
+  const countrySel = document.getElementById('g2CountrySelect');
+  const countryText = document.getElementById('g2CountryValueText');
+  const svcMeta = g2Services.find(s => s.code === service);
+  document.getElementById('g2ServiceValueText').innerHTML =
+    svcMeta ? svcLabelHtml(svcMeta, 20) : 'Select a service…';
+
+  resetG2Providers('Select a country first');
+  if (!service) {
+    countrySel.innerHTML = '<option value="">Select a service first</option>';
+    countrySel.disabled = true; countryText.textContent = 'Select a service first';
+    return;
+  }
+  const countrySearch = document.getElementById('g2CountrySearch');
+  countrySearch.value = '';
+  const stillCurrent = () => document.getElementById('g2ServiceSelect').value === service;
+  const cached = g2CountriesCache.get(service);
+  if (cached && cached.length) {
+    g2Countries = cached;
+    renderG2Countries(sortedG2Countries());
+    countrySearch.disabled = false;
+  } else {
+    countrySel.innerHTML = '<option value="">Loading…</option>'; countrySel.disabled = true;
+    countryText.textContent = 'Loading…'; countrySearch.disabled = true;
+  }
+  try {
+    const fresh = await req(`/api/numbers/server2/countries?service=${encodeURIComponent(service)}`, 'GET', null, false);
+    g2CountriesCache.set(service, fresh);
+    if (!stillCurrent()) return;
+    if (!fresh.length) {
+      g2Countries = [];
+      countrySel.innerHTML = '<option value="">No stock for this service right now</option>';
+      countrySel.disabled = true; countryText.textContent = 'No stock right now';
+      return;
+    }
+    // Don't redraw under the customer's finger if they already picked a country from the stored list.
+    if (!(cached && cached.length && countrySel.value)) {
+      g2Countries = fresh;
+      renderG2Countries(sortedG2Countries());
+    } else { g2Countries = fresh; }
+    countrySearch.disabled = false;
+  } catch (e) {
+    if (cached && cached.length) return;
+    countrySel.innerHTML = '<option value="">Failed to load — try again</option>';
+    countryText.textContent = 'Failed to load — try again';
+  }
+}
+
+// ── Live availability ────────────────────────────────────────────────────────
+// Providers/prices on Server 2 move constantly, so the picker is re-checked on a
+// timer, on demand, and once more right before the wallet is charged.
+let g2AvailTimer = null;
+let g2LastChecked = null;
+
+function setG2Stock(msg) { document.getElementById('g2StockStatus').textContent = msg; }
+
+async function fetchG2Providers(service, country) {
+  return req(`/api/numbers/server2/providers?service=${encodeURIComponent(service)}&country=${encodeURIComponent(country)}&t=${Date.now()}`, 'GET', null, false);
+}
+
+function renderG2Providers(keepSelection) {
+  const providerSel = document.getElementById('g2ProviderSelect');
+  const prev = keepSelection ? g2Providers[Number(providerSel.value)]?.maxPrice : null;
+  providerSel.innerHTML = '<option value="">Select a provider…</option>' +
+    g2Providers.map((p, i) => {
+      const poolNo = Number(String(p.label || '').match(/Pool\s*(\d+)/i)?.[1] || i + 1);
+      const speed = poolNo >= 4 ? '⚡ Recommended · faster SMS' : '🐢 Lower SMS rate';
+      return `<option value="${i}">${esc(p.flag || '🌍')} ${esc(p.label || ('Pool ' + (i + 1)))} — ${speed} — ${PRICE(p.price)} (${p.count} left)</option>`;
+    }).join('');
+  providerSel.disabled = false;
+  const keepIdx = prev == null ? -1 : g2Providers.findIndex(p => Math.abs(p.maxPrice - prev) < 0.0001);
+  if (keepIdx >= 0) { providerSel.value = String(keepIdx); onG2ProviderChange(); }
+  else { document.getElementById('g2ProviderValueText').textContent = 'Select a provider…'; onG2ProviderChange(); }
+  return keepIdx;
+}
+
+// Re-reads live stock for the current service/country. `manual` = user tapped the button.
+async function refreshG2Availability(manual) {
+  const service = document.getElementById('g2ServiceSelect').value;
+  const country = document.getElementById('g2CountrySelect').value;
+  if (!service || !country) { if (manual) setG2Stock('Pick a service and country first'); return; }
+  const btn = document.getElementById('g2RefreshBtn');
+  btn.disabled = true;
+  const prevPrice = g2Providers[Number(document.getElementById('g2ProviderSelect').value)]?.price;
+  try {
+    const fresh = await fetchG2Providers(service, country);
+    g2Providers = fresh;
+    if (!fresh.length) {
+      resetG2Providers('No providers in stock — pick another country');
+      setG2Stock('Out of stock as of ' + new Date().toLocaleTimeString());
+      return;
+    }
+    const keptIdx = renderG2Providers(true);
+    g2LastChecked = new Date();
+    const now = g2Providers[keptIdx];
+    if (prevPrice != null && keptIdx < 0) {
+      setG2Stock('Your provider just sold out — pick another (checked ' + g2LastChecked.toLocaleTimeString() + ')');
+    } else if (now && prevPrice != null && now.price !== prevPrice) {
+      setG2Stock(`Price changed: ${PRICE(prevPrice)} → ${PRICE(now.price)} (checked ${g2LastChecked.toLocaleTimeString()})`);
+    } else {
+      setG2Stock(`${fresh.length} provider${fresh.length > 1 ? 's' : ''} in stock · checked ${g2LastChecked.toLocaleTimeString()}`);
+    }
+  } catch (e) {
+    setG2Stock('Could not check availability — tap to retry');
+  } finally { btn.disabled = false; }
+}
+
+function startG2AvailabilityWatch() {
+  if (g2AvailTimer) clearInterval(g2AvailTimer);
+  g2AvailTimer = setInterval(() => {
+    if (document.getElementById('numPickStep2').style.display === 'none') return;
+    if (document.hidden) return;
+    refreshG2Availability(false);
+  }, 30000);
+}
+
+async function onG2CountryChange() {
+  const service = document.getElementById('g2ServiceSelect').value;
+  const country = document.getElementById('g2CountrySelect').value;
+  const cMeta = g2Countries.find(c => c.id === country);
+  document.getElementById('g2CountryValueText').textContent =
+    cMeta ? `${cMeta.flag || '🌍'} ${cMeta.name}` : 'Select a country…';
+
+  if (!country) { resetG2Providers('Select a country first'); setG2Stock('Availability updates automatically'); loadG2Operators(''); return; }
+  loadG2Operators(country);
+  const key = service + '|' + country;
+  const stillCurrent = () => document.getElementById('g2ServiceSelect').value === service && document.getElementById('g2CountrySelect').value === country;
+  const cached = g2ProvidersCache.get(key);
+  if (cached && cached.length) {
+    g2Providers = cached; renderG2Providers(false);
+    setG2Stock('Updating live availability…'); startG2AvailabilityWatch();
+  } else { resetG2Providers('Loading…'); setG2Stock('Checking live availability…'); }
+  try {
+    const fresh = await fetchG2Providers(service, country);
+    g2ProvidersCache.set(key, fresh);
+    if (!stillCurrent()) return;
+    g2Providers = fresh;
+    if (!fresh.length) {
+      resetG2Providers('No providers in stock — pick another country');
+      setG2Stock('Out of stock right now');
+      return;
+    }
+    renderG2Providers(!!(cached && cached.length));
+    g2LastChecked = new Date();
+    setG2Stock(`${g2Providers.length} provider${g2Providers.length > 1 ? 's' : ''} in stock · checked ${g2LastChecked.toLocaleTimeString()}`);
+    startG2AvailabilityWatch();
+  } catch (e) {
+    if (cached && cached.length) { setG2Stock('Showing saved stock — tap refresh to re-check'); return; }
+    resetG2Providers('Failed to load — try again'); setG2Stock('Could not check availability — tap to retry');
+  }
+}
+
+function onG2ProviderChange() {
+  const idx = document.getElementById('g2ProviderSelect').value;
+  const p = g2Providers[Number(idx)];
+  const box = document.getElementById('g2PriceBox');
+  if (!p) { box.style.display = 'none'; document.getElementById('g2BuyBtn').disabled = true; return; }
+  const poolNo = Number(String(p.label || '').match(/Pool\s*(\d+)/i)?.[1] || Number(idx) + 1);
+  const speed = poolNo >= 4 ? '⚡ Recommended · faster SMS' : '🐢 Lower SMS rate';
+  document.getElementById('g2ProviderValueText').textContent = `${p.flag || '🌍'} ${p.label || ('Pool ' + (Number(idx) + 1))} · ${speed} · ${p.count} left`;
+  document.getElementById('g2PriceDisplay').textContent = PRICE(p.price);
+  box.style.display = 'flex';
+  document.getElementById('g2BuyBtn').disabled = false;
+}
+
+async function buyNumberServer2() {
+  const service = document.getElementById('g2ServiceSelect').value;
+  const country = document.getElementById('g2CountrySelect').value;
+  const fb = document.getElementById('g2Feedback');
+  const btn = document.getElementById('g2BuyBtn');
+  let p = g2Providers[Number(document.getElementById('g2ProviderSelect').value)];
+  if (!service || !country || !p) return setFb(fb, 'Please select a service, country and provider', 'err');
+  if (!bnToken) { window.location.href = '/login'; return; }
+
+  // FINAL live check — never let anyone confirm payment against a stale price or a sold-out tier.
+  btn.disabled = true; btn.textContent = 'Checking availability…'; setFb(fb, '', '');
+  const wanted = p.maxPrice, wasPrice = p.price;
+  try {
+    const fresh = await fetchG2Providers(service, country);
+    g2Providers = fresh;
+    const idx = fresh.findIndex(t => Math.abs(t.maxPrice - wanted) < 0.0001 && t.count > 0);
+    if (idx < 0) {
+      renderG2Providers(false);
+      setG2Stock('Checked just now — that provider is gone');
+      setFb(fb, 'That provider just sold out. The list below is now live — pick another one.', 'err');
+      return;
+    }
+    document.getElementById('g2ProviderSelect').value = String(idx);
+    renderG2Providers(true);
+    p = fresh[idx];
+    g2LastChecked = new Date();
+    setG2Stock(`Verified live · ${p.count} left · ${g2LastChecked.toLocaleTimeString()}`);
+    if (p.price !== wasPrice) {
+      if (!await kslConfirm(`Heads up — this provider's price just changed from ${PRICE(wasPrice)} to ${PRICE(p.price)}. Continue at ${PRICE(p.price)}?`)) return;
+    } else if (!await kslConfirm(`Buy this number for ${PRICE(p.price)}? ${p.count} in stock right now. It is deducted from your wallet now and automatically refunded if no code arrives in time.`)) {
+      return;
+    }
+  } catch (e) {
+    setFb(fb, 'Could not confirm live availability — nothing was charged. Please try again.', 'err');
+    return;
+  } finally {
+    btn.disabled = false; btn.textContent = ' Buy This Number';
+  }
+
+  btn.disabled = true; btn.textContent = 'Processing…';
+  try {
+    const order = await req('/api/numbers/server2/buy', 'POST', { service, country, maxPrice: p.maxPrice, operator: selectedG2Operator() }, true);
+    setFb(fb, '', '');
+    showNumWaitStep(order);
+    loadBalance();
+  } catch (e) {
+    if (/insufficient balance/i.test(e.message)) {
+      fb.innerHTML = `<svg class="icon i-x-circle" aria-hidden="true"><use href="#i-x-circle"/></svg> ${esc(e.message)} — <a href="/deposit">fund your wallet</a>`;
+      fb.className = 'fb err';
+    } else if (/sold out|no longer/i.test(e.message)) {
+      setFb(fb, e.message, 'err');
+      refreshG2Availability(false); // show them a live list to pick from
+    } else {
+      setFb(fb, e.message, 'err');
+    }
+  } finally {
+    btn.disabled = false; btn.textContent = ' Buy This Number';
+  }
+}
+
+
+
+function dismissAnnouncement() {
+  document.getElementById('annOverlay').classList.remove('show');
+}
+
+(async function initBuyNumberPage() {
+  loadBalance();
+  loadG2Services(); // Server 2 services start loading immediately, in parallel
+  await loadNumOptions(); // countries must be loaded first — renderActiveNumbers looks up flags from numCountries
+  await loadNumServers(); // decides which server tab the customer starts on
+
+
+  // If there's already a pending order (e.g. the page was refreshed mid-purchase), jump straight
+  // back into the waiting screen — with a working Cancel button — instead of showing the picker
+  // and leaving the customer with no way to cancel until the 20-minute timer runs out on its own.
+  try {
+    const orders = await req('/api/numbers/my-orders', 'GET', null, true);
+    const pending = orders.find(o => o.status === 'pending');
+    if (pending && new Date(pending.expiresAt) > new Date()) {
+      showNumWaitStep({
+        orderId: pending.id, phoneNumber: pending.phoneNumber, expiresAt: pending.expiresAt,
+        provider: pending.provider, amountPaid: pending.sellPrice
+      });
+    }
+  } catch (e) { /* not critical — picker still works normally if this fails */ }
+
+  loadNumOrders();
+  setInterval(loadNumOrders, 5000); // keeps the Active Numbers table live without a page refresh
+})();
+</script>
+<script src="js/money.js?v=20260910a"></script>
+<script src="js/i18n.js?v=20260910a" defer></script>
+<script src="js/country-select.js?v=20260910a" defer></script>
+<script src="js/global-pay.js?v=20260910a" defer></script>
+  <script src="js/wallet.js?v=20260910a" defer></script>
+<script src="js/dev-credit.js?v=20260910a" defer></script>
+
+<!-- ══ Standard number-shop polish: real app logos + real country flags on every picker ══
+     Presentation-only layer. It never changes what is bought, priced or sent to the API —
+     it just repaints the labels the page already renders with brand artwork and flag images,
+     the way established number sites do. -->
+<style>
+  .flag-img{width:24px;height:18px;border-radius:3px;object-fit:cover;flex:0 0 auto;
+            box-shadow:0 0 0 1px rgba(0,0,0,.12)}
+  .st-value,.sugg-item .si-name{display:inline-flex;align-items:center;gap:8px;min-width:0}
+  .sugg-item .si-name{max-width:100%}
+  .an-table td .flag-img{width:26px;height:19px}
+  .select-tile .st-icon .flag-img,.select-tile .st-icon .app-ico{width:22px;height:22px;border-radius:6px;object-fit:contain}
+</style>
+<script>
+(function () {
+  // 🇺🇸 → "us"
+  function isoFromFlagEmoji(f) {
+    const cp = [...String(f || '')].map(c => c.codePointAt(0)).filter(c => c >= 127462 && c <= 127487);
+    return cp.length === 2 ? String.fromCharCode(...cp.map(c => c - 127397)).toLowerCase() : '';
+  }
+  function flagImgHtml(code) {
+    const c = String(code || '').toLowerCase();
+    if (!/^[a-z]{2}$/.test(c)) return '<span class="app-ico-fb">🌍</span>';
+    return '<img class="flag-img" loading="lazy" alt="" src="https://flagcdn.com/w40/' + c + '.png" ' +
+           'srcset="https://flagcdn.com/w80/' + c + '.png 2x" ' +
+           'onerror="this.outerHTML=\'<span class=&quot;app-ico-fb&quot;>🌍</span>\'"/>';
+  }
+  // Brand marks for services (the catalog may not include icon URLs).
+  const BRAND = {
+    whatsapp: 'whatsapp', telegram: 'telegram', google: 'google', gmail: 'gmail', youtube: 'youtube',
+    instagram: 'instagram', facebook: 'facebook', tiktok: 'tiktok', twitter: 'x', x: 'x',
+    snapchat: 'snapchat', discord: 'discord', microsoft: 'microsoftoutlook', outlook: 'microsoftoutlook',
+    signal: 'signal', viber: 'viber', wechat: 'wechat', line: 'line', uber: 'uber', bolt: 'bolt',
+    binance: 'binance', paypal: 'paypal', amazon: 'amazon', netflix: 'netflix', openai: 'openai',
+    chatgpt: 'openai', linkedin: 'linkedin', tinder: 'tinder', steam: 'steam', apple: 'apple'
+  };
+  function brandIconHtml(name) {
+    const n = String(name || '').toLowerCase();
+    const key = Object.keys(BRAND).find(k => n.includes(k));
+    if (!key) return '';
+    return '<img class="app-ico" loading="lazy" alt="" src="https://cdn.simpleicons.org/' + BRAND[key] +
+           '" onerror="this.remove()"/>';
+  }
+
+  const FLAG_RE = /^([\u{1F1E6}-\u{1F1FF}]{2})\s*/u;
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  // Swap a leading flag emoji inside an element for the real flag image.
+  function upgradeFlag(el) {
+    if (!el || el.dataset.flagDone === el.textContent) return;
+    const t = el.textContent || '';
+    const m = t.match(FLAG_RE);
+    if (!m) return;
+    const iso = isoFromFlagEmoji(m[1]);
+    if (!iso) return;
+    el.innerHTML = flagImgHtml(iso) + '<span class="app-ico-name">' + esc(t.slice(m[0].length)) + '</span>';
+    el.dataset.flagDone = el.textContent;
+  }
+  // Mirror the picked flag/logo into the tile's left icon slot, like a real number shop.
+  function mirrorTileIcon(valueId, html) {
+    const tile = document.getElementById(valueId)?.closest('.select-tile');
+    const slot = tile?.querySelector('.st-icon');
+    if (!slot || !html) return;
+    if (slot.dataset.mirror === html) return;
+    slot.dataset.mirror = html;
+    slot.innerHTML = html;
+  }
+
+  function paint() {
+    // Server 1 — country tile
+    const c1 = document.getElementById('numCountryValueText');
+    upgradeFlag(c1);
+    const iso1 = isoFromFlagEmoji((c1?.textContent || '').slice(0, 4)) ||
+      (c1?.querySelector('.flag-img')?.src.match(/\/w40\/([a-z]{2})\./) || [])[1];
+    if (iso1) mirrorTileIcon('numCountryValueText', flagImgHtml(iso1));
+
+    // Server 1 — service tile gets the real app logo
+    const p1 = document.getElementById('numProviderValueText');
+    if (p1 && !p1.querySelector('img')) {
+      const ic = brandIconHtml(p1.textContent);
+      if (ic) {
+        p1.innerHTML = ic + '<span class="app-ico-name">' + esc(p1.textContent) + '</span>';
+        mirrorTileIcon('numProviderValueText', ic);
+      }
+    }
+
+    // Server 2 — country tile + country suggestions
+    upgradeFlag(document.getElementById('g2CountryValueText'));
+    const g2iso = (document.getElementById('g2CountryValueText')?.querySelector('.flag-img')?.src.match(/\/w40\/([a-z]{2})\./) || [])[1];
+    if (g2iso) mirrorTileIcon('g2CountryValueText', flagImgHtml(g2iso));
+    document.querySelectorAll('#g2CountrySugg .si-name').forEach(upgradeFlag);
+
+    // Server 2 — service tile mirrors the chosen app logo into the icon slot
+    const svcImg = document.getElementById('g2ServiceValueText')?.querySelector('img.app-ico');
+    if (svcImg) mirrorTileIcon('g2ServiceValueText', svcImg.outerHTML);
+
+    // Active numbers table — real flags instead of emoji
+    document.querySelectorAll('#activeNumbersBody tr td:first-child').forEach(upgradeFlag);
+  }
+
+  document.addEventListener('change', paint, true);
+  document.addEventListener('input', paint, true);
+  document.addEventListener('click', () => setTimeout(paint, 60), true);
+  setInterval(paint, 800);
+  paint();
+})();
+</script>
+<script src="/js/mobile-features.js" defer></script>
+<script src="/js/vpn-notice.js" defer></script>
+<script src="/js/announcements.js?v=3"></script>
+<script src="/welcome-popup.js?v=1" defer></script>
+</body>
+</html>

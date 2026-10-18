@@ -1,0 +1,60 @@
+/* public/css/mobile-fix.css
+   ---------------------------------------------------------------------------
+   Makes sure every feature is visible and usable on a phone.
+   Loaded last, so it wins over older rules that hid things on small screens. */
+
+/* Links added by js/mobile-features.js sit in the drawer and look like the
+   links that were already there. */
+.mobile-menu .drawer-extra-links {
+  display: flex;
+  flex-direction: column;
+}
+.mobile-menu .drawer-extra-links a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 20px;
+  font-size: 15px;
+  color: var(--t1, #eeeef5);
+  text-decoration: none;
+  border-top: 1px solid var(--border, #252535);
+}
+.mobile-menu .drawer-extra-links a:active,
+.mobile-menu .drawer-extra-links a:hover {
+  background: var(--bg4, #1c1c2a);
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  /* Feature entries must never be hidden on a phone. */
+  .kls-show-on-mobile { display: inline-flex !important; }
+
+  /* The drawer must be able to scroll — long feature lists were being cut off
+     at the bottom of the screen, which looked like "missing features". */
+  .mobile-menu {
+    max-height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 90px;
+  }
+
+  /* Nothing should overflow sideways on a narrow screen. */
+  html, body { max-width: 100%; overflow-x: hidden; }
+  img, video, canvas, table, pre { max-width: 100%; }
+
+  /* Cards and grids collapse to one column instead of squeezing off-screen. */
+  .grid, .cards, .card-grid, .products-grid, .services-grid, .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Tables scroll instead of pushing the page wide. */
+  .table-wrap, .table-responsive { overflow-x: auto; }
+
+  /* Touch targets. */
+  .btn, .btn-primary, .nav-link, .mobile-menu a { min-height: 44px; }
+}
+
+/* Floating buttons must not cover the last item of a page. */
+@media (max-width: 600px) {
+  main, #app { padding-bottom: 96px; }
+}

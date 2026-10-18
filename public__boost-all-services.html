@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>All Boost Services — King Zee Social Hub</title>
+  <meta name="description" content="Every social boosting service on King Zee Social Hub, sorted from cheapest to most expensive."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css?v=20260802z"/>
+  <link rel="stylesheet" href="theme.css?v=20260811"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260812"/>
+  <link rel="stylesheet" href="css/boost.css?v=20260814b"/>
+  <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+  <meta name="theme-color" content="#2f7bf6"/>
+  <script>
+    (function(){
+      try {
+        var pref = 'dark'; /* dark-only brand */
+        var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+        document.documentElement.setAttribute('data-theme', effective);
+      } catch(e) {}
+    })();
+    (function(){
+      try { if (!localStorage.getItem('ksl_token')) { window.location.replace('/login?next=/boost-all-services'); } } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260813"/>
+  <style>
+    .as-wrap{max-width:920px;margin:0 auto;padding:18px 16px 60px}
+    .as-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    .as-back{display:inline-flex;gap:6px;align-items:center;font-weight:700;font-size:14px;color:var(--t2,#55556e);text-decoration:none}
+    .as-title{font-size:22px;font-weight:800;margin:6px 0 4px}
+    .as-sub{color:var(--t2,#55556e);font-size:13.5px;margin-bottom:16px}
+    .as-search{width:100%;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border,#e2e2ec);background:var(--card,#fff);color:var(--t1,#15151f);font-size:14px;margin-bottom:14px}
+    .as-list{display:flex;flex-direction:column;gap:10px}
+    .as-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border-radius:14px;border:1px solid var(--border,#e2e2ec);background:var(--card,#fff);cursor:pointer;text-align:left;width:100%;font:inherit;color:inherit;min-height:44px}
+    .as-row:hover,.as-row:focus-visible{border-color:#2f7bf6;outline:none}
+    .as-name{font-weight:700;font-size:14px}
+    .as-meta{display:flex;gap:10px;flex-wrap:wrap;color:var(--t2,#55556e);font-size:12px;margin-top:3px}
+    .as-price{font-weight:800;font-size:15px;white-space:nowrap;color:#2f7bf6}
+    .as-empty{text-align:center;padding:40px 20px;color:var(--t2,#55556e)}
+    .as-loading{text-align:center;padding:40px 20px;color:var(--t2,#55556e)}
+  </style>
+<script src="/js/back-button.js?v=1" defer></script><script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-speed">
+
+<div class="as-wrap">
+  <div class="as-top">
+    <a class="as-back" href="/boost">&larr; Back to Boost</a>
+    <a class="as-back" href="/boost-history">Boost history &rarr;</a>
+  </div>
+  <div class="as-title">All Boost Services</div>
+  <div class="as-sub">Every service on King Zee Social Hub, cheapest to most expensive. Tap one to jump straight to it — the category and service are filled in for you, you only enter the quantity.</div>
+  <input id="asSearch" class="as-search" type="search" placeholder="Filter by name, category or platform…" autocomplete="off"/>
+  <div id="asList" class="as-list"><div class="as-loading">Loading services…</div></div>
+</div>
+
+<script src="js/money.js?v=20260812b"></script>
+<script>
+(function(){
+  const T = () => localStorage.getItem('ksl_token') || '';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = n => (window.KLSMoney && typeof window.KLSMoney.amount === 'function')
+    ? window.KLSMoney.amount(n)
+    : '₦' + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  let all = [];
+
+  function render(list) {
+    const box = $('asList');
+    if (!list.length) { box.innerHTML = '<div class="as-empty">No services match that search.</div>'; return; }
+    box.innerHTML = list.map(s => `
+      <button type="button" class="as-row" data-id="${esc(s.id)}">
+        <div>
+          <div class="as-name">${esc(s.name)}</div>
+          <div class="as-meta"><span>${esc(s.category || s.platform || 'Other')}</span><span>Qty ${Number(s.min||0).toLocaleString()}–${Number(s.max||0).toLocaleString()}</span></div>
+        </div>
+        <div class="as-price">${money(s.pricePer1000)} <span style="font-weight:600;font-size:11px;color:var(--t2,#55556e)">/1000</span></div>
+      </button>`).join('');
+  }
+
+  function applyFilter() {
+    const q = $('asSearch').value.trim().toLowerCase();
+    if (!q) { render(all); return; }
+    const words = q.split(/\s+/).filter(Boolean);
+    render(all.filter(s => {
+      const hay = (s.name + ' ' + (s.category||'') + ' ' + (s.platform||'')).toLowerCase();
+      return words.every(w => hay.includes(w));
+    }));
+  }
+
+  $('asList').addEventListener('click', e => {
+    const row = e.target.closest('.as-row');
+    if (!row) return;
+    window.location.href = '/boost?service=' + encodeURIComponent(row.dataset.id);
+  });
+
+  $('asSearch').addEventListener('input', applyFilter);
+
+  async function load() {
+    if (!T()) { window.location.replace('/login?next=/boost-all-services'); return; }
+    try {
+      const r = await fetch('/api/boost/services', { headers: { Authorization: 'Bearer ' + T() } });
+      const d = await r.json();
+      if (!r.ok || d.enabled === false) {
+        $('asList').innerHTML = '<div class="as-empty">' + esc(d.message || d.error || 'Boosting is unavailable right now.') + '</div>';
+        return;
+      }
+      all = (d.services || []).filter(s => s && s.id).slice().sort((a, b) => (a.pricePer1000 || 0) - (b.pricePer1000 || 0));
+      if (!all.length) { $('asList').innerHTML = '<div class="as-empty">The catalogue is still loading — please refresh in a moment.</div>'; return; }
+      render(all);
+    } catch (e) {
+      $('asList').innerHTML = '<div class="as-empty">Could not load services. Check your connection and refresh.</div>';
+    }
+  }
+  load();
+})();
+</script>
+</body>
+</html>

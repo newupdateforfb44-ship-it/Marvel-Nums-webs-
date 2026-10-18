@@ -1,0 +1,27 @@
+/* Numbers purchase workspace — focused, stable and mobile-first. */
+.wrap{max-width:1120px!important;padding:28px 20px 72px!important}
+.hero{padding:34px!important;margin-bottom:16px!important;border:1px solid var(--border)!important;border-radius:8px!important;background:var(--card)!important;text-align:left!important}
+.hero h1{font-size:clamp(28px,4vw,44px)!important;letter-spacing:0!important;margin:8px 0!important}
+.hero p{max-width:720px!important;margin:0!important;line-height:1.65!important}
+.bal-card{border-radius:8px!important;border:1px solid var(--border)!important;box-shadow:none!important;padding:18px 20px!important;background:var(--card)!important}
+.bal-card .amt{font-size:26px!important}
+.card{border-radius:8px!important;border:1px solid var(--border)!important;box-shadow:0 8px 24px rgba(0,0,0,.06)!important;padding:22px!important;margin-bottom:14px!important}
+#numServerCard{padding:26px!important}
+#numServerCard>h3{font-size:21px!important;margin-bottom:8px!important}
+.srv-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;margin-top:18px!important}
+.srv-card{min-height:150px!important;border-radius:8px!important;padding:20px!important;background:var(--card2)!important}
+.srv-card h4{font-size:16px!important;margin-top:2px!important}
+.srv-card .srv-sub{font-size:12.5px!important}
+.select-tile{border-radius:8px!important;min-height:70px!important;margin-bottom:12px!important}
+.srv-search{border-radius:8px!important;min-height:48px!important}
+.price-box{border-radius:8px!important;padding:16px!important}
+#numPickStep,#numPickStep2{max-width:760px;margin-left:auto!important;margin-right:auto!important}
+#activeNumbersCard,#numWaitStep{border-left:4px solid var(--gold)!important}
+.step-label{display:flex!important;align-items:center!important;gap:9px!important;margin-top:18px!important}
+.step-label::before{content:counter(number-step);counter-increment:number-step;width:26px;height:26px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;background:var(--gold);color:var(--bg);font-weight:900;font-size:12px}
+#numPickerForm2{counter-reset:number-step}
+.pool-guide{display:grid;gap:7px;margin:8px 0 12px;padding:11px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card2);font-size:12.5px;color:var(--t2)}
+.pool-guide b{color:var(--t1)}
+.an-table-wrap{overflow-x:auto!important}
+.btn{min-height:48px!important;border-radius:8px!important}
+@media(max-width:700px){.wrap{padding:14px 12px 88px!important}.hero{padding:22px!important}.srv-grid{grid-template-columns:1fr!important}.srv-card{min-height:128px!important}.card,#numServerCard{padding:17px!important}.navbar{padding-left:12px!important;padding-right:12px!important}.navbar .brand{font-size:15px!important}.back-btn{padding:8px!important;font-size:12px!important}}

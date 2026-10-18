@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Dashboard — Marvel Nums</title>
+  <meta name="description" content="Manage your Marvel Nums wallet, orders, numbers, boosts and account from one dashboard."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/style.css?v=20260918"/>
+  <link rel="stylesheet" href="/theme.css?v=20260918"/>
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+  <meta name="theme-color" content="#0788e8"/>
+  <script>
+    (function(){
+      // Theme: follow the same saved preference / day-night clock as the rest of
+      // the site — this page used to hard-force light mode, ignoring dark mode.
+      try{
+        var pref = 'dark'; /* dark-only brand */
+        var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+        document.documentElement.setAttribute('data-theme', effective);
+      }catch(e){}
+      try{ if(!localStorage.getItem('ksl_token')) window.location.replace('/login'); }catch(e){}
+    })();
+  </script>
+  <style>
+    .dsh-header-lang{width:38px;height:38px;border-radius:50%;background:var(--blue-light);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+  </style>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --blue:#0788e8;--blue2:#0a6fd0;--blue-light:#eef4ff;
+      --bg:#f7f7fb;--white:#fff;
+      --text:#15151f;--text2:#55556e;--text3:#8b8ba3;
+      --border:#e2e2ec;--shadow:0 1px 4px rgba(0,0,0,.08);
+      --radius:14px;--radius-sm:10px;
+    }
+    html,body{height:100%;background:var(--bg);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+
+    /* ── SHELL ─────────────────────────────── */
+    .dsh-shell{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:var(--bg);padding-bottom:80px}
+
+    /* ── HEADER ────────────────────────────── */
+    .dsh-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 10px;background:var(--white);position:sticky;top:0;z-index:50;border-bottom:1px solid var(--border)}
+    .dsh-profile{position:relative}
+    .dsh-profile .nav-dropdown{left:0;right:auto;top:calc(100% + 10px)}
+    .dsh-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#0788e8,#0a6fd0);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+    .dsh-avatar img{width:100%;height:100%;object-fit:cover}
+    .dsh-hi{font-size:16px;font-weight:800;color:var(--text)}
+    .dsh-sub{font-size:12px;color:var(--text2);margin-top:1px}
+    .dsh-header-right{display:flex;align-items:center;gap:6px}
+    .dsh-icon-btn{width:38px;height:38px;border-radius:50%;background:var(--blue-light);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--blue);position:relative;transition:background .15s}
+    .dsh-icon-btn:hover{background:#dcfce7}
+    .dsh-icon-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff;display:none}
+    .dsh-notif-num{position:absolute;top:4px;right:4px;min-width:16px;height:16px;border-radius:8px;background:#ef4444;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 3px;display:none}
+
+    /* ── BALANCE CARD ──────────────────────── */
+    .dsh-balance-card{margin:14px 16px 0;border-radius:20px;background:linear-gradient(135deg,#0788e8 0%,#0a6fd0 100%);color:#fff;padding:22px 22px 18px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(7,136,232,.35)}
+    .dsh-balance-card::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
+    .dsh-balance-card::after{content:'';position:absolute;bottom:-60px;left:-20px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.05)}
+    .dsh-bal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;position:relative;z-index:1}
+    .dsh-bal-label{font-size:13px;font-weight:600;opacity:.9;display:flex;align-items:center;gap:6px}
+    .dsh-bal-label svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.85}
+    .dsh-bal-txn{font-size:12.5px;font-weight:600;opacity:.85;display:flex;align-items:center;gap:4px}
+    .dsh-bal-txn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-bal-amount{font-size:36px;font-weight:900;letter-spacing:-.5px;position:relative;z-index:1;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+    .dsh-bal-amount span{font-size:20px;font-weight:700;opacity:.8}
+    .dsh-eye-btn{background:rgba(255,255,255,.18);border:none;border-radius:8px;padding:4px 8px;cursor:pointer;color:#fff;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600}
+    .dsh-eye-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-add-money{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--blue);font-size:13px;font-weight:800;padding:8px 18px;border-radius:24px;box-shadow:0 2px 10px rgba(0,0,0,.12);transition:transform .15s;position:relative;z-index:1;margin-top:12px}
+    .dsh-add-money:hover{transform:scale(1.03)}
+    .dsh-ref-strip{display:flex;align-items:center;justify-content:space-between;margin:10px 0 0;padding:10px 14px;background:rgba(255,255,255,.12);border-radius:12px;font-size:13px;font-weight:600;position:relative;z-index:1}
+    .dsh-ref-strip svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── PRIMARY ACTIONS (3 main buttons) ─── */
+    .dsh-primary-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:16px 16px 0}
+    .dsh-action-btn{background:var(--white);border-radius:var(--radius-sm);padding:14px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;box-shadow:var(--shadow);border:1px solid var(--border);transition:all .15s;cursor:pointer;font-size:13px;font-weight:700;color:var(--text)}
+    .dsh-action-btn:hover{box-shadow:0 4px 16px rgba(7,136,232,.15);border-color:rgba(7,136,232,.3);transform:translateY(-1px)}
+    .dsh-action-icon{width:44px;height:44px;border-radius:12px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;color:var(--blue)}
+    .dsh-action-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── ACTIVITY CARD ─────────────────────── */
+    .dsh-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--border);margin:14px 16px 0;box-shadow:var(--shadow);overflow:hidden}
+    .dsh-card-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px}
+    .dsh-card-title{font-size:15px;font-weight:800;color:var(--text)}
+    .dsh-card-link{font-size:12.5px;font-weight:700;color:var(--blue)}
+    .dsh-activity-row{display:flex;align-items:center;gap:12px;padding:11px 16px;border-top:1px solid var(--border)}
+    .dsh-activity-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+    .dsh-activity-icon.deposit{background:#eff9f0;color:#0788e8}
+    .dsh-activity-icon.purchase{background:#f0fdf4;color:#0788e8}
+    .dsh-activity-icon.debit{background:#fff5f5;color:#ef4444}
+    .dsh-activity-info{flex:1;min-width:0}
+    .dsh-activity-name{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dsh-activity-date{font-size:11.5px;color:var(--text2);margin-top:1px}
+    .dsh-activity-amt{font-size:14px;font-weight:800;flex-shrink:0}
+    .dsh-activity-amt.credit{color:#0788e8}
+    .dsh-activity-amt.debit{color:#ef4444}
+    .dsh-activity-status{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-top:2px;display:inline-block}
+    .dsh-activity-status.ok{background:#eff9f0;color:#0788e8}
+    .dsh-activity-status.fail{background:#fff5f5;color:#ef4444}
+    .dsh-empty{padding:24px;text-align:center;color:var(--text3);font-size:13.5px}
+    .dsh-alerts{display:grid;gap:9px;padding:0 12px 12px}
+    .dsh-alert{display:flex;gap:10px;padding:11px;border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:var(--radius-sm);background:var(--bg);align-items:flex-start}
+    .dsh-alert.urgent{border-left-color:#ef4444}.dsh-alert.warning{border-left-color:#d97706}
+    .dsh-alert-icon{font-size:18px;line-height:1.2}.dsh-alert-body{min-width:0;flex:1}.dsh-alert-title{font-size:13px;font-weight:800}.dsh-alert-msg{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.45}
+
+    /* ── SERVICES GRID (OPay-style) ────────── */
+    .dsh-services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+    .dsh-svc-item{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px 8px;cursor:pointer;transition:background .15s;border-radius:var(--radius-sm)}
+    .dsh-svc-item:hover{background:var(--blue-light)}
+    .dsh-svc-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center}
+    .dsh-svc-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-svc-label{font-size:11.5px;font-weight:700;color:var(--text);text-align:center;line-height:1.3}
+    .dsh-svc-badge{font-size:9px;font-weight:800;padding:1px 5px;border-radius:4px;background:#ef4444;color:#fff;margin-top:-4px}
+
+    /* ── SERVICE ICON COLORS ─────────────────*/
+    .svc-blue{background:#f0fdf4;color:#0788e8}
+    .svc-indigo{background:#eef0ff;color:#4f46e5}
+    .svc-violet{background:#f5f0ff;color:#7c3aed}
+    .svc-cyan{background:#ecfeff;color:#0891b2}
+    .svc-sky{background:#e0f2fe;color:#0284c7}
+    .svc-emerald{background:#ecfdf5;color:#059669}
+    .svc-orange{background:#fff7ed;color:#ea580c}
+    .svc-rose{background:#fff1f2;color:#e11d48}
+    .svc-amber{background:#fffbeb;color:#d97706}
+    .svc-teal{background:#f0fdfa;color:#0d9488}
+    .svc-slate{background:#f1f5f9;color:#475569}
+    .svc-purple{background:#faf5ff;color:#9333ea}
+
+    /* ── TRUST STATS STRIP (compact) ───────── */
+    .dsh-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+    .dsh-stat-cell{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:12px 6px;text-align:center;border-bottom:1px solid var(--border)}
+    .dsh-stat-cell:nth-child(-n+3){border-bottom:1px solid var(--border)}
+    .dsh-stat-cell:nth-last-child(-n+3){border-bottom:none}
+    .dsh-stat-cell:not(:nth-child(3n)){border-right:1px solid var(--border)}
+    .dsh-stat-num{font-size:17px;font-weight:900;color:var(--text);line-height:1.15;display:flex;align-items:center;gap:3px}
+    .dsh-stat-num svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-stat-label{font-size:10.5px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:3px}
+    .dsh-stat-dot{width:6px;height:6px;border-radius:50%;background:#0788e8;display:inline-block;flex-shrink:0}
+
+    /* ── CONTACT / SUPPORT CARD ────────────── */
+    .dsh-contact-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:4px 12px 12px}
+    .dsh-contact-item{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:12.5px;font-weight:700;color:var(--text)}
+    .dsh-contact-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dsh-contact-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── PROMO STRIP ───────────────────────── */
+    .dsh-promo{margin:14px 16px 0;border-radius:var(--radius);background:linear-gradient(135deg,#0788e8,#0a6fd0);color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .dsh-promo-text small{font-size:11px;opacity:.8;font-weight:600;display:block;margin-bottom:3px}
+    .dsh-promo-text strong{font-size:15px;font-weight:800;display:block}
+    .dsh-promo-btn{background:#fff;color:var(--blue);font-size:12.5px;font-weight:800;padding:9px 16px;border-radius:20px;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px}
+    .dsh-promo-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+
+    /* ── BOTTOM NAV ────────────────────────── */
+    .dsh-bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+    .dsh-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;cursor:pointer;border:none;background:none;color:var(--text2);font-size:10.5px;font-weight:700;gap:4px;transition:color .15s;position:relative}
+    .dsh-nav-item svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .dsh-nav-item.active{color:var(--blue)}
+    .dsh-nav-item.active svg{stroke:var(--blue)}
+    .dsh-nav-dot{position:absolute;top:8px;right:calc(50% - 16px);width:8px;height:8px;border-radius:50%;background:#ef4444;border:2px solid #fff;display:none}
+
+    /* ── TOAST ─────────────────────────────── */
+    .dsh-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e293b;color:#fff;padding:10px 22px;border-radius:24px;font-size:13.5px;font-weight:600;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap}
+    .dsh-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .dsh-support-fab{position:fixed;right:max(18px,calc(50% - 222px));bottom:88px;z-index:120;display:flex;flex-direction:column;align-items:flex-end;gap:9px}
+    .dsh-support-menu{display:none;min-width:190px;padding:7px;border:1px solid var(--border);border-radius:12px;background:var(--white);box-shadow:0 10px 28px rgba(0,0,0,.18)}
+    .dsh-support-fab.open .dsh-support-menu{display:grid;gap:4px}
+    .dsh-support-menu a{padding:10px 12px;border-radius:8px;font-size:13px;font-weight:700}.dsh-support-menu a:hover{background:var(--blue-light)}
+    .dsh-support-toggle{width:52px;height:52px;border-radius:50%;border:none;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(7,136,232,.35);cursor:pointer}
+    .dsh-support-toggle svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:2}
+
+    /* ── BALANCE HIDDEN ────────────────────── */
+    .bal-hidden{letter-spacing:4px;font-size:28px !important}
+
+    /* ── DARK MODE ──────────────────────────── (page previously forced light only) */
+    html[data-theme="dark"] { --bg:#08080f; --white:#131320; --text:#eeeef5; --text2:#8888a8; --text3:#55557a; --border:#252535; --blue-light:#182238; }
+  </style>
+<script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-social">
+<!-- SVG SPRITES -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l2 2 4-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M17.9 17.9A9.9 9.9 0 0112 19c-6 0-10-7-10-7a17.7 17.7 0 014.1-5M9.9 4.2A10 10 0 0112 4c6 0 10 7 10 7a17.6 17.6 0 01-2 3M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow-right-line" viewBox="0 0 24 24"><path d="M4 12h16M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-headset" viewBox="0 0 24 24"><path d="M3 14v-2a9 9 0 0118 0v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="14" width="5" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="17" y="14" width="5" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 16V11a6 6 0 10-12 0v5l-2 3h16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 22h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-credit-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 10h20" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2l2.4 11h9.6l2-8H6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" fill="currentColor"/><circle cx="17" cy="20" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 015.7 5l-5 5-2.4-2.4-5 5a2 2 0 01-2.8-2.8l5-5L7.8 8.7a4 4 0 015-5.7L10 6l1 1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 9h18M12 9v12M12 9c-2-4-6-4-6-1s3 1 6 1M12 9c2-4 6-4 6-1s-3 1-6 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M9 15l6-6M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.6 7.6 0 00-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 001.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 001.7-1l2.4 1 2-3.5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="2" width="6" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v4a4 4 0 01-8 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 5H4v2a3 3 0 003 3M18 5h2v2a3 3 0 01-3 3M10 15h4v3h-4zM8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-gamepad" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 10v4M5 12h4M15 11h.01M18 13h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20a6 6 0 0112 0M16 8a3 3 0 010 6M21 20a6 6 0 00-6-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-message-circle" viewBox="0 0 24 24"><path d="M21 12a8.5 8.5 0 01-11.9 7.8L4 21l1.2-5A8.5 8.5 0 1121 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-6a1 1 0 00-1-1h-4a2 2 0 000 4h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 1 5 5 5 9 0 3-1 5-2 6l-3 3-3-3c-1-1-2-3-2-6 0-4 2-8 5-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="9" r="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 17l-3 4M15 17l3 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24"><path d="M12 8v4l3 3M3 12a9 9 0 100 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-package" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 8v8l9 5 9-5V8M12 13v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M8 3H19v14a3 3 0 01-3 3H8a3 3 0 003-3V6a3 3 0 00-3-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 3a3 3 0 00-3 3v11a3 3 0 003 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-number-history" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 7h6M9 11h6M9 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.6" fill="currentColor"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></g></symbol>
+</svg>
+
+<div class="dsh-shell">
+  <!-- HEADER -->
+  <header class="dsh-header">
+    <div class="dsh-profile" id="dshProfileWrap">
+      <button type="button" id="dshProfileBtn" onclick="dshToggleUserMenu(event)" style="display:flex;align-items:center;gap:10px;background:none;border:none;padding:0;cursor:pointer;font-family:inherit;text-align:left">
+        <div class="dsh-avatar" id="dshAvatar"><span id="dshAvatarInitial">K</span>
+          <img id="dshAvatarImg" src="" alt="" style="display:none" onerror="this.style.display='none'"/>
+        </div>
+        <div>
+          <div class="dsh-hi" id="dshHi">Hi, there 👋</div>
+          <div class="dsh-sub">Marvel Nums Account</div>
+        </div>
+      </button>
+      <div class="nav-dropdown" id="dshDropdown">
+        <div class="dropdown-header">
+          <img id="dshDropAvatarImg" src="" style="display:none" class="dropdown-avatar" alt="Profile" onerror="this.style.display='none'"/>
+          <div class="dh-name" id="dshDropName">User</div>
+          <div class="dh-email" id="dshDropEmail">email</div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item" href="/deposit"><span><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg></span> Deposit Funds</a>
+        <a class="dd-item" href="/referrals"><span><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg></span> Referrals</a>
+        <a class="dd-item" href="/purchases"><span><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg></span> My Purchases</a>
+        <a class="dd-item" href="/transactions"><span><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg></span> Transactions</a>
+        <a class="dd-item" href="/api-docs"><span><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg></span> API Docs</a>
+        <a class="dd-item" href="/settings"><span><svg class="icon i-settings" aria-hidden="true"><use href="#i-settings"/></svg></span> Settings</a>
+        <a class="dd-item" href="/terms"><span><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg></span> Terms &amp; Conditions</a>
+        <div class="dropdown-divider"></div>
+        <a class="dd-item dd-logout" href="#" onclick="event.preventDefault();dshLogout()"><span><svg class="icon i-logout" aria-hidden="true"><use href="#i-logout"/></svg></span> Logout</a>
+      </div>
+    </div>
+    <div class="dsh-header-right" id="dshHeaderRight">
+      <button class="dsh-icon-btn" id="dshThemeBtn" type="button" aria-label="Toggle dark mode" onclick="dshToggleTheme()">
+        <svg id="dshThemeIcon"><use href="#i-moon"/></svg>
+      </button>
+      <a class="dsh-icon-btn" href="/support" aria-label="Support">
+        <svg><use href="#i-headset"/></svg>
+      </a>
+      <a class="dsh-icon-btn" href="/notifications" aria-label="Notifications" id="dshNotifBtn">
+        <svg><use href="#i-bell"/></svg>
+        <span class="dsh-notif-num" id="dshNotifNum"></span>
+      </a>
+    </div>
+  </header>
+
+  <!-- BALANCE CARD -->
+  <section class="dsh-balance-card">
+    <div class="dsh-bal-top">
+      <span class="dsh-bal-label">
+        <svg><use href="#i-shield"/></svg> Available Balance
+      </span>
+      <a class="dsh-bal-txn" href="/transactions">
+        Transaction History <svg><use href="#i-arrow-right"/></svg>
+      </a>
+    </div>
+    <div class="dsh-bal-amount">
+      <span>₦</span><span id="dshBal">0.00</span>
+      <button class="dsh-eye-btn" id="dshEyeBtn" type="button" aria-label="Toggle balance visibility">
+        <svg id="dshEyeIcon"><use href="#i-eye"/></svg>
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <a class="dsh-add-money" href="/deposit">
+        + Add Money
+      </a>
+      <div style="color:rgba(255,255,255,.75);font-size:12px;font-weight:600" id="dshBalSub">Wallet ready</div>
+    </div>
+    <a class="dsh-ref-strip" href="/referrals">
+      <svg><use href="#i-link"/></svg>
+      <span style="flex:1">Referral earnings</span>
+      <b id="dshRef">₦0.00</b>
+      <svg><use href="#i-arrow-right"/></svg>
+    </a>
+  </section>
+
+  <!-- IMPORTANT / RESTOCK NOTIFICATIONS -->
+  <section class="dsh-card" id="dshAlertsCard" style="display:none">
+    <div class="dsh-card-head">
+      <div class="dsh-card-title">Important notifications</div>
+      <a class="dsh-card-link" href="/notifications">View all →</a>
+    </div>
+    <div class="dsh-alerts" id="dshAlerts"></div>
+  </section>
+
+  <!-- PRIMARY ACTIONS (OPay-style 3 buttons) -->
+  <div class="dsh-primary-actions">
+    <a class="dsh-action-btn" href="/deposit">
+      <div class="dsh-action-icon svc-blue"><svg><use href="#i-credit-card"/></svg></div>
+      Add Money
+    </a>
+    <a class="dsh-action-btn" href="/buy-number">
+      <div class="dsh-action-icon svc-indigo"><svg><use href="#i-smartphone"/></svg></div>
+      Buy Number
+    </a>
+    <a class="dsh-action-btn" href="/boost">
+      <div class="dsh-action-icon svc-violet"><svg><use href="#i-zap"/></svg></div>
+      Boost
+    </a>
+  </div>
+
+  <!-- TRUST STATS (compact — members / listings / verified / instant / visitors / active now) -->
+  <div class="dsh-card">
+    <div class="dsh-stats-grid" id="dshStats">
+      <div class="dsh-stat-cell"><div class="dsh-stat-num" id="dshStatMembers">—</div><div class="dsh-stat-label">Members</div></div>
+      <div class="dsh-stat-cell"><div class="dsh-stat-num" id="dshStatListings">—</div><div class="dsh-stat-label">Listings</div></div>
+      <div class="dsh-stat-cell"><div class="dsh-stat-num">100%</div><div class="dsh-stat-label">Verified</div></div>
+      <div class="dsh-stat-cell"><div class="dsh-stat-num"><svg><use href="#i-zap"/></svg></div><div class="dsh-stat-label">Instant</div></div>
+      <div class="dsh-stat-cell"><div class="dsh-stat-num" id="dshStatVisitors">—</div><div class="dsh-stat-label">Visitors</div></div>
+      <div class="dsh-stat-cell"><div class="dsh-stat-num" id="dshStatActive">—</div><div class="dsh-stat-label"><span class="dsh-stat-dot"></span>Active Now</div></div>
+    </div>
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="dsh-card">
+    <div class="dsh-card-head">
+      <div class="dsh-card-title">Recent Activity</div>
+      <a class="dsh-card-link" href="/transactions">See all →</a>
+    </div>
+    <div id="dshActivity"><div class="dsh-empty">Loading your latest activity…</div></div>
+  </div>
+
+  <!-- SERVICES GRID (all sidebar features) -->
+  <div class="dsh-card" style="margin-top:14px">
+    <div class="dsh-card-head">
+      <div class="dsh-card-title">Services</div>
+    </div>
+    <div class="dsh-services-grid">
+      <a class="dsh-svc-item" href="/marketplace">
+        <div class="dsh-svc-icon svc-blue"><svg><use href="#i-cart"/></svg></div>
+        <span class="dsh-svc-label">Marketplace</span>
+      </a>
+      <a class="dsh-svc-item" href="/marketplace2" aria-label="Marketplace Two — instant logs">
+        <div class="dsh-svc-icon svc-teal"><svg><use href="#i-cart"/></svg></div>
+        <span class="dsh-svc-label">Marketplace Two</span>
+      </a>
+      <a class="dsh-svc-item" href="/marketplace3" aria-label="Marketplace Three — instant logs">
+        <div class="dsh-svc-icon svc-violet"><svg><use href="#i-cart"/></svg></div>
+        <span class="dsh-svc-label">Marketplace Three</span>
+      </a>
+      <a class="dsh-svc-item" href="/buy-number">
+        <div class="dsh-svc-icon svc-indigo"><svg><use href="#i-smartphone"/></svg></div>
+        <span class="dsh-svc-label">Buy Numbers</span>
+      </a>
+      <a class="dsh-svc-item" href="/boost">
+        <div class="dsh-svc-icon svc-violet"><svg><use href="#i-rocket"/></svg></div>
+        <span class="dsh-svc-label">Boost</span>
+        <span class="dsh-svc-badge">NEW</span>
+      </a>
+      <a class="dsh-svc-item" href="/tools">
+        <div class="dsh-svc-icon svc-cyan"><svg><use href="#i-wrench"/></svg></div>
+        <span class="dsh-svc-label">Tools & FMT</span>
+      </a>
+      <a class="dsh-svc-item" href="/purchases">
+        <div class="dsh-svc-icon svc-emerald"><svg><use href="#i-clipboard"/></svg></div>
+        <span class="dsh-svc-label">My Purchases</span>
+      </a>
+      <a class="dsh-svc-item" href="/transactions">
+        <div class="dsh-svc-icon svc-sky"><svg><use href="#i-history"/></svg></div>
+        <span class="dsh-svc-label">Transactions</span>
+      </a>
+      <a class="dsh-svc-item" href="/number-history">
+        <div class="dsh-svc-icon svc-teal"><svg><use href="#i-number-history"/></svg></div>
+        <span class="dsh-svc-label">Num History</span>
+      </a>
+      <a class="dsh-svc-item" href="/giveaways">
+        <div class="dsh-svc-icon svc-orange"><svg><use href="#i-gift"/></svg></div>
+        <span class="dsh-svc-label">Giveaways</span>
+      </a>
+      <a class="dsh-svc-item" href="/games">
+        <div class="dsh-svc-icon svc-rose"><svg><use href="#i-gamepad"/></svg></div>
+        <span class="dsh-svc-label">Games</span>
+      </a>
+      <a class="dsh-svc-item" href="/groups">
+        <div class="dsh-svc-icon svc-purple"><svg><use href="#i-users"/></svg></div>
+        <span class="dsh-svc-label">Group Chat</span>
+      </a>
+      <a class="dsh-svc-item" href="/messages">
+        <div class="dsh-svc-icon svc-blue"><svg><use href="#i-message-circle"/></svg></div>
+        <span class="dsh-svc-label">Messages</span>
+      </a>
+      <a class="dsh-svc-item" href="/referrals">
+        <div class="dsh-svc-icon svc-amber"><svg><use href="#i-link"/></svg></div>
+        <span class="dsh-svc-label">Referrals</span>
+      </a>
+      <a class="dsh-svc-item" href="/support">
+        <div class="dsh-svc-icon svc-teal"><svg><use href="#i-headset"/></svg></div>
+        <span class="dsh-svc-label">Support</span>
+      </a>
+      <a class="dsh-svc-item" href="/api-docs">
+        <div class="dsh-svc-icon svc-indigo"><svg><use href="#i-key"/></svg></div>
+        <span class="dsh-svc-label">API Docs</span>
+      </a>
+      <a class="dsh-svc-item" href="/notifications">
+        <div class="dsh-svc-icon svc-rose"><svg><use href="#i-bell"/></svg></div>
+        <span class="dsh-svc-label">Alerts</span>
+      </a>
+      <a class="dsh-svc-item" href="/settings">
+        <div class="dsh-svc-icon svc-slate"><svg><use href="#i-settings"/></svg></div>
+        <span class="dsh-svc-label">Settings</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- CONTACT & SUPPORT -->
+  <div class="dsh-card" style="margin-top:14px">
+    <div class="dsh-card-head">
+      <div class="dsh-card-title">Contact &amp; Support</div>
+    </div>
+    <div class="dsh-contact-grid" id="dshContactGrid">
+      <a class="dsh-contact-item" href="/support">
+        <div class="dsh-contact-icon svc-teal"><svg><use href="#i-headset"/></svg></div> Support
+      </a>
+      <a class="dsh-contact-item" id="dshContactAdmin" href="#" target="_blank" rel="noopener">
+        <div class="dsh-contact-icon svc-emerald"><svg><use href="#i-message-circle"/></svg></div> WhatsApp Support
+      </a>
+      <a class="dsh-contact-item" id="dshContactChannel" href="#" target="_blank" rel="noopener">
+        <div class="dsh-contact-icon svc-blue"><svg><use href="#i-bell"/></svg></div> Channel
+      </a>
+      <a class="dsh-contact-item" id="dshContactGroup" href="#" target="_blank" rel="noopener">
+        <div class="dsh-contact-icon svc-violet"><svg><use href="#i-users"/></svg></div> Community
+      </a>
+    </div>
+  </div>
+
+  <!-- PROMO STRIP -->
+  <div class="dsh-promo">
+    <div class="dsh-promo-text">
+      <small>Everything in one place</small>
+      <strong>Buy logs, numbers &amp; boosts faster</strong>
+    </div>
+    <a class="dsh-promo-btn" href="/marketplace">
+      Browse <svg><use href="#i-arrow-right-line"/></svg>
+    </a>
+  </div>
+</div>
+
+<div class="dsh-support-fab" id="dshSupportFab">
+  <div class="dsh-support-menu">
+    <a href="/support">🎧 Support</a>
+    <a id="dshFabAdmin" href="#" target="_blank" rel="noopener">💬 Admin contact</a>
+    <a id="dshFabChannel" href="#" target="_blank" rel="noopener">📣 Channel</a>
+    <a id="dshFabGroup" href="#" target="_blank" rel="noopener">👥 Community</a>
+  </div>
+  <button type="button" class="dsh-support-toggle" aria-label="Contact and support" onclick="document.getElementById('dshSupportFab').classList.toggle('open')"><svg><use href="#i-headset"/></svg></button>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="dsh-bottom-nav">
+  <button class="dsh-nav-item active" onclick="window.location.href='/dashboard'">
+    <svg><use href="#i-home"/></svg>
+    Home
+  </button>
+  <button class="dsh-nav-item" onclick="window.location.href='/marketplace'">
+    <svg><use href="#i-grid"/></svg>
+    Marketplace
+  </button>
+  <button class="dsh-nav-item" onclick="window.location.href='/deposit'">
+    <svg><use href="#i-wallet"/></svg>
+    Wallet
+  </button>
+  <button class="dsh-nav-item" onclick="window.location.href='/groups'">
+    <svg><use href="#i-message-circle"/></svg>
+    Chat
+    <span class="dsh-nav-dot" id="navChatDot"></span>
+  </button>
+  <button class="dsh-nav-item" onclick="window.location.href='/settings'">
+    <svg><use href="#i-user"/></svg>
+    Profile
+  </button>
+</nav>
+
+<!-- TOAST -->
+<div class="dsh-toast" id="dshToast"></div>
+
+<script>
+(function(){
+  // ── Auth guard ───────────────────────────────────────────────
+  const token = localStorage.getItem('ksl_token');
+  if (!token) { window.location.replace('/login'); return; }
+  // If the browser restores this page from its back/forward cache (bfcache),
+  // the DOM snapshot can be momentarily stale (old balance/name) before any
+  // script re-runs. Force a clean reload so the visible data is always current.
+  window.addEventListener('pageshow', function(e){ if (e.persisted) window.location.reload(); });
+  let currentUser = null;
+  let balHidden = localStorage.getItem('ksl_bal_hidden') === '1';
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function fmt(n){ return Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function toast(msg,dur=2800){
+    const t=document.getElementById('dshToast');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),dur);
+  }
+  // ── Profile dropdown (Deposit Funds / Referrals / My Purchases / Transactions / API Docs / Settings / Terms / Logout) ──
+  window.dshToggleUserMenu = function(e){
+    if (e) e.stopPropagation();
+    document.getElementById('dshDropdown')?.classList.toggle('open');
+  };
+  window.dshLogout = function(){
+    try { localStorage.removeItem('ksl_token'); } catch(err){}
+    window.location.href = '/login';
+  };
+  document.addEventListener('click', function(e){
+    if (!e.target.closest('#dshProfileWrap')) document.getElementById('dshDropdown')?.classList.remove('open');
+  });
+  async function apiFetch(url,method='GET',body=null){
+    const h={'Content-Type':'application/json','Authorization':'Bearer '+token};
+    const opts={method,headers:h};
+    if(body&&method!=='GET') opts.body=JSON.stringify(body);
+    const res=await fetch(url,opts);
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||'Request failed');
+    return data;
+  }
+
+  // ── Theme toggle (dark/light) — same storage key + logic as the main site ──
+  function dshApplyThemeIcon(){
+    var effective = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var icon = document.getElementById('dshThemeIcon');
+    if (icon) icon.innerHTML = '<use href="#' + (effective === 'dark' ? 'i-moon' : 'i-sun') + '"/>';
+  }
+  window.dshToggleTheme = function(){
+    return; /* dark-only brand */
+    var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    var next = current === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('ksl_theme', next); } catch(e){}
+    document.documentElement.setAttribute('data-theme', next);
+    dshApplyThemeIcon();
+  };
+  dshApplyThemeIcon();
+
+  // ── Balance visibility ───────────────────────────────────────
+  function applyBalVisibility(){
+    const balEl=document.getElementById('dshBal');
+    const iconEl=document.getElementById('dshEyeIcon');
+    if(!balEl) return;
+    if(balHidden){
+      balEl.textContent='••••••';
+      balEl.classList.add('bal-hidden');
+      iconEl.innerHTML='<use href="#i-eye-off"/>';
+    } else {
+      balEl.textContent=currentUser?fmt(currentUser.balance):'0.00';
+      balEl.classList.remove('bal-hidden');
+      iconEl.innerHTML='<use href="#i-eye"/>';
+    }
+  }
+  document.getElementById('dshEyeBtn').addEventListener('click',function(){
+    balHidden=!balHidden;
+    localStorage.setItem('ksl_bal_hidden',balHidden?'1':'0');
+    applyBalVisibility();
+  });
+
+  // ── Load user ────────────────────────────────────────────────
+  async function loadUser(){
+    try {
+      const me=await apiFetch('/api/user/me');
+      currentUser=me;
+      // Header
+      const hi=document.getElementById('dshHi');
+      const avInitial=document.getElementById('dshAvatarInitial');
+      const avImg=document.getElementById('dshAvatarImg');
+      if(hi) hi.textContent='Hi, '+((me.name||'there').split(' ')[0])+' 👋';
+      if(avInitial) avInitial.textContent=(me.name||'K')[0].toUpperCase();
+      // Field is `profilePicture` on the User model/API (see settings.html's upload flow and
+      // updateNav() in script.js) — this used to check a non-existent `avatar` field, so the
+      // photo never showed here even after a successful upload.
+      if(avImg&&me.profilePicture){ avImg.src=me.profilePicture; avImg.style.display='block'; if(avInitial) avInitial.style.display='none'; }
+      // Profile dropdown header (name/email/photo)
+      const dropName=document.getElementById('dshDropName');
+      const dropEmail=document.getElementById('dshDropEmail');
+      const dropAvImg=document.getElementById('dshDropAvatarImg');
+      if(dropName) dropName.textContent=me.name||'User';
+      if(dropEmail) dropEmail.textContent=me.email||'';
+      if(dropAvImg&&me.profilePicture){ dropAvImg.src=me.profilePicture; dropAvImg.style.display='block'; }
+      // Balance
+      applyBalVisibility();
+      // Sub line
+      const sub=document.getElementById('dshBalSub');
+      if(sub) sub.textContent='Marvel Nums Member';
+      // Referral
+      const refEl=document.getElementById('dshRef');
+      if(refEl&&typeof me.referralEarnings==='number') refEl.textContent='₦'+fmt(me.referralEarnings);
+      // Notif badge
+      loadNotifCount();
+    } catch(e){ console.error('[dsh] user load fail',e.message); }
+  }
+
+  async function loadNotifCount(){
+    try{
+      const d=await apiFetch('/api/user/notifications');
+      const num=d.count||0;
+      const el=document.getElementById('dshNotifNum');
+      if(el&&num>0){ el.textContent=num>99?'99+':num; el.style.display='flex'; }
+      const important=(d.items||[]).filter(n=>n.type==='announcement' && (n.unread || n.level==='urgent' || n.level==='warning' || /restock|restocked|stock/i.test((n.title||'')+' '+(n.message||'')))).slice(0,4);
+      const card=document.getElementById('dshAlertsCard');
+      const list=document.getElementById('dshAlerts');
+      if(card&&list&&important.length){
+        card.style.display='block';
+        list.innerHTML=important.map(n=>'<a class="dsh-alert '+esc(n.level||'info')+'" href="'+esc(n.link||'/notifications')+'"><span class="dsh-alert-icon">'+(/restock|stock/i.test((n.title||'')+' '+(n.message||''))?'📦':'🔔')+'</span><span class="dsh-alert-body"><span class="dsh-alert-title">'+esc(n.title)+'</span><span class="dsh-alert-msg">'+esc(n.message)+'</span></span></a>').join('');
+      }
+    } catch{}
+  }
+
+  // ── Load recent activity ─────────────────────────────────────
+  async function loadActivity(){
+    const el=document.getElementById('dshActivity');
+    try{
+      const txns=await apiFetch('/api/user/transactions');
+      const list=Array.isArray(txns)?txns.slice(0,2):(txns.transactions||[]).slice(0,2);
+      if(!list.length){ el.innerHTML='<div class="dsh-empty">No activity yet — make your first deposit!</div>'; return; }
+      el.innerHTML=list.map(t=>{
+        const isDebit=t.type==='purchase'||t.type==='tool_purchase'||t.type==='number_purchase'||t.type==='boost_purchase'||t.type==='debit';
+        const isCredit=t.type==='deposit'||t.type==='admin_credit'||t.type==='referral'||t.type==='credit';
+        const iconClass=isDebit?'debit':isCredit?'deposit':'purchase';
+        const emoji=isDebit?'🛒':isCredit?'⬇️':'💳';
+        const amtClass=isDebit?'debit':'credit';
+        const amtPfx=isDebit?'-':'+';
+        const date=new Date(t.createdAt).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const statusClass=t.status==='success'||t.status==='completed'?'ok':'fail';
+        return '<div class="dsh-activity-row">'
+          +'<div class="dsh-activity-icon '+iconClass+'">'+emoji+'</div>'
+          +'<div class="dsh-activity-info">'
+          +'<div class="dsh-activity-name">'+esc(t.description||t.type||'Transaction')+'</div>'
+          +'<div class="dsh-activity-date">'+esc(date)+'</div>'
+          +'</div>'
+          +'<div style="text-align:right">'
+          +'<div class="dsh-activity-amt '+amtClass+'">'+amtPfx+'₦'+fmt(t.amount)+'</div>'
+          +'<span class="dsh-activity-status '+statusClass+'">'+(t.status||'pending')+'</span>'
+          +'</div>'
+          +'</div>';
+      }).join('');
+    }catch(e){
+      el.innerHTML='<div class="dsh-empty">Could not load activity</div>';
+    }
+  }
+
+  // ── Trust stats strip (Members / Listings / Visitors / Active Now) ─────
+  // Same endpoints the homepage hero already uses (see script.js loadWelcomeContent/
+  // initHome/trackVisit/loadActiveNow) — no new backend needed.
+  async function loadStats(){
+    const setIf=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+    try{
+      const stats=await apiFetch('/api/public/stats');
+      setIf('dshStatMembers', Number(stats.totalUsers||0).toLocaleString('en-NG'));
+      setIf('dshStatListings', Number((stats.activeLogs||0)+(stats.activeTools||0)).toLocaleString('en-NG'));
+    }catch{}
+    try{
+      const vRes=await fetch('/api/visit');
+      const v=await vRes.json();
+      setIf('dshStatVisitors', Number(v.visitors||0).toLocaleString('en-NG'));
+    }catch{}
+    try{
+      const active=await apiFetch('/api/active-users');
+      setIf('dshStatActive', Number(active.count||0).toLocaleString('en-NG'));
+    }catch{}
+  }
+
+  // ── Contact & Support card — Channel / Community / Admin, admin-configurable ───
+  async function loadContactLinks(){
+    try{
+      const res=await fetch('/api/public/site-links');
+      const links=await res.json();
+      const admin=document.getElementById('dshContactAdmin');
+      const channel=document.getElementById('dshContactChannel');
+      const group=document.getElementById('dshContactGroup');
+      const fabAdmin=document.getElementById('dshFabAdmin');
+      const fabChannel=document.getElementById('dshFabChannel');
+      const fabGroup=document.getElementById('dshFabGroup');
+      if(admin) admin.href = links.whatsappChatLink || ('https://wa.me/'+(links.adminPhone||links.whatsappNumber||''));
+      if(channel && links.whatsappChannelLink) channel.href = links.whatsappChannelLink;
+      if(group && links.whatsappGroupLink) group.href = links.whatsappGroupLink;
+      if(fabAdmin) fabAdmin.href = links.whatsappChatLink || ('https://wa.me/'+(links.adminPhone||links.whatsappNumber||''));
+      if(fabChannel && links.whatsappChannelLink) fabChannel.href = links.whatsappChannelLink;
+      if(fabGroup && links.whatsappGroupLink) fabGroup.href = links.whatsappGroupLink;
+    }catch{}
+  }
+
+  // ── Init ────────────────────────────────────────────────────
+  loadUser();
+  loadActivity();
+  loadStats();
+  loadContactLinks();
+
+  // Poll balance every 20s for real-time updates
+  setInterval(async function(){
+    try{
+      const me=await apiFetch('/api/user/me');
+      if(me&&currentUser){ currentUser.balance=me.balance; if(!balHidden){ document.getElementById('dshBal').textContent=fmt(me.balance); } }
+    }catch{}
+  },20000);
+})();
+</script>
+<script src="/js/i18n.js?v=20260918" defer></script>
+<script>
+  // Language switcher — same i18n layer as the rest of the site, mounted into
+  // this page's own header-right cluster (index.html mounts it into .nav-right).
+  document.addEventListener('DOMContentLoaded', function () {
+    function mount() {
+      if (window.KLSi18n && document.getElementById('dshHeaderRight')) {
+        window.KLSi18n.mountSwitcher(document.getElementById('dshHeaderRight'));
+      } else {
+        setTimeout(mount, 150); // i18n.js loads with `defer`; retry briefly if it isn't ready yet
+      }
+    }
+    mount();
+  });
+</script>
+<script src="/welcome-popup.js?v=1" defer></script>
+</body>
+</html>

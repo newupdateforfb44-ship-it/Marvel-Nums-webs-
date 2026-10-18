@@ -1,0 +1,788 @@
+
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+<!-- ════════════ DEPOSIT PAGE FRAGMENT ════════════
+     Loaded once into #page-deposit by loadDepositFragment() in script.js.
+     All JS functions live in script.js — innerHTML does NOT run <script> tags.
+════════════════════════════════════════════════════ -->
+
+<!-- ═══ SCREEN 0: METHOD CHOOSER ═══════════════════════════════ -->
+<div id="depScreen0" class="dep-screen dep-screen-active">
+  <div class="dep-page-hero">
+    <div class="dep-chip">Deposit</div>
+    <h1>Add Funds to Your Wallet</h1>
+    <p>Choose how you want to fund your MARVINUMS wallet. Both methods are instant and secured by licensed payment partners.</p>
+  </div>
+
+  <div class="deposit-wrap">
+    <!-- Balance card -->
+    <div class="wallet-card" style="margin-bottom:20px">
+      <div class="wc-glow"></div>
+      <div class="wc-top">
+        <span class="wc-brand">MARVINUMS WALLET</span>
+        <button class="wc-refresh" onclick="refreshBalance()" title="Refresh balance"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+      </div>
+      <div class="wc-chip">▤</div>
+      <div class="wc-label">AVAILABLE BALANCE</div>
+      <div class="wc-amount"><span id="depositBal">₦0.00</span></div>
+      <div class="wc-bottom">
+        <div class="wc-id" id="wcGameId">•••• ••••</div>
+        <div class="wc-lifetime">Lifetime deposited <b><span id="depositTotalLifetime">₦0.00</span></b></div>
+      </div>
+    </div>
+
+    <!-- Method cards -->
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px">
+
+      <!-- Virtual Account / Bank Transfer -->
+      <div class="dep-method-card dmc-primary-action" id="depChooseVA" onclick="depGoVAWithPoller()" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')depGoVAWithPoller()">
+        <div class="dmc-left">
+          <div class="dmc-icon-box dmc-icon-bank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z"/>
+              <path d="M9 21V12h6v9"/>
+            </svg>
+          </div>
+          <div>
+            <div class="dmc-title">Generate Virtual Account</div>
+            <div class="dmc-sub">Free bank account · Transfer from any Nigerian bank</div>
+          </div>
+        </div>
+        <div class="dmc-right">
+          <div class="dmc-badge dmc-badge-green" id="vaBadge">Instant</div>
+          <div class="dmc-arrow-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Link -->
+      <div class="dep-method-card" id="depChoosePL" onclick="depGoPL()" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'||event.key===' ')depGoPL()">
+        <div class="dmc-left">
+          <div class="dmc-icon-box dmc-icon-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+          </div>
+          <div>
+            <div class="dmc-title">Payment Link</div>
+            <div class="dmc-sub">Card · OPay · Bank Transfer · USSD</div>
+          </div>
+        </div>
+        <div class="dmc-right">
+          <div class="dmc-badge dmc-badge-blue">Flexible</div>
+          <div class="dmc-arrow">›</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="depPlUnavailableNote" class="dep-unavail-note" style="display:none"></div>
+    <div id="depResultCard" style="display:none" class="dep-result-card"></div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 1: VIRTUAL ACCOUNT ════════════════════════════════ -->
+<div id="depScreen1" class="dep-screen" style="display:none">
+  <nav class="dep-subnav">
+    <button class="dep-back-btn" onclick="depGoHome()">‹ Back</button>
+    <span class="dep-subnav-title">Bank Transfer</span>
+    <span></span>
+  </nav>
+
+  <div class="deposit-wrap">
+
+    <div id="vaGatewayChooser" style="display:none;margin:0 0 14px"></div>
+
+    <!-- Loading -->
+    <div id="vaLoadingState" style="text-align:center;padding:60px 20px">
+      <div class="dep-spinner"></div>
+      <p style="color:var(--t2);margin-top:16px;font-size:.9rem">Loading your virtual account…</p>
+    </div>
+
+    <!-- Account EXISTS and is active -->
+    <div id="vaAccountCard" style="display:none">
+
+      <!-- WALLET BALANCE ON VA SCREEN -->
+      <div style="background:linear-gradient(135deg,rgba(7,136,232,.14),rgba(124,58,237,.1));border:1px solid rgba(7,136,232,.25);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Wallet Balance</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--t1)"><span id="vaWalletBal">₦0.00</span></div>
+        </div>
+        <button onclick="refreshBalance()" style="background:rgba(7,136,232,.15);border:1px solid rgba(7,136,232,.3);color:var(--accent);border-radius:8px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+
+      <!-- AUTO-CONFIRMATION BANNER — shown instantly when VA payment detected (once per deposit) -->
+      <div id="vaConfirmBanner" class="va-confirm-banner" style="display:none">
+        <div class="va-confirm-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="m5 12.5 4.5 4.5L19 7"/></svg>
+        </div>
+        <div>
+          <div class="va-confirm-title">Payment Received!</div>
+          <div class="va-confirm-sub" id="vaConfirmBanner">Your MARVINUMS wallet has been credited automatically.</div>
+        </div>
+      </div>
+
+      <!-- LIVE MONITORING INDICATOR -->
+      <div class="va-live-strip">
+        <span id="vaLiveDot" class="va-live-dot"></span>
+        <span>Monitoring for payments — wallet updates automatically</span>
+      </div>
+
+      <div class="dep-hero-section">
+        <div class="dep-hero-icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40">
+            <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z"/>
+            <path d="M9 21V12h6v9"/>
+          </svg>
+        </div>
+        <h2>Your Dedicated Bank Account</h2>
+        <p>Transfer any amount from <b>any Nigerian bank</b>. Your MARVINUMS wallet is credited <b>automatically within seconds</b> — no screenshot needed.</p>
+      </div>
+
+      <!-- Big bank details card -->
+      <div class="va-bank-card">
+        <div class="va-bank-header">
+          <div class="va-bank-header-left">
+            <div class="va-bank-logo-svg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z"/>
+                <path d="M9 21V12h6v9"/>
+              </svg>
+            </div>
+            <div>
+              <div class="va-bank-name" id="vaDisplayBank">Loading…</div>
+              <div class="va-bank-type" id="vaDisplayBankSub">Virtual Account · Permanent</div>
+            </div>
+          </div>
+          <span class="va-status-pill">
+            <span class="va-active-dot"></span>Active
+          </span>
+        </div>
+
+        <div class="va-bank-body">
+          <div class="va-field-group">
+            <div class="va-field-label">Account Number</div>
+            <div class="va-field-row">
+              <div class="va-field-val va-acct-num" id="vaDisplayAccNum">— — — — — — — —</div>
+              <button class="va-copy-btn" id="vaCopyNumBtn" onclick="copyVAField('vaDisplayAccNum','vaCopyNumBtn')">Copy</button>
+            </div>
+          </div>
+          <div class="va-field-group">
+            <div class="va-field-label">Account Name</div>
+            <div class="va-field-row">
+              <div class="va-field-val" id="vaDisplayName">—</div>
+              <button class="va-copy-btn" id="vaCopyNameBtn" onclick="copyVAField('vaDisplayName','vaCopyNameBtn')">Copy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fee table -->
+        <div class="va-fee-box">
+          <div class="va-fee-box-title">Service Fee — flat rate, not percentage</div>
+          <div class="va-fee-table">
+            <div class="va-fee-row"><span>Send ₦100 – ₦499</span><span class="va-fee-amt">₦10 fee</span></div>
+            <div class="va-fee-row"><span>Send ₦500 – ₦999</span><span class="va-fee-amt">₦20 fee</span></div>
+            <div class="va-fee-row"><span>Send ₦1,000 – ₦9,999</span><span class="va-fee-amt">₦50 fee</span></div>
+            <div class="va-fee-row va-fee-row-last"><span>Send ₦10,000+</span><span class="va-fee-amt">₦100 fee (flat)</span></div>
+          </div>
+          <div class="va-fee-example">
+            <span>Send any amount — small flat fee deducted, rest credited instantly.</span>
+          </div>
+        </div>
+
+        <div class="va-badge-row">
+          <span class="va-badge va-badge-green">Auto-credited</span>
+          <span class="va-badge va-badge-blue">Permanent</span>
+          <span class="va-badge va-badge-gray">Flutterwave</span>
+        </div>
+      </div>
+
+      <!-- How it works -->
+      <div class="how-card">
+        <div class="how-card-header">
+          <h3>How to Deposit via Bank Transfer</h3>
+          <button class="how-toggle-btn" id="vaHowToggle" onclick="toggleVAHow()">Show ▾</button>
+        </div>
+        <div id="vaHowSteps" style="display:none">
+          <div class="how-steps">
+            <div class="how-step"><div class="step-n">1</div><div>Open your bank app, USSD (*966#, *737#, etc.) or internet banking.</div></div>
+            <div class="how-step"><div class="step-n">2</div><div>Choose <b>Transfer / Send Money</b> <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> select <b id="vaHowBankName">the bank shown above</b> as destination bank.</div></div>
+            <div class="how-step"><div class="step-n">3</div><div>Enter the account number <b id="vaHowAccNum">—</b>. The name <b id="vaHowAccName">—</b> will appear — confirm it matches.</div></div>
+            <div class="how-step"><div class="step-n">4</div><div>Enter your desired amount <b>plus the flat fee</b> (see fee table above). Example: want ₦1,000 credited <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> send ₦1,050 (₦50 fee).</div></div>
+            <div class="how-step"><div class="step-n">5</div><div>Complete the transfer. Return here and tap <b><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh Balance</b> — your wallet updates within seconds.</div></div>
+            <div class="how-step"><div class="step-n">6</div><div>This account is <b>permanent</b> — save it in your bank app's favourites and use it any time.</div></div>
+          </div>
+          <div class="how-warning">Only send Nigerian Naira (NGN). Do not send from a foreign account or crypto wallet.</div>
+        </div>
+      </div>
+
+      <!-- Admin tutorial slot -->
+      <div class="how-card" id="depTutVABox" style="display:none">
+        <h3>Video Tutorial</h3>
+        <div id="depTutVAContent"></div>
+      </div>
+    </div>
+
+    <!-- NOT YET GENERATED -->
+    <div id="vaGenerateCard" style="display:none">
+      <div class="dep-hero-section">
+        <div class="dep-hero-icon"><svg class="icon i-bank" aria-hidden="true"><use href="#i-bank"/></svg></div>
+        <h2>Get Your Free Virtual Account</h2>
+        <p>A permanent Nigerian bank account — generated once, yours forever. Transfer to it any time and your MARVINUMS wallet is credited automatically. <b>No approval needed.</b></p>
+      </div>
+
+      <div class="va-gen-card">
+        <div class="va-gen-features">
+          <div class="va-gen-feat">
+            <div class="vgf-icon vgf-icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10"/><path d="M15 9H9v6h6V9Z"/><path d="M16 16v4h4"/><path d="M16 20h4"/></svg>
+            </div>
+            <div><b>Permanent</b><span>Never expires</span></div>
+          </div>
+          <div class="va-gen-feat">
+            <div class="vgf-icon vgf-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/></svg>
+            </div>
+            <div><b>Instant credit</b><span>Wallet updates in seconds</span></div>
+          </div>
+          <div class="va-gen-feat">
+            <div class="vgf-icon vgf-icon-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg>
+            </div>
+            <div><b>Secured</b><span>Powered by Flutterwave</span></div>
+          </div>
+          <div class="va-gen-feat">
+            <div class="vgf-icon vgf-icon-orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-9.5Z"/><path d="M9 21V12h6v9"/></svg>
+            </div>
+            <div><b>All banks</b><span>Any Nigerian bank</span></div>
+          </div>
+        </div>
+        <button class="btn-primary btn-full" style="padding:16px;font-size:1rem;font-weight:800" id="vaGenerateBtn" onclick="generateVirtualAccount()">
+          Generate My Virtual Account — Free
+        </button>
+        <div id="vaGenerateFeedback" class="form-feedback" style="margin-top:12px;text-align:center"></div>
+      </div>
+
+      <div class="how-card">
+        <h3>How it works after setup</h3>
+        <div class="how-steps">
+          <div class="how-step"><div class="step-n">1</div><div>Tap Generate — your unique account number is created in seconds.</div></div>
+          <div class="how-step"><div class="step-n">2</div><div>Open any Nigerian bank app and transfer any amount (plus the small fee) to that account number.</div></div>
+          <div class="how-step"><div class="step-n">3</div><div>Your MARVINUMS wallet is credited automatically — no screenshots or support messages needed.</div></div>
+          <div class="how-step"><div class="step-n">4</div><div>The account is permanent — save it and use it every time you want to top up.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBALLY DISABLED -->
+    <div id="vaDisabledCard" style="display:none">
+      <div class="dep-hero-section">
+        <div class="dep-hero-icon-svg dep-hero-icon-gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z"/></svg></div>
+        <h2>Virtual Accounts Temporarily Unavailable</h2>
+        <p>Bank Transfer deposits are paused for maintenance. Please use the <b>Payment Link</b> option instead, or check back shortly.</p>
+        <button class="btn-primary" style="margin-top:20px;padding:14px 28px" onclick="depGoHome();setTimeout(depGoPL,100)">Use Payment Link Instead</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2: PAYMENT LINK ════════════════════════════════════ -->
+<div id="depScreen2" class="dep-screen" style="display:none">
+  <nav class="dep-subnav">
+    <button class="dep-back-btn" onclick="depGoHome()">‹ Back</button>
+    <span class="dep-subnav-title">Payment Link</span>
+    <span></span>
+  </nav>
+
+  <div class="deposit-wrap">
+
+    <!-- Step 1: Amount -->
+    <div id="depPlAmountStep">
+      <!-- WALLET BALANCE ON PL SCREEN -->
+      <div style="background:linear-gradient(135deg,rgba(7,136,232,.14),rgba(124,58,237,.1));border:1px solid rgba(7,136,232,.25);border-radius:12px;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">Wallet Balance</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--t1)"><span id="plWalletBal">₦0.00</span></div>
+        </div>
+        <button onclick="refreshBalance()" style="background:rgba(7,136,232,.15);border:1px solid rgba(7,136,232,.3);color:var(--accent);border-radius:8px;padding:6px 12px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+
+      <div class="dep-hero-section">
+        <div class="dep-hero-icon-svg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg></div>
+        <h2>How much do you want to deposit?</h2>
+        <p id="depPlHeroNote">Enter the amount to credit your wallet. A small processing fee covers payment processing costs.</p>
+      </div>
+
+      <div class="dep-amount-card">
+        <label class="dep-amt-label" id="depAmtLabel">Amount to credit your wallet (₦)</label>
+        <div class="dep-amount-input-wrap">
+          <span class="dep-naira-sym" id="depAmtSym">₦</span>
+          <input type="number" id="depPlAmountInput" placeholder="e.g. 1000" min="100" step="1"
+            oninput="syncDepQuickAmount();updatePLFeePreview()"/>
+        </div>
+
+        <div id="depGatewayChooser" style="display:none;margin:14px 0"></div>
+
+        <div id="plFeePreview" class="pl-fee-preview" style="display:none"></div>
+
+        <div class="dep-quick-amounts" id="depQuickAmounts">
+          <button type="button" onclick="setDepQuickAmount(100)">₦100</button>
+          <button type="button" onclick="setDepQuickAmount(200)">₦200</button>
+          <button type="button" onclick="setDepQuickAmount(500)">₦500</button>
+          <button type="button" onclick="setDepQuickAmount(1000)">₦1,000</button>
+          <button type="button" onclick="setDepQuickAmount(2000)">₦2,000</button>
+          <button type="button" onclick="setDepQuickAmount(5000)">₦5,000</button>
+          <button type="button" onclick="setDepQuickAmount(10000)">₦10,000</button>
+          <button type="button" onclick="setDepQuickAmount(20000)">₦20,000</button>
+          <button type="button" onclick="setDepQuickAmount(50000)">₦50,000</button>
+        </div>
+
+        <button class="btn-primary btn-full dep-submit-btn" id="depPlGenerateBtn"
+          style="padding:15px;font-size:1rem;margin-top:4px" onclick="startPaymentLinkCheckout()">
+          Continue to Payment
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-left:6px;vertical-align:middle"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div id="depPlFeedback" class="form-feedback"></div>
+      </div>
+
+      <!-- How Payment Link works -->
+      <div class="how-card">
+        <h3>How Payment Link Works</h3>
+        <div class="how-steps">
+          <div class="how-step"><div class="step-n">1</div><div>Enter the amount you want credited to your MARVINUMS wallet above.</div></div>
+          <div class="how-step"><div class="step-n">2</div><div>Tap <b>Continue to Payment</b> — review the fee summary on the next screen.</div></div>
+          <div class="how-step"><div class="step-n">3</div><div>Tap <b>Confirm & Pay</b> — you are taken to a secure <b>checkout page</b> (Flutterwave or Paystack).</div></div>
+          <div class="how-step"><div class="step-n">4</div><div>Pay via <b>Bank Transfer, Debit/Credit Card, OPay, or USSD</b> on the checkout page.</div></div>
+          <div class="how-step"><div class="step-n">5</div><div>After payment, the checkout page redirects you back here and your wallet is credited instantly.</div></div>
+          <div class="how-step"><div class="step-n">6</div><div>If you chose <b>Bank Transfer</b> on the checkout page and went to your bank app — come back here and tap <b>I've Paid — Check Now</b>.</div></div>
+        </div>
+        <div class="how-warning">Payment links expire after for <b>30 minutes</b> from when you tap Continue. If yours expires, tap Continue again to get a fresh one.</div>
+      </div>
+
+      <!-- Admin tutorial slot -->
+      <div class="how-card" id="depTutPaymentlinkBox" style="display:none">
+        <h3>Tutorial</h3>
+        <div id="depTutPaymentlinkContent"></div>
+      </div>
+    </div>
+
+    <!-- Step 2: Confirm -->
+    <div id="depPlConfirmStep" style="display:none">
+      <div class="dep-hero-section">
+        <div class="dep-hero-icon-svg dep-hero-icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="40" height="40"><path d="m5 12.5 4.5 4.5L19 7"/></svg></div>
+        <h2>Confirm Your Payment</h2>
+        <p>Review the details below before going to the secure checkout.</p>
+      </div>
+
+      <div class="dep-confirm-card">
+        <div class="dcb-row">
+          <span>Payment method</span>
+          <b id="depPlConfirmMethod" style="color:var(--accent)"><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg> Flutterwave</b>
+        </div>
+        <div class="dcb-row">
+          <span>You'll be charged</span>
+          <b id="depPlConfirmCharge">₦0</b>
+        </div>
+        <div class="dcb-row">
+          <span>Service fee</span>
+          <b id="depPlConfirmFee" style="color:var(--t2)">₦0</b>
+        </div>
+        <div class="dcb-row dcb-total">
+          <span>Wallet credited</span>
+          <b id="depPlConfirmCredit" style="color:var(--green)">₦0</b>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-full dep-submit-btn" style="padding:15px;font-size:1rem"
+        id="depPlConfirmBtn" onclick="createPaymentLink()">
+        Confirm &amp; Pay
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" style="margin-left:6px;vertical-align:middle"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+      <button type="button" class="dep-back-link" onclick="cancelPaymentLinkCheckout()">‹ Change Amount</button>
+      <div id="depPlConfirmFeedback" class="form-feedback" style="margin-top:8px"></div>
+    </div>
+
+  </div>
+</div>
+
+
+<style>
+/* ── DEPOSIT PAGE STYLES ──────────────────────────────────────── */
+.dep-screen { display:none; }
+.dep-screen-active { display:block; }
+
+.dep-page-hero {
+  padding: 32px 20px 24px;
+  text-align: center;
+}
+.dep-chip {
+  display: inline-block;
+  background: rgba(7,136,232,.12);
+  color: var(--accent);
+  border: 1px solid rgba(7,136,232,.25);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: .78rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.dep-page-hero h1 {
+  font-size: clamp(20px,5vw,30px);
+  font-weight: 800;
+  margin: 0 0 8px;
+  color: var(--t1);
+}
+.dep-page-hero p {
+  color: var(--t2);
+  font-size: .88rem;
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Method cards — use div not button to avoid all browser button quirks */
+.dep-method-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1.5px solid var(--border2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .18s, background .18s, transform .12s, opacity .18s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.dep-method-card:hover { border-color: var(--accent); background: rgba(7,136,232,.06); }
+.dep-method-card:active { transform: scale(.985); }
+.dep-method-card.dep-disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.dmc-left { display:flex; align-items:center; gap:14px; pointer-events:none; }
+.dmc-icon { font-size:1.8rem; }
+.dmc-title { font-size:1rem; font-weight:800; color:var(--t1); margin-bottom:3px; }
+.dmc-sub { font-size:.78rem; color:var(--t2); }
+.dmc-right { display:flex; align-items:center; gap:10px; flex-shrink:0; pointer-events:none; }
+.dmc-badge { padding:4px 10px; border-radius:20px; font-size:.72rem; font-weight:700; }
+.dmc-badge-green { background:rgba(0,212,106,.1); color:var(--green); border:1px solid rgba(0,212,106,.25); }
+.dmc-badge-blue  { background:rgba(7,136,232,.1); color:var(--accent); border:1px solid rgba(7,136,232,.25); }
+.dmc-badge-red   { background:rgba(255,71,87,.1); color:#ff6b7a; border:1px solid rgba(255,71,87,.25); }
+.dmc-arrow { font-size:1.4rem; color:var(--t2); }
+
+/* Subnav */
+.dep-subnav {
+  position: sticky; top:0; z-index:40;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; gap:10px;
+  background: var(--navbar-bg, rgba(10,10,20,.92));
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+.dep-subnav-title { font-size:.95rem; font-weight:800; color:var(--t1); }
+.dep-back-btn {
+  background: var(--card2); border:1px solid var(--border2);
+  color: var(--t1); border-radius:10px; padding:8px 14px;
+  font-family:inherit; font-size:.83rem; font-weight:700; cursor:pointer;
+  transition: background .15s;
+}
+.dep-back-btn:hover { background:var(--card); }
+
+/* Hero section */
+.dep-hero-section { text-align:center; padding:28px 16px 20px; }
+.dep-hero-icon { font-size:2.8rem; margin-bottom:10px; }
+.dep-hero-section h2 { font-size:clamp(1.1rem,4vw,1.4rem); font-weight:800; margin-bottom:8px; color:var(--t1); }
+.dep-hero-section p { font-size:.86rem; color:var(--t2); line-height:1.6; max-width:420px; margin:0 auto; }
+
+/* VA bank card */
+.va-bank-card {
+  background: var(--card); border:1.5px solid var(--border2);
+  border-radius:18px; overflow:hidden; margin-bottom:16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.2);
+}
+.va-bank-header {
+  background: linear-gradient(135deg,#0788e8 0%,#7c3aed 100%);
+  padding:18px 20px; display:flex; align-items:center;
+  justify-content:space-between; gap:12px;
+}
+.va-bank-header-left { display:flex; align-items:center; gap:12px; }
+.va-bank-logo { font-size:1.8rem; }
+.va-bank-name { font-size:1rem; font-weight:800; color:#fff; }
+.va-bank-type { font-size:.72rem; color:rgba(255,255,255,.75); margin-top:2px; }
+.va-status-pill { background:rgba(0,255,120,.2); border:1px solid rgba(0,255,120,.4); color:#00ff88; padding:4px 12px; border-radius:20px; font-size:.72rem; font-weight:700; white-space:nowrap; }
+.va-bank-body { padding:18px 20px; display:flex; flex-direction:column; gap:16px; }
+.va-field-label { font-size:.7rem; font-weight:700; color:var(--t2); text-transform:uppercase; letter-spacing:.06em; margin-bottom:6px; }
+.va-field-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.va-field-val { font-size:.95rem; font-weight:700; color:var(--t1); word-break:break-all; }
+.va-acct-num { font-size:1.4rem; letter-spacing:.18em; font-family:'JetBrains Mono','Courier New',monospace; }
+.va-copy-btn {
+  background:rgba(7,136,232,.12); border:1px solid rgba(7,136,232,.3);
+  color:var(--accent); border-radius:9px; padding:7px 14px;
+  font-size:.78rem; font-weight:700; cursor:pointer; font-family:inherit;
+  white-space:nowrap; flex-shrink:0; transition:all .15s;
+}
+.va-copy-btn:hover { background:rgba(7,136,232,.22); }
+.va-copy-btn.copied { background:rgba(0,212,106,.12); border-color:rgba(0,212,106,.3); color:var(--green); }
+
+/* Fee box */
+.va-fee-box { background:var(--card2); margin:0 20px 20px; border-radius:12px; padding:14px 16px; border:1px solid rgba(255,199,0,.2); }
+.va-fee-box-title { font-size:.78rem; font-weight:700; color:#ffc700; margin-bottom:10px; }
+.va-fee-table { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+.va-fee-row { display:flex; justify-content:space-between; align-items:center; font-size:.82rem; color:var(--t2); }
+.va-fee-amt { font-weight:700; color:var(--t1); }
+.va-fee-row-last { border-top:1px solid var(--border); padding-top:8px; }
+.va-fee-example { font-size:.8rem; color:var(--t2); background:rgba(255,199,0,.07); border-radius:8px; padding:8px 12px; line-height:1.5; }
+.va-fee-example b { color:var(--t1); }
+
+/* VA badges */
+.va-badge-row { display:flex; flex-wrap:wrap; gap:6px; padding:0 20px 20px; }
+.va-badge { padding:4px 11px; border-radius:20px; font-size:.72rem; font-weight:700; border:1px solid; }
+.va-badge-green { background:rgba(0,212,106,.1); border-color:rgba(0,212,106,.3); color:var(--green); }
+.va-badge-blue  { background:rgba(7,136,232,.1); border-color:rgba(7,136,232,.3); color:var(--accent); }
+.va-badge-gray  { background:var(--card2); border-color:var(--border2); color:var(--t2); }
+
+/* Generate card */
+.va-gen-card { background:var(--card); border:1.5px solid var(--border2); border-radius:16px; padding:20px; margin-bottom:16px; }
+.va-gen-features { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:20px; }
+.va-gen-feat { display:flex; align-items:flex-start; gap:10px; font-size:.82rem; }
+.va-gen-feat > span { font-size:1.3rem; flex-shrink:0; margin-top:1px; }
+.va-gen-feat b { display:block; font-size:.84rem; color:var(--t1); margin-bottom:2px; }
+.va-gen-feat > div > span { color:var(--t2); font-size:.75rem; }
+
+/* Amount input */
+.dep-amount-card { background:var(--card); border:1.5px solid var(--border2); border-radius:16px; padding:20px; margin-bottom:16px; }
+.dep-amt-label { display:block; font-size:.78rem; font-weight:700; color:var(--t2); text-transform:uppercase; letter-spacing:.04em; margin-bottom:10px; }
+.dep-amount-input-wrap {
+  display:flex; align-items:center; gap:8px;
+  background:var(--card2); border:1.5px solid var(--border2);
+  border-radius:12px; padding:12px 16px; margin-bottom:14px;
+  transition:border-color .18s;
+}
+.dep-amount-input-wrap:focus-within { border-color:var(--accent); }
+.dep-naira-sym { font-size:1.5rem; font-weight:800; color:var(--t2); flex-shrink:0; }
+.dep-amount-input-wrap input {
+  flex:1; border:none; background:transparent;
+  font-size:1.5rem; font-weight:800; color:var(--t1);
+  font-family:inherit; outline:none; width:100%;
+}
+.dep-quick-amounts { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px; }
+.dep-quick-amounts button {
+  padding:7px 13px; border-radius:20px; font-size:.8rem; font-weight:700;
+  background:var(--card2); border:1px solid var(--border2); color:var(--t1);
+  cursor:pointer; font-family:inherit; transition:all .15s;
+}
+.dep-quick-amounts button:hover, .dep-quick-amounts button.active {
+  background:rgba(7,136,232,.15); border-color:var(--accent); color:var(--accent);
+}
+
+/* Fee preview */
+.pl-fee-preview {
+  background:rgba(0,212,106,.06); border:1px solid rgba(0,212,106,.2);
+  border-radius:10px; padding:10px 14px; font-size:.84rem; color:var(--t2);
+  margin-bottom:14px; line-height:1.6;
+}
+.pl-fee-preview b { color:var(--green); }
+
+/* Confirm card */
+.dep-confirm-card {
+  background:var(--card); border:1.5px solid var(--border2);
+  border-radius:16px; overflow:hidden; margin-bottom:16px;
+}
+.dcb-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  font-size:.88rem; color:var(--t2);
+}
+.dcb-row:last-child { border-bottom:none; }
+.dcb-row b { color:var(--t1); font-size:.95rem; }
+.dcb-total { background:rgba(0,212,106,.04); }
+.dcb-total b { font-size:1.05rem; font-weight:800; }
+
+/* Back link under confirm */
+.dep-back-link {
+  display:block; width:100%; margin-top:10px; text-align:center;
+  background:none; border:1px solid var(--border2); color:var(--t2);
+  border-radius:10px; padding:10px; font-family:inherit; font-size:.84rem;
+  font-weight:600; cursor:pointer; transition:background .15s;
+}
+.dep-back-link:hover { background:var(--card2); color:var(--t1); }
+
+/* How cards */
+.how-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:14px; }
+.how-card-header { display:flex; justify-content:space-between; align-items:center; }
+.how-card h3 { font-size:.9rem; font-weight:700; color:var(--t1); margin:0 0 14px; }
+.how-card-header h3 { margin:0; }
+.how-toggle-btn { background:none; border:1px solid var(--border2); color:var(--t2); border-radius:8px; padding:5px 11px; font-size:.75rem; cursor:pointer; font-family:inherit; }
+.how-steps { display:flex; flex-direction:column; gap:12px; margin-top:14px; }
+.how-step { display:flex; gap:12px; align-items:flex-start; font-size:.84rem; color:var(--t2); line-height:1.55; }
+.step-n { width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,var(--accent,#0788e8),#7c3aed); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; }
+.how-warning { background:rgba(255,199,0,.08); border:1px solid rgba(255,199,0,.2); border-radius:9px; padding:10px 14px; font-size:.8rem; color:#ffc700; margin-top:14px; line-height:1.55; }
+
+/* Unavailable note */
+.dep-unavail-note { background:rgba(255,71,87,.08); border:1px solid rgba(255,71,87,.2); color:#ff6b7a; padding:10px 14px; border-radius:10px; font-size:.84rem; margin-bottom:12px; }
+
+/* Spinner */
+.dep-spinner { width:30px; height:30px; border:3px solid var(--border2); border-top-color:var(--accent); border-radius:50%; animation:depSpin .7s linear infinite; margin:0 auto; }
+@keyframes depSpin { to { transform:rotate(360deg); } }
+
+@media(max-width:380px){
+  .va-acct-num { font-size:1.1rem; letter-spacing:.1em; }
+  .va-gen-features { grid-template-columns:1fr; }
+}
+
+/* ── NEW CLICKABLE PRIMARY METHOD CARD ─────────────────────── */
+.dmc-primary-action {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(7,136,232,.08) 0%, rgba(124,58,237,.06) 100%);
+  position: relative;
+  overflow: hidden;
+}
+.dmc-primary-action::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(7,136,232,.12), rgba(124,58,237,.08));
+  opacity: 0;
+  transition: opacity .18s;
+}
+.dmc-primary-action:hover::before { opacity: 1; }
+.dmc-primary-action .dmc-title { color: var(--accent); }
+
+/* Icon boxes replacing emoji */
+.dmc-icon-box {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dmc-icon-bank { background: linear-gradient(135deg,#0788e8,#7c3aed); color: #fff; }
+.dmc-icon-link { background: rgba(7,136,232,.12); color: var(--accent); border: 1px solid rgba(7,136,232,.25); }
+
+/* Arrow button style (replaces › text) */
+.dmc-arrow-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 10px rgba(7,136,232,.35);
+}
+
+/* VA hero with SVG icon */
+.dep-hero-icon-svg {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: linear-gradient(135deg,#0788e8,#7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px; color: #fff;
+}
+.dep-hero-icon-svg.dep-hero-icon-green { background: linear-gradient(135deg,#00d46a,#059669); }
+.dep-hero-icon-svg.dep-hero-icon-gray  { background: var(--card2); color: var(--t2); border: 1px solid var(--border2); }
+
+/* Bank logo SVG */
+.va-bank-logo-svg {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; flex-shrink: 0;
+}
+
+/* Active dot on status pill */
+.va-active-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: #00ff88; box-shadow: 0 0 6px #00ff88;
+  margin-right: 5px; animation: pulse 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+/* Confirm banner (replaces inline style block) */
+.va-confirm-banner {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: rgba(34,197,94,.1);
+  border: 1.5px solid rgba(34,197,94,.4);
+  border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 14px; animation: fadein .4s;
+}
+.va-confirm-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(34,197,94,.2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #22c55e;
+}
+.va-confirm-title { font-size: .95rem; font-weight: 800; color: #22c55e; margin-bottom: 2px; }
+.va-confirm-sub   { font-size: .82rem; color: rgba(34,197,94,.8); }
+
+/* Live monitoring strip */
+.va-live-strip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 14px;
+  background: rgba(0,255,120,.04);
+  border: 1px solid rgba(0,255,120,.12);
+  border-radius: 8px; margin-bottom: 12px;
+  font-size: .78rem; color: var(--t2);
+}
+.va-live-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #22c55e; box-shadow: 0 0 6px #22c55e;
+  animation: pulse 1.2s ease-in-out infinite; flex-shrink: 0;
+}
+
+/* Gen features SVG icon boxes */
+.vgf-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.vgf-icon-blue   { background: rgba(7,136,232,.12); color: var(--accent); border: 1px solid rgba(7,136,232,.2); }
+.vgf-icon-green  { background: rgba(0,212,106,.1);  color: var(--green);  border: 1px solid rgba(0,212,106,.2); }
+.vgf-icon-purple { background: rgba(124,58,237,.1); color: #a78bfa;       border: 1px solid rgba(124,58,237,.2); }
+.vgf-icon-orange { background: rgba(249,115,22,.1); color: #fb923c;       border: 1px solid rgba(249,115,22,.2); }
+
+/* Gen card feature items */
+.va-gen-feat { display:flex; align-items:flex-start; gap:10px; font-size:.82rem; }
+.va-gen-feat b { display:block; font-size:.84rem; color:var(--t1); margin-bottom:2px; }
+.va-gen-feat > div > span { color:var(--t2); font-size:.75rem; }
+
+/* New-user VA prompt banner */
+.va-newuser-banner {
+  background: linear-gradient(135deg, rgba(7,136,232,.1), rgba(124,58,237,.08));
+  border: 1.5px solid rgba(7,136,232,.3);
+  border-radius: 14px; padding: 16px 18px; margin-bottom: 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.va-newuser-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg,#0788e8,#7c3aed); color: #fff;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.va-newuser-title { font-size: .95rem; font-weight: 800; color: var(--t1); margin-bottom: 4px; }
+.va-newuser-sub   { font-size: .8rem; color: var(--t2); line-height: 1.5; }
+
+/* Warning box without emoji */
+.how-warning-box {
+  display: flex; gap: 10px; align-items: flex-start;
+  background: rgba(255,199,0,.07); border: 1px solid rgba(255,199,0,.2);
+  border-radius: 9px; padding: 10px 14px; margin-top: 14px; font-size: .8rem; color: #ffc700;
+}
+.how-warning-box .hw-icon {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,199,0,.15); display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+
+/* Copy button without emoji */
+.va-copy-btn::before { content: none; }
+
+.dmc-icon-coin { background: rgba(0,212,106,.12); color: var(--green); border:1px solid rgba(0,212,106,.22); }
+
+/* Deposit chip without emoji */
+.dep-chip::before { content: none; }
+
+</style>

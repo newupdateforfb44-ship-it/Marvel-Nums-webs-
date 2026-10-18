@@ -1,0 +1,69 @@
+/* ══ Storefront fix pack (marketplace + tools) ══════════════════════════════
+   1. The toolbar goes flex-direction:column on phones. `.mkt-search-wrap`
+      carried `flex: 1 1 260px`, and in a column container flex-basis sizes the
+      HEIGHT — that produced the big empty gap under the search box.
+   2. Product grid never overflows the viewport, so the second card in a row is
+      always fully visible.
+   3. Search + categories stick to the top while the grid scrolls.
+─────────────────────────────────────────────────────────────────────────── */
+
+.mkt-toolbar { align-items: stretch; }
+.mkt-search-wrap {
+  position: relative;
+  flex: 1 1 auto !important;
+  min-width: 0;
+  width: 100%;
+  height: auto !important;
+}
+.mkt-search-wrap input { width: 100%; }
+
+/* Search stays reachable at the top of the page while browsing */
+@media (min-width: 621px) {
+  .mkt-toolbar { position: sticky; top: 70px; z-index: 40; }
+}
+@media (max-width: 620px) {
+  .mkt-toolbar {
+    position: sticky; top: 0; z-index: 40;
+    flex-direction: column;
+    padding: 10px;
+  }
+  .mkt-toolbar > * { width: 100%; max-width: none !important; }
+  .mkt-chips {
+    position: sticky; top: 66px; z-index: 39;
+    background: var(--bg); padding-top: 8px;
+  }
+}
+
+/* Cards: fluid, never wider than the screen */
+.cards-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  align-items: stretch;
+}
+.cards-grid > * { min-width: 0; max-width: 100%; }
+.cards-grid img { max-width: 100%; }
+
+/* Two products per row on phones — the standard storefront look.
+   Cards are made compact so both stay readable at 2-up. */
+@media (max-width: 620px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px; }
+  .cards-grid .prod-card { padding: 0 0 10px; }
+  .cards-grid .prod-card .prod-img,
+  .cards-grid .prod-card .prod-img-ph { aspect-ratio: 1 / 1; }
+  .cards-grid .prod-body, .cards-grid .prod-card > div:not(.prod-img):not(.prod-img-ph) { padding-left: 10px; padding-right: 10px; }
+  .cards-grid .prod-title { font-size: 13.5px !important; line-height: 1.25; }
+  .cards-grid .prod-desc { font-size: 11.5px !important; -webkit-line-clamp: 2; }
+  .cards-grid .prod-price { font-size: 15px !important; }
+  .cards-grid .prod-select-btn { min-height: 38px !important; font-size: 12.5px !important; padding: 8px 10px; }
+  .cards-grid .prod-badge, .cards-grid .badge { font-size: 10px; }
+}
+@media (max-width: 359px) {
+  .cards-grid { gap: 8px; }
+}
+@media (min-width: 621px) and (max-width: 900px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* No page-level horizontal scrolling on phones */
+html, body { max-width: 100%; overflow-x: hidden; }

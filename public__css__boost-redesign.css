@@ -1,0 +1,7 @@
+/* Final boost ordering layout: one clear path from service to checkout. */
+#boostMain{max-width:900px;margin:0 auto}
+.bst-form{display:block!important;max-width:760px!important;margin:0 auto!important;padding:24px!important}
+.bst-platforms{display:flex!important;margin-bottom:4px}
+.bst-form .bst-label,.bst-form .bst-search-wrap,.bst-form .bst-hint,.bst-form .bst-desc,.bst-form .bst-input,.bst-form .bst-select,.bst-form .bst-fav,.bst-form .bst-preview,.bst-form .bst-submit{grid-column:auto!important;grid-row:auto!important}
+.bst-desc{min-height:96px!important}
+@media(max-width:720px){.bst-form{padding:16px!important}.bst-platforms{margin-right:-16px;padding-right:16px}.bst-submit{position:static!important}}
