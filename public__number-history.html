@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Number History — KingBadBoi Log Sale</title>
+  <meta name="description" content="Your rented number history and OTP records on Marvel Nums."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css?v=20260910a"/>
+  <link rel="stylesheet" href="theme.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
+ <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+  <meta name="theme-color" content="#0788e8"/>
+  <script>
+function PRICE(n) { return window.KLSMoney ? window.KLSMoney.price(n) : '₦' + Number(n || 0).toLocaleString('en-NG'); }
+function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    (function(){
+      try {
+        var pref = 'dark'; /* dark-only brand */
+        var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+        document.documentElement.setAttribute('data-theme', effective);
+        // Follow the device / country clock: with no manual override, re-evaluate the
+        // theme on a timer and whenever the tab is shown again (covers timezone changes).
+        var auto = function(){
+          try {
+            var p = 'dark'; /* dark-only brand */
+            if (p === 'light' || p === 'dark') return;
+            var h = new Date().getHours();
+            document.documentElement.setAttribute('data-theme', (h >= 19 || h < 7) ? 'dark' : 'light');
+          } catch(e) {}
+        };
+        setInterval(auto, 10 * 60 * 1000);
+        document.addEventListener('visibilitychange', function(){ if (!document.hidden) auto(); });
+      } catch(e) {}
+    })();
+    (function(){
+      try {
+        if (!localStorage.getItem('ksl_token')) {
+          document.write('<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#888">Redirecting to login…</div>');
+          window.location.replace('/login');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260910a"/>
+ <link rel="stylesheet" href="/css/announce.css"/>
+  <link rel="stylesheet" href="/css/redesign.css?v=20260910a"/>
+  <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="stylesheet" href="/css/mobile-fix.css">
+<script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-phone">
+<!-- Shared UI icon sprite (replaces emoji site-wide) — referenced via <svg class="icon i-NAME"><use href="#i-NAME"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></g></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></g></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M11 5l-7 7 7 7"/></g></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></g></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></g></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/></g></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6z"/></g></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16l1-9-5 4-4-7-4 7-5-4z"/></g></symbol>
+    <symbol id="i-message-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 01-11.9 7.8L4 21l1.2-5A8.5 8.5 0 1121 12z"/></g></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17"/><path d="M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7"/></g></symbol>
+    <symbol id="i-smartphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></g></symbol>
+    <symbol id="i-credit-card" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></g></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></g></symbol>
+    <symbol id="i-gamepad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 10v4M5 12h4M15 11h.01M18 13h.01"/></g></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12"/><path d="M3 9h18M12 9v12M12 9c-2-4-6-4-6-1s3 1 6 1M12 9c2-4 6-4 6-1s-3 1-6 1"/></g></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 015.7 5l-5 5-2.4-2.4-5 5a2 2 0 01-2.8-2.8l5-5L7.8 8.7a4 4 0 015-5.7L10 6l1 1z"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 8a3 3 0 010 6M21 20a6 6 0 00-6-6.5"/></g></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H19v14a3 3 0 01-3 3H8a3 3 0 003-3V6a3 3 0 00-3-3z"/><path d="M8 3a3 3 0 00-3 3v11a3 3 0 003 3"/></g></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.6 12.6a2 2 0 002 1.4h8.6a2 2 0 002-1.6L22 8H6"/></g></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></g></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0v5l2 3H4l2-3z"/><path d="M10 20a2 2 0 004 0"/></g></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 01-6 6 6 6 0 01-6-6z"/><path d="M12 17v5"/></g></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.6 7.6 0 00-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 001.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 001.7-1l2.4 1 2-3.5z"/></g></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></g></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></g></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></g></symbol>
+    <symbol id="i-book-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1z"/><path d="M12 6v14"/></g></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></g></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></g></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></g></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 01-8 0z"/><path d="M6 5H4v2a3 3 0 003 3M18 5h2v2a3 3 0 01-3 3"/><path d="M10 15h4v3h-4zM8 21h8"/></g></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M7 21v-7h10v7"/></g></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.8L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></g></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v3"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-6a1 1 0 00-1-1h-4a2 2 0 000 4h5"/></g></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 16l-5.5-5.5L4 21"/></g></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/></g></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></g></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 1 5 5 5 9 0 3-1 5-2 6l-3 3-3-3c-1-1-2-3-2-6 0-4 2-8 5-9z"/><circle cx="12" cy="9" r="2"/><path d="M9 17l-3 4M15 17l3 4"/></g></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M10 10v9M14 10v9M19 10v9"/><path d="M3 21h18"/></g></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 6l4 4"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14A8 8 0 1110 4a6.5 6.5 0 0010 10z"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></g></symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 3l3 6 3-6"/><path d="M10.5 13.5l1.5 3 1.5-3"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></g></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M12 2v4M9 3.5l1.5 1.5M15 3.5l-1.5 1.5"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></g></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M5 15a8 8 0 0014-4M19 9A8 8 0 005 13"/></g></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="2" y="14" width="5" height="6" rx="1.5"/><rect x="17" y="14" width="5" height="6" rx="1.5"/></g></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l7 4V6l-7 4z"/><path d="M17 9a4 4 0 010 6"/></g></symbol>
+    <symbol id="i-banknote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/></g></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2"/></g></symbol>
+    <symbol id="i-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a1 1 0 011-1h5l2 2h8a1 1 0 011 1l-2 8H5z"/></g></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></g></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-5-5"/></g></symbol>
+    <symbol id="i-paperclip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l6-6a3 3 0 014 4l-8 8a5 5 0 01-7-7l7-7"/></g></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l3 3v10l-3 3H7l-3-3V7z"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2 1a12 12 0 006 6l1-2 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></g></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V11l2-5h12l2 5v5"/><rect x="2" y="16" width="20" height="3" rx="1"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></g></symbol>
+    <symbol id="i-mouse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v6"/></g></symbol>
+    <symbol id="i-bar-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></g></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></g></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></g></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></g></symbol>
+    <symbol id="i-at-sign" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-4 7.5"/></g></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></g></symbol>
+    <symbol id="i-ghost" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0114 0v9l-2.5-2-2 2-2.5-2-2 2-2.5-2z"/><circle cx="9.5" cy="10.5" r="1"/><circle cx="14.5" cy="10.5" r="1"/></g></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 01-1-8.9A5.5 5.5 0 0116.5 7 4.5 4.5 0 0117 16H7z"/></g></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></g></symbol>
+</svg>
+
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/dashboard" class="nav-brand" style="text-decoration:none">
+ <div class="brand-icon"><svg class="icon i-crown" aria-hidden="true"><use href="#i-crown"/></svg></div>
+      <div class="brand-words">
+        <span class="brand-ksl">Marvel Nums</span>
+        <span class="brand-full">Number History</span>
+      </div>
+    </a>
+ <a href="/buy-number" class="btn-primary" style="padding:8px 16px;font-size:13.5px;text-decoration:none"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Buy Numbers</a>
+  </div>
+</nav>
+
+<div class="page active" id="page-numberhistory" style="max-width:640px;margin:0 auto;padding:24px 16px 60px">
+
+  <!-- LIST VIEW: every rented number, each clickable through to its own detail below -->
+  <div id="nhListView">
+    <div class="page-hero" style="padding:0 0 20px">
+ <div class="ph-chip"><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg> Number History</div>
+      <h1>Your Rented Numbers</h1>
+      <p>Every number you've rented, whether the code arrived, and any refunds — click one for full detail.</p>
+    </div>
+
+    <!-- Server tabs: each server keeps its own search, dates and page — nothing is shared -->
+    <div class="nh-tabs">
+      <button type="button" class="nh-tab active" id="nhTabServer1" onclick="nhSelectServer('server1')">Server 1<span>USA WhatsApp</span></button>
+      <button type="button" class="nh-tab" id="nhTabServer2" onclick="nhSelectServer('server2')">Server 2<span>All services</span></button>
+    </div>
+
+    <div class="nh-filters">
+      <input class="nh-input" id="nhSearch" placeholder="🔍 Search phone, service, country or OTP" oninput="nhOnSearchInput()"/>
+      <div class="nh-row">
+        <label class="nh-lbl">From<input class="nh-input" type="date" id="nhFrom" onchange="nhApplyFilters()"/></label>
+        <label class="nh-lbl">To<input class="nh-input" type="date" id="nhTo" onchange="nhApplyFilters()"/></label>
+      </div>
+      <div class="nh-row">
+        <label class="nh-lbl">Status
+          <select class="nh-input" id="nhStatus" onchange="nhApplyFilters()">
+            <option value="">All statuses</option>
+            <option value="delivered">Delivered</option>
+            <option value="pending">Pending</option>
+            <option value="expired">Expired (refunded)</option>
+            <option value="cancelled">Cancelled (refunded)</option>
+          </select>
+        </label>
+        <label class="nh-lbl">Per page
+          <select class="nh-input" id="nhLimit" onchange="nhApplyFilters()">
+            <option value="10">10</option><option value="20">20</option><option value="50">50</option>
+          </select>
+        </label>
+      </div>
+      <div class="nh-actions">
+        <button type="button" class="nh-clear" onclick="nhClearFilters()">Clear filters</button>
+        <div class="nh-export">
+          <button type="button" class="nh-exp-btn" id="nhExportCsv" onclick="nhExport('csv')">⬇ Export CSV</button>
+          
+        </div>
+      </div>
+    </div>
+
+    <p class="nh-meta" id="nhMeta">Loading…</p>
+    <div id="nhList" style="color:var(--t2);font-size:.9rem">Loading…</div>
+
+    <div class="nh-pager" id="nhPager" style="display:none">
+      <button type="button" class="nh-page-btn" id="nhPrev" onclick="nhGoPage(-1)">‹ Prev</button>
+      <span class="nh-page-info" id="nhPageInfo">Page 1</span>
+      <button type="button" class="nh-page-btn" id="nhNext" onclick="nhGoPage(1)">Next ›</button>
+    </div>
+  </div>
+
+  <style>
+    .nh-tabs{display:flex;gap:8px;margin-bottom:12px}
+    .nh-tab{flex:1;padding:11px 10px;border-radius:12px;border:1px solid var(--border2,#2a2a40);background:transparent;
+      color:inherit;font:inherit;font-weight:800;cursor:pointer;line-height:1.3}
+    .nh-tab span{display:block;font-weight:500;font-size:11.5px;opacity:.7;margin-top:3px}
+    .nh-tab.active{border-color:var(--gold,#f4b942);box-shadow:0 0 0 1px var(--gold,#f4b942) inset}
+    .nh-filters{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    .nh-row{display:flex;gap:8px}
+    .nh-lbl{flex:1;display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.03em}
+    .nh-input{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border2,#2a2a40);
+      background:transparent;color:inherit;font:inherit;font-size:13.5px}
+    .nh-clear{align-self:flex-start;background:transparent;border:none;color:var(--gold,#f4b942);font:inherit;
+      font-size:12.5px;font-weight:700;cursor:pointer;padding:2px 0}
+    .nh-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .nh-export{display:flex;gap:8px;align-items:center}
+    .nh-exp-btn{padding:8px 12px;border-radius:10px;border:1px solid var(--border2,#2a2a40);background:transparent;
+      color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+    .nh-exp-btn[disabled]{opacity:.5;cursor:not-allowed}
+    .nh-meta{font-size:12.5px;color:var(--t2);margin:0 0 8px}
+    .nh-pager{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}
+    .nh-page-btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border2,#2a2a40);background:transparent;
+      color:inherit;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
+    .nh-page-btn[disabled]{opacity:.4;cursor:not-allowed}
+    .nh-page-info{font-size:12.5px;color:var(--t2)}
+    .nh-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;
+      border:1px solid var(--border2,#2a2a40);border-radius:12px;margin-bottom:8px;cursor:pointer;background:transparent}
+    .nh-item:hover{border-color:var(--gold,#f4b942)}
+    .nh-item-title{font-weight:700;font-size:14px}
+    .nh-item-sub{font-size:12px;color:var(--t2);margin-top:2px}
+    .nh-status{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;text-transform:capitalize}
+    .nh-status.delivered{background:rgba(52,199,89,.15);color:#34c759}
+    .nh-status.pending{background:rgba(244,185,66,.15);color:var(--gold,#f4b942)}
+    .nh-status.expired,.nh-status.cancelled{background:rgba(255,69,58,.15);color:#ff453a}
+  </style>
+
+  <!-- DETAIL VIEW: one specific number's OTP record -->
+  <div id="nhDetailView" style="display:none">
+    <div class="page-hero" style="padding:0 0 20px">
+ <div class="ph-chip"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Number Detail</div>
+      <h1 id="nhDetailTitle">Loading…</h1>
+ <a href="/number-history" style="color:var(--gold);font-size:13.5px;text-decoration:none"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to all history</a>
+    </div>
+
+    <div class="dep-step-card">
+      <div class="dep-step-body" style="width:100%">
+        <div class="dep-confirm-box">
+          <div class="dcb-row"><span>Phone Number</span><b id="nhPhone">—</b></div>
+          <div class="dcb-row"><span>Service</span><b id="nhService">—</b></div>
+          <div class="dcb-row"><span>Country</span><b id="nhCountry">—</b></div>
+          <div class="dcb-row"><span>Rented On</span><b id="nhDate">—</b></div>
+          <div class="dcb-row"><span>Server</span><b id="nhServerBadge" style="font-size:12px">—</b></div>
+        </div>
+
+        <div id="nhCodeBox" class="dep-confirm-box" style="display:none;margin-top:10px">
+          <div class="dcb-row dcb-total"><span>OTP Received</span><b id="nhCode">—</b></div>
+        </div>
+
+        <p id="nhStatusNote" class="info-note" style="margin-top:12px">—</p>
+        <p id="nhRefundNote" style="font-size:.85rem;color:var(--t2);margin-top:4px"></p>
+
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+ <button class="btn-primary" id="nhCopyNumberBtn" onclick="copyNhNumber()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy Number</button>
+ <button class="btn-primary" id="nhCopyCodeBtn" style="display:none" onclick="copyNhCode()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy OTP</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/money.js?v=20260910a"></script>
+<script src="script.js?v=20260910a"></script>
+ <script src="/js/announcements.js"></script>
+<script>
+let nhCurrentOrder = null;
+
+// Each server keeps a completely independent filter/pagination state, so switching tabs never
+// leaks Server 1 results (or its page number, search text or dates) into Server 2 and vice versa.
+const nhState = {
+  server1: { q: '', from: '', to: '', status: '', page: 1, limit: 10 },
+  server2: { q: '', from: '', to: '', status: '', page: 1, limit: 10 }
+};
+let nhServer = 'server1';
+let nhSearchTimer = null;
+
+async function initNumberHistoryPage() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order');
+  if (orderId) {
+    const detailServer = params.get('server') === 'server2' ? 'server2' : 'server1';
+    document.getElementById('nhListView').style.display = 'none';
+    document.getElementById('nhDetailView').style.display = 'block';
+    await loadNhDetail(orderId, detailServer);
+    return;
+  }
+  // Filters live in the URL, so a refresh (or a shared link) restores exactly the same results.
+  const startServer = params.get('server') === 'server2' ? 'server2' : 'server1';
+  const allowedStatus = ['', 'delivered', 'pending', 'expired', 'cancelled'];
+  const allowedLimit = [10, 20, 50];
+  const status = allowedStatus.includes(params.get('status') || '') ? (params.get('status') || '') : '';
+  const limit = allowedLimit.includes(Number(params.get('limit'))) ? Number(params.get('limit')) : 10;
+  const isDate = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+  nhState[startServer] = {
+    q: (params.get('q') || '').slice(0, 100),
+    from: isDate(params.get('from')) ? params.get('from') : '',
+    to: isDate(params.get('to')) ? params.get('to') : '',
+    status,
+    page: Math.max(1, parseInt(params.get('page'), 10) || 1),
+    limit
+  };
+  nhSelectServer(startServer);
+  window.addEventListener('popstate', () => window.location.reload());
+}
+
+// Writes the active server's filters into the address bar without adding history entries.
+function nhSyncUrl() {
+  const st = nhState[nhServer];
+  const qs = new URLSearchParams();
+  qs.set('server', nhServer);
+  if (st.q) qs.set('q', st.q);
+  if (st.from) qs.set('from', st.from);
+  if (st.to) qs.set('to', st.to);
+  if (st.status) qs.set('status', st.status);
+  if (st.page > 1) qs.set('page', String(st.page));
+  if (st.limit !== 10) qs.set('limit', String(st.limit));
+  try { history.replaceState(null, '', window.location.pathname + '?' + qs.toString()); } catch (e) {}
+}
+
+function nhSelectServer(id) {
+  nhServer = id === 'server2' ? 'server2' : 'server1';
+  document.getElementById('nhTabServer1').classList.toggle('active', nhServer === 'server1');
+  document.getElementById('nhTabServer2').classList.toggle('active', nhServer === 'server2');
+  nhWriteFiltersToForm();
+  nhSyncUrl();
+  loadNhList();
+}
+
+// Pushes the active server's saved filters back into the inputs when tabs are switched.
+function nhWriteFiltersToForm() {
+  const st = nhState[nhServer];
+  document.getElementById('nhSearch').value = st.q;
+  document.getElementById('nhFrom').value = st.from;
+  document.getElementById('nhTo').value = st.to;
+  document.getElementById('nhStatus').value = st.status;
+  document.getElementById('nhLimit').value = String(st.limit);
+}
+
+function nhReadFiltersFromForm() {
+  const st = nhState[nhServer];
+  st.q = document.getElementById('nhSearch').value.trim();
+  st.from = document.getElementById('nhFrom').value;
+  st.to = document.getElementById('nhTo').value;
+  st.status = document.getElementById('nhStatus').value;
+  st.limit = Number(document.getElementById('nhLimit').value) || 10;
+}
+
+// Any filter change resets that server's page back to 1 — never to the other server's page.
+function nhApplyFilters() {
+  nhReadFiltersFromForm();
+  nhState[nhServer].page = 1;
+  nhSyncUrl();
+  loadNhList();
+}
+
+function nhOnSearchInput() {
+  clearTimeout(nhSearchTimer);
+  nhSearchTimer = setTimeout(nhApplyFilters, 350);
+}
+
+function nhClearFilters() {
+  nhState[nhServer] = { q: '', from: '', to: '', status: '', page: 1, limit: nhState[nhServer].limit };
+  nhWriteFiltersToForm();
+  nhSyncUrl();
+  loadNhList();
+}
+
+function nhGoPage(delta) {
+  const st = nhState[nhServer];
+  st.page = Math.max(1, st.page + delta);
+  nhSyncUrl();
+  loadNhList();
+}
+
+// ── List loading + rendering (was missing — this is why the page hung on "Loading…") ──
+function nhBuildQuery(extra) {
+  const st = nhState[nhServer];
+  const qs = new URLSearchParams({ server: nhServer, page: String(st.page), limit: String(st.limit) });
+  if (st.q) qs.set('q', st.q);
+  if (st.from) qs.set('from', st.from);
+  if (st.to) qs.set('to', st.to);
+  if (st.status) qs.set('status', st.status);
+  if (extra) Object.entries(extra).forEach(([k, v]) => qs.set(k, v));
+  return qs;
+}
+
+function nhRenderItem(o) {
+  const label = o.status === 'delivered' ? 'Delivered'
+    : o.status === 'expired' ? 'Expired' : o.status === 'cancelled' ? 'Cancelled' : 'Pending';
+  return `
+    <div class="nh-item" onclick="nhOpenOrder('${o.id}')">
+      <div>
+        <div class="nh-item-title">${o.provider || 'Number'} — ${o.country || ''}</div>
+        <div class="nh-item-sub">${o.phoneNumber || ''} · ${new Date(o.createdAt).toLocaleString()}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="nh-item-title">${PRICE(o.sellPrice)}</div>
+        <span class="nh-status ${o.status}">${label}</span>
+      </div>
+    </div>`;
+}
+
+function nhOpenOrder(id) {
+  const qs = new URLSearchParams({ order: id, server: nhServer });
+  window.location.href = '/number-history?' + qs.toString();
+}
+
+async function loadNhList() {
+  const listEl = document.getElementById('nhList');
+  const metaEl = document.getElementById('nhMeta');
+  const pager = document.getElementById('nhPager');
+  listEl.innerHTML = '<div style="padding:20px 0;text-align:center">Loading…</div>';
+  metaEl.textContent = 'Loading…';
+  try {
+    const data = await req(`/api/numbers/my-orders/search?${nhBuildQuery().toString()}`, 'GET', null, true);
+    const orders = data.orders || [];
+    if (!orders.length) {
+      listEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--t2)">No numbers found for these filters</div>';
+      metaEl.textContent = `0 results (${nhFilterSummary()})`;
+      pager.style.display = 'none';
+      return;
+    }
+    listEl.innerHTML = orders.map(nhRenderItem).join('');
+    metaEl.textContent = `${data.total} result${data.total === 1 ? '' : 's'} · ${nhFilterSummary()}`;
+    if (data.pages > 1) {
+      pager.style.display = 'flex';
+      document.getElementById('nhPageInfo').textContent = `Page ${data.page} of ${data.pages}`;
+      document.getElementById('nhPrev').disabled = data.page <= 1;
+      document.getElementById('nhNext').disabled = data.page >= data.pages;
+      nhState[nhServer].page = data.page;
+    } else {
+      pager.style.display = 'none';
+    }
+  } catch (e) {
+    console.error('[Marvel Nums] loadNhList failed:', e);
+    listEl.innerHTML = '<div style="padding:20px 0;text-align:center;color:var(--t2)">Could not load history — pull to refresh or try again</div>';
+    metaEl.textContent = '';
+    pager.style.display = 'none';
+  }
+}
+
+// ── Detail view: single order, opened via ?order=<id>&server=<server1|server2> ──
+async function loadNhDetail(orderId, server) {
+  try {
+    const o = await req(`/api/numbers/status/${encodeURIComponent(orderId)}`, 'GET', null, true);
+    nhCurrentOrder = o;
+    document.getElementById('nhDetailTitle').textContent = `${o.provider || 'Number'} — ${o.country || ''}`;
+    document.getElementById('nhPhone').textContent = o.phoneNumber || '—';
+    document.getElementById('nhService').textContent = o.provider || '—';
+    document.getElementById('nhCountry').textContent = o.country || '—';
+    document.getElementById('nhDate').textContent = new Date(o.createdAt).toLocaleString();
+    document.getElementById('nhServerBadge').textContent = (o.server === 'server2' ? 'Server 2' : 'Server 1');
+
+    const codeBox = document.getElementById('nhCodeBox');
+    const copyCodeBtn = document.getElementById('nhCopyCodeBtn');
+    if (o.code) {
+      codeBox.style.display = '';
+      document.getElementById('nhCode').textContent = o.code;
+      copyCodeBtn.style.display = '';
+    } else {
+      codeBox.style.display = 'none';
+      copyCodeBtn.style.display = 'none';
+    }
+
+    const noteEl = document.getElementById('nhStatusNote');
+    const refundEl = document.getElementById('nhRefundNote');
+    if (o.status === 'delivered') noteEl.textContent = '✅ OTP delivered successfully.';
+    else if (o.status === 'pending') noteEl.textContent = '⏳ Waiting for the OTP to arrive — this page checks automatically.';
+    else if (o.status === 'expired') noteEl.textContent = '⌛ This number expired before an OTP arrived.';
+    else if (o.status === 'cancelled') noteEl.textContent = '🚫 This order was cancelled.';
+    else noteEl.textContent = '—';
+    refundEl.textContent = o.refunded != null ? `Refunded: ${PRICE(o.refunded)}` : '';
+
+    // Still waiting on the code — poll every 5s like the buy-number page does.
+    if (o.status === 'pending') {
+      clearTimeout(window.__nhPoll);
+      window.__nhPoll = setTimeout(() => loadNhDetail(orderId, server), 5000);
+    }
+  } catch (e) {
+    console.error('[Marvel Nums] loadNhDetail failed:', e);
+    document.getElementById('nhDetailTitle').textContent = 'Order not found';
+    document.getElementById('nhStatusNote').textContent = e.message || 'Could not load this order.';
+  }
+}
+
+function copyNhNumber() {
+  if (!nhCurrentOrder?.phoneNumber) return;
+  navigator.clipboard?.writeText(nhCurrentOrder.phoneNumber);
+  showToast('Number copied');
+}
+function copyNhCode() {
+  if (!nhCurrentOrder?.code) return;
+  navigator.clipboard?.writeText(nhCurrentOrder.code);
+  showToast('OTP copied');
+}
+
+// ── Export: downloads exactly what the current filters match, for THIS server only ──────────
+function nhFilterSummary() {
+  const st = nhState[nhServer];
+  const bits = [];
+  if (st.q) bits.push(`search "${st.q}"`);
+  if (st.from) bits.push(`from ${st.from}`);
+  if (st.to) bits.push(`to ${st.to}`);
+  if (st.status) bits.push(`status ${st.status}`);
+  return bits.length ? bits.join(' · ') : 'all records';
+}
+
+async function nhFetchAllForExport() {
+  const st = nhState[nhServer];
+  const qs = new URLSearchParams({ server: nhServer, page: '1', limit: '2000', all: '1' });
+  if (st.q) qs.set('q', st.q);
+  if (st.from) qs.set('from', st.from);
+  if (st.to) qs.set('to', st.to);
+  if (st.status) qs.set('status', st.status);
+  const data = await req(`/api/numbers/my-orders/search?${qs.toString()}`, 'GET', null, true);
+  return data.orders || [];
+}
+
+async function nhExport(format) {
+  const btn = document.getElementById('nhExportCsv');
+  const label = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Preparing…'; }
+  try {
+    const rows = await nhFetchAllForExport();
+    if (!rows.length) { showToast('Nothing to export for these filters'); return; }
+    nhDownloadCsv(rows);
+  } catch (e) {
+    showToast('Export failed — please try again');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = label; }
+  }
+}
+
+function nhCsvCell(v) {
+  const s = v === null || v === undefined ? '' : String(v);
+  // Guard against spreadsheet formula injection on fields starting with = + - @
+  const safe = /^[=+\-@]/.test(s) ? "'" + s : s;
+  return '"' + safe.replace(/"/g, '""') + '"';
+}
+
+function nhStatusLabel(o) {
+  return o.status === 'delivered' ? 'Delivered'
+    : o.status === 'expired' ? 'Expired (refunded)'
+    : o.status === 'cancelled' ? 'Cancelled (refunded)' : 'Pending';
+}
+
+function nhDownloadCsv(rows) {
+  const header = ['Date', 'Server', 'Service', 'Country', 'Phone Number', 'Status', 'OTP Code', 'Price (NGN)', 'Refunded (NGN)'];
+  const lines = [header.map(nhCsvCell).join(',')];
+  rows.forEach(o => lines.push([
+    new Date(o.createdAt).toLocaleString('en-NG'),
+    o.server === 'server2' ? 'Server 2' : 'Server 1',
+    o.provider, o.country, o.phoneNumber, nhStatusLabel(o),
+    o.code || '', o.sellPrice ?? '', o.refunded ?? ''
+  ].map(nhCsvCell).join(',')));
+  const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `number-history-${nhServer}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 3000);
+  showToast('CSV downloaded');
+}
+
+
+initNumberHistoryPage();
+</script>
+<script src="js/i18n.js?v=20260910a" defer></script>
+<script src="js/country-select.js?v=20260910a" defer></script>
+<script src="js/global-pay.js?v=20260910a" defer></script>
+<script src="js/wallet.js?v=20260910a" defer></script>
+<script src="js/dev-credit.js?v=20260910a" defer></script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Order Status — KingBadBoi Log Sale</title>
+  <meta name="description" content="Track every number you purchased: delivery state, OTP codes, refunds and provider errors — live."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css?v=20260910a"/>
+  <link rel="stylesheet" href="theme.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
+  <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+  <meta name="theme-color" content="#0788e8"/>
+  <script>
+function PRICE(n) { return window.KLSMoney ? window.KLSMoney.price(n) : '₦' + Number(n || 0).toLocaleString('en-NG'); }
+function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' + Number(n || 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+    (function(){
+      try {
+        var pref = 'dark'; /* dark-only brand */
+        var effective = (pref === 'light' || pref === 'dark') ? pref : (function(){ var h = new Date().getHours(); return (h >= 19 || h < 7) ? 'dark' : 'light'; })();
+        document.documentElement.setAttribute('data-theme', effective);
+        // Follow the device / country clock: with no manual override, re-evaluate the
+        // theme on a timer and whenever the tab is shown again (covers timezone changes).
+        var auto = function(){
+          try {
+            var p = 'dark'; /* dark-only brand */
+            if (p === 'light' || p === 'dark') return;
+            var h = new Date().getHours();
+            document.documentElement.setAttribute('data-theme', (h >= 19 || h < 7) ? 'dark' : 'light');
+          } catch(e) {}
+        };
+        setInterval(auto, 10 * 60 * 1000);
+        document.addEventListener('visibilitychange', function(){ if (!document.hidden) auto(); });
+      } catch(e) {}
+    })();
+    (function(){
+      try {
+        if (!localStorage.getItem('ksl_token')) {
+          document.write('<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;color:#888">Redirecting to login…</div>');
+          window.location.replace('/login');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <style>
+    .os-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .os-chip{padding:8px 13px;border-radius:999px;border:1px solid var(--border2,#2a2a40);background:transparent;
+      color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+    .os-chip.active,.os-chip:hover{border-color:var(--gold,#f4b942)}
+    .os-card{border:1px solid var(--border2,#2a2a40);border-radius:14px;padding:14px;margin-bottom:12px}
+    .os-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+    .os-num{font-weight:800;font-size:15px;letter-spacing:.02em}
+    .os-meta{font-size:12px;color:var(--t2);margin-top:3px;line-height:1.6}
+    .os-state{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;white-space:nowrap}
+    .os-state.delivered{background:rgba(34,197,94,.14);color:#22c55e}
+    .os-state.pending{background:rgba(244,185,66,.16);color:#f4b942}
+    .os-state.expired,.os-state.cancelled{background:rgba(148,163,184,.16);color:var(--t2)}
+    .os-code{margin-top:10px;font-size:20px;font-weight:900;letter-spacing:.12em}
+    .os-err{margin-top:10px;font-size:12.5px;line-height:1.55;border:1px solid rgba(239,68,68,.5);
+      border-radius:10px;padding:9px 11px;color:#ef4444}
+    .os-steps{margin-top:12px;display:grid;gap:0}
+    .os-step{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:12.5px}
+    .os-step .sd{width:14px;height:14px;border-radius:50%;border:2px solid var(--border2,#2a2a40);margin-top:2px;flex:0 0 auto;position:relative}
+    .os-step.done .sd{background:#22c55e;border-color:#22c55e}
+    .os-step.active .sd{background:#f4b942;border-color:#f4b942;animation:osPulse 1.4s infinite}
+    .os-step.fail .sd{background:#ef4444;border-color:#ef4444}
+    .os-step .sl{font-weight:700}
+    .os-step .st{margin-left:auto;font-size:11.5px;color:var(--t2);white-space:nowrap}
+    .os-step:not(:last-child) .sd:after{content:'';position:absolute;left:4px;top:14px;width:2px;height:20px;background:var(--border2,#2a2a40)}
+    .os-step.done .sd:after{background:#22c55e}
+    @keyframes osPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,185,66,.5)}50%{box-shadow:0 0 0 6px rgba(244,185,66,0)}}
+    .os-actions{display:flex;gap:8px;margin-top:11px;flex-wrap:wrap}
+    .os-actions button{padding:8px 13px;border-radius:10px;border:1px solid var(--border2,#2a2a40);
+      background:transparent;color:inherit;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+    .os-health{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .os-h{flex:1 1 200px;border:1px solid var(--border2,#2a2a40);border-radius:12px;padding:11px 13px;font-size:12.5px}
+    .os-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;background:#94a3b8}
+    .os-dot.up{background:#22c55e}.os-dot.down{background:#ef4444}.os-dot.off{background:#94a3b8}
+  </style>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260910a"/>
+ <link rel="stylesheet" href="/css/announce.css"/>
+  <link rel="stylesheet" href="/css/redesign.css?v=20260910a"/>
+  <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="stylesheet" href="/css/mobile-fix.css">
+<script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-social">
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="/dashboard" class="nav-brand" style="text-decoration:none">
+      <div class="brand-icon">K</div>
+      <div class="brand-words">
+        <span class="brand-ksl">Marvel Nums</span>
+        <span class="brand-full">Order Status</span>
+      </div>
+    </a>
+    <a href="/buy-number" class="btn-primary" style="padding:8px 16px;font-size:13.5px;text-decoration:none">Buy Numbers</a>
+  </div>
+</nav>
+
+<div class="page active" style="max-width:720px;margin:0 auto;padding:24px 16px 60px">
+
+  <div class="page-hero" style="padding:0 0 18px">
+    <div class="ph-chip">Order Status</div>
+    <h1>Track Your Numbers</h1>
+    <p>Live delivery state for every number you bought — codes, refunds and any error the provider sent back.</p>
+  </div>
+
+  <!-- Server health -->
+  <div class="os-health" id="osHealth">
+    <div class="os-h"><span class="os-dot"></span>Checking Server 1…</div>
+    <div class="os-h"><span class="os-dot"></span>Checking Server 2…</div>
+  </div>
+
+  <div class="os-filters">
+    <button class="os-chip active" data-f="all" onclick="setOsFilter('all')">All</button>
+    <button class="os-chip" data-f="pending" onclick="setOsFilter('pending')">Waiting for code</button>
+    <button class="os-chip" data-f="delivered" onclick="setOsFilter('delivered')">Delivered</button>
+    <button class="os-chip" data-f="refunded" onclick="setOsFilter('refunded')">Refunded</button>
+    <button class="os-chip" data-f="errors" onclick="setOsFilter('errors')">Provider errors</button>
+    <button class="os-chip" onclick="loadOsOrders(true)">Refresh</button>
+  </div>
+
+  <p id="osUpdated" style="font-size:12px;color:var(--t2);margin:0 0 12px">—</p>
+  <p id="osAuto" style="font-size:12px;color:var(--t2);margin:-6px 0 12px">Auto-refreshing every 10s…</p>
+  <div id="osList" style="color:var(--t2);font-size:.9rem">Loading your orders…</div>
+</div>
+
+<script src="js/money.js?v=20260910a"></script>
+<script src="script.js?v=20260910a"></script>
+ <script src="/js/announcements.js"></script>
+<script>
+let osOrders = [], osFilter = 'all', osTimer = null;
+
+const OS_REFRESH_SECS = 10;
+let osNextIn = OS_REFRESH_SECS;
+
+async function initOrderStatusPage() {
+  await Promise.all([loadOsHealth(), loadOsOrders()]);
+  // Live page: orders auto-refresh on a visible countdown, timers tick every second.
+  osTimer = setInterval(() => {
+    osNextIn--;
+    if (osNextIn <= 0) { osNextIn = OS_REFRESH_SECS; if (!document.hidden) loadOsOrders(); }
+    const auto = document.getElementById('osAuto');
+    if (auto) auto.textContent = `Live · next refresh in ${osNextIn}s`;
+    renderOsTimers();
+  }, 1000);
+  setInterval(loadOsHealth, 60000);
+}
+
+const osTime = d => d ? new Date(d).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '';
+
+// Buyer-facing lifecycle: queued → number issued → OTP sent → verified/completed.
+function osTimeline(o) {
+  const failed = o.status === 'expired' || o.status === 'cancelled';
+  const steps = [
+    { label: 'Order queued', at: o.createdAt, state: 'done' },
+    { label: 'Number issued by provider', at: o.createdAt, state: 'done' },
+    { label: o.code ? 'OTP sent to the number' : 'Waiting for OTP',
+      at: o.codeAddedAt, state: o.code ? 'done' : failed ? 'fail' : 'active' },
+    { label: o.code ? 'Code verified & shown to you' : 'Verification',
+      at: o.codeAddedAt, state: o.code ? 'done' : failed ? 'fail' : '' },
+    { label: failed ? (o.status === 'cancelled' ? 'Cancelled — wallet refunded' : 'Expired — wallet refunded') : 'Completed',
+      at: o.cancelledAt || o.expiredAt || (o.code ? o.codeAddedAt : null),
+      state: failed ? 'fail' : o.code ? 'done' : '' }
+  ];
+  return `<div class="os-steps">` + steps.map(st =>
+    `<div class="os-step ${st.state}"><span class="sd"></span><span class="sl">${esc(st.label)}</span>
+       <span class="st">${st.at ? osTime(st.at) : '—'}</span></div>`).join('') + `</div>`;
+}
+
+// Ticks the "x min y s left" countdowns without re-rendering the whole list.
+function renderOsTimers() {
+  document.querySelectorAll('[data-expires]').forEach(el => {
+    const left = new Date(el.dataset.expires).getTime() - Date.now();
+    if (left <= 0) { el.textContent = 'time up'; return; }
+    const m = Math.floor(left / 60000), sec = Math.floor((left % 60000) / 1000);
+    el.textContent = `${m}m ${String(sec).padStart(2, '0')}s left`;
+  });
+}
+
+async function loadOsHealth() {
+  const box = document.getElementById('osHealth');
+  try {
+    const h = await req('/api/numbers/health', 'GET', null, false);
+    box.innerHTML = (h.servers || []).map(s => {
+      const cls = !s.enabled ? 'off' : s.online ? 'up' : 'down';
+      const label = !s.enabled ? 'Switched off' : s.online ? 'Online' : 'Temporarily unavailable';
+      return `<div class="os-h"><span class="os-dot ${cls}"></span><b>${esc(s.name)}</b> — ${label}
+        <div style="color:var(--t2);margin-top:3px">${esc(s.online ? (s.latencyMs + ' ms response') : (s.message || ''))}</div></div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<div class="os-h"><span class="os-dot down"></span>Could not check server status right now.</div>';
+  }
+}
+
+function setOsFilter(f) {
+  osFilter = f;
+  document.querySelectorAll('.os-chip[data-f]').forEach(c => c.classList.toggle('active', c.dataset.f === f));
+  renderOsOrders();
+}
+
+async function loadOsOrders(manual) {
+  try {
+    osOrders = await req('/api/numbers/my-orders', 'GET', null, true);
+    document.getElementById('osUpdated').textContent = 'Last updated ' + new Date().toLocaleTimeString('en-NG');
+    renderOsOrders();
+    renderOsTimers();
+    osNextIn = OS_REFRESH_SECS;
+    if (manual) showToast('Refreshed');
+  } catch (e) {
+    document.getElementById('osList').innerHTML = `<p style="color:var(--red,#ef4444)">Could not load your orders: ${esc(e.message)}</p>`;
+  }
+}
+
+function osMatches(o) {
+  if (osFilter === 'all') return true;
+  if (osFilter === 'refunded') return o.status === 'expired' || o.status === 'cancelled';
+  if (osFilter === 'errors') return !!o.providerError;
+  return o.status === osFilter;
+}
+
+function renderOsOrders() {
+  const list = document.getElementById('osList');
+  const rows = osOrders.filter(osMatches);
+  if (!rows.length) {
+    list.innerHTML = `<p style="color:var(--t2)">Nothing here yet — <a href="/buy-number" style="color:var(--gold)">buy a number</a>.</p>`;
+    return;
+  }
+  list.innerHTML = rows.map(o => {
+    const state = o.status;
+    const label = state === 'delivered' ? 'Code delivered'
+      : state === 'pending' ? 'Waiting for code'
+      : state === 'expired' ? 'Expired — refunded'
+      : state === 'cancelled' ? 'Cancelled — refunded' : state;
+    const mins = o.expiresAt ? Math.max(0, Math.round((new Date(o.expiresAt).getTime() - Date.now()) / 60000)) : null;
+    return `
+      <div class="os-card">
+        <div class="os-top">
+          <div>
+            <div class="os-num">${esc(o.phoneNumber)}</div>
+            <div class="os-meta">${esc(o.provider)} — ${esc(o.country)} · ${o.server === 'server2' ? 'Server 2' : 'Server 1'}<br>
+              Bought ${new Date(o.createdAt).toLocaleString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} · ${PRICE(o.sellPrice || 0)}
+              ${state === 'pending' && o.expiresAt ? ` · <b data-expires="${o.expiresAt}">${mins}m left</b>` : ''}
+              ${o.operator && o.server === 'server2' ? ` · operator: ${esc(o.operator)}` : ''}
+              ${o.refunded ? ` · ${PRICE(o.refunded)} refunded` : ''}
+            </div>
+          </div>
+          <span class="os-state ${state}">${label}</span>
+        </div>
+        ${o.code ? `<div class="os-code">${esc(o.code)}</div>` : ''}
+        ${osTimeline(o)}
+        ${o.providerError ? `<div class="os-err"><b>Provider error:</b> ${esc(o.providerError)}${o.providerErrorAt ? ` <span style="opacity:.75">(${new Date(o.providerErrorAt).toLocaleTimeString('en-NG')})</span>` : ''}<br>
+          We keep retrying automatically. If no code arrives before the timer ends, your wallet is refunded in full.</div>` : ''}
+        <div class="os-actions">
+          <button onclick="osCopy('${esc(o.phoneNumber)}')">Copy number</button>
+          ${o.code ? `<button onclick="osCopy('${esc(o.code)}')">Copy code</button>` : ''}
+          ${state === 'pending' ? `<button onclick="osCancel('${o.id}')">Cancel &amp; refund</button>` : ''}
+          <a href="/number-history?order=${o.id}" style="text-decoration:none"><button type="button">Full detail</button></a>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function osCopy(text) {
+  navigator.clipboard?.writeText(text).then(() => showToast('Copied')).catch(() => {});
+}
+
+async function osCancel(id) {
+  if (!await kslConfirm('Cancel this number and get refunded? You will not be able to receive a code on it afterward.')) return;
+  try {
+    const r = await req(`/api/numbers/cancel/${id}`, 'POST', null, true);
+    showToast(r?.providerCancelled
+      ? 'Cancelled on the provider too — refunded to your wallet'
+      : 'Refunded to your wallet — provider closure pending');
+    refreshBalance?.();
+    loadOsOrders();
+  } catch (e) { showToast(e.message, 'err'); }
+}
+
+initOrderStatusPage();
+</script>
+<script src="js/i18n.js?v=20260910a" defer></script>
+<script src="js/country-select.js?v=20260910a" defer></script>
+<script src="js/global-pay.js?v=20260910a" defer></script>
+  <script src="js/wallet.js?v=20260910a" defer></script>
+<script src="js/dev-credit.js?v=20260910a" defer></script>
+<script src="/js/mobile-features.js" defer></script>
+<script src="/js/vpn-notice.js" defer></script>
+</body>
+</html>

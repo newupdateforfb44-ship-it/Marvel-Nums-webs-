@@ -1,0 +1,64 @@
+
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+<!-- ════════════════ REFERRALS FRAGMENT — used by the SPA (index.html) to inject into #page-referrals ════════════════ -->
+<!-- Loaded by loadReferralsFragment() in script.js. The standalone /referrals page is a separate, full document: referrals.html -->
+<!-- and cached afterward. It is injected as the innerHTML of #page-referrals in index.html. -->
+  <div class="page-hero">
+ <div class="ph-chip"><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg> Referrals</div>
+    <h1>Invite Friends, Earn Commission</h1>
+    <p>Earn <b>4% commission</b> on every eligible purchase made by users you invite — credited to your wallet automatically.</p>
+  </div>
+  <div class="deposit-wrap">
+
+    <!-- Referral link card -->
+    <div class="bal-card">
+      <div class="bal-label">Your Referral Link</div>
+      <div class="bal-amount" id="refLinkDisplay" style="font-size:15px;word-break:break-all;line-height:1.5">—</div>
+ <button class="bal-refresh" onclick="copyReferralLink()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy Link</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="dep-step-card">
+      <div class="dep-step-body">
+        <h3>Your Referral Stats</h3>
+        <div class="dep-confirm-box">
+          <div class="dcb-row"><span>People You've Referred</span><b id="refReferredCount">0</b></div>
+          <div class="dcb-row dcb-total"><span>Total Earned</span><b id="refTotalEarned">—</b></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badges -->
+    <div class="dep-step-card">
+      <div class="dep-step-body">
+ <h3><svg class="icon i-medal" aria-hidden="true"><use href="#i-medal"/></svg> Your Badges</h3>
+        <div id="refBadgesList" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px">
+          <p style="color:var(--t2);font-size:.9rem">Loading…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent earnings -->
+    <div class="dep-step-card">
+      <div class="dep-step-body">
+        <h3>Recent Commissions</h3>
+        <div id="refEarningsList">
+          <p style="color:var(--muted);font-size:.9rem">No commissions yet — share your link to start earning.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="how-card">
+ <h3><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg> How It Works</h3>
+      <div class="how-steps">
+        <div class="how-step"><div class="step-n">1</div><div>Copy your referral link and share it with friends</div></div>
+        <div class="how-step"><div class="step-n">2</div><div>They sign up using your link</div></div>
+        <div class="how-step"><div class="step-n">3</div><div>When they make a purchase on the marketplace, you earn 4% of that purchase</div></div>
+ <div class="how-step"><div class="step-n">4</div><div><svg class="icon i-check-circle" aria-hidden="true"><use href="#i-check-circle"/></svg> Your commission is added to your wallet automatically — no waiting, no claiming</div></div>
+      </div>
+    </div>
+
+  </div>

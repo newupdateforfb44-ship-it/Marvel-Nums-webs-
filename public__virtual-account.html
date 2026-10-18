@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="/js/auth-keeper.js?v=1"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Virtual Account — Marvel Nums</title>
+<meta name="description" content="Your personal Marvel Nums virtual bank account. Send money to this account to top up your Marvel Nums wallet instantly."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<script>
+  (function(){
+    try {
+      var pref = 'dark'; /* dark-only brand */
+      var effective = (pref==='light'||pref==='dark') ? pref : (new Date().getHours()>=19||new Date().getHours()<7)?'dark':'light';
+      document.documentElement.setAttribute('data-theme', effective);
+    } catch(e){}
+    try { if(!localStorage.getItem('ksl_token')){ window.location.replace('/login'); } } catch(e){}
+  })();
+</script>
+<style>
+.icon{width:1em;height:1em;flex-shrink:0;vertical-align:-0.15em;display:inline-block;color:currentColor}
+:root,[data-theme="dark"]{
+  --bg:#08080f;--card:#131320;--card2:#1a1a2b;--card3:#1c1c2a;
+  --border:#252535;--border2:#2e2e42;--border-hover:#3e3e5a;
+  --t1:#eeeef5;--t2:#8888a8;--t2b:#aaaacc;
+  --navbar-bg:rgba(10,10,20,.92);
+  --gold:#0788e8;--green:#00d46a;--red:#ff4757;--blue:#4ade80;
+}
+[data-theme="light"]{
+  --bg:#f4f6fb;--card:#ffffff;--card2:#f7f9fc;--card3:#eef1f8;
+  --border:#dde3ee;--border2:#ccd5e6;--border-hover:#b3bfd6;
+  --t1:#1a2035;--t2:#636c85;--t2b:#454e66;
+  --navbar-bg:rgba(255,255,255,.92);
+  --gold:#0a6fd0;--green:#00a854;--red:#e5373d;--blue:#0788e8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh;padding-bottom:60px;transition:background .25s,color .25s;font-size:12px}
+a{color:var(--blue);text-decoration:none}
+
+/* NAV */
+.navbar{position:sticky;top:0;z-index:50;background:var(--navbar-bg);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;transition:background .25s,border-color .25s}
+.brand{display:flex;align-items:center;gap:10px;color:var(--t1);font-weight:800;font-size:15px}
+.brand-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#4ade80,#0788e8);display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-right{display:flex;gap:8px}
+.back-btn{padding:8px 14px;border-radius:8px;background:var(--card2);border:1px solid var(--border);color:var(--t1);font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
+
+/* WRAP */
+.wrap{max-width:520px;margin:0 auto;padding:24px 16px}
+
+/* HERO CHIP */
+.chip{display:inline-block;background:rgba(7,136,232,.12);color:var(--gold);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:10px;border:1px solid rgba(7,136,232,.2)}
+
+/* BALANCE CARD */
+.bal-card{background:linear-gradient(135deg,rgba(7,136,232,.18),rgba(124,58,237,.12));border:1px solid rgba(7,136,232,.3);border-radius:16px;padding:18px 20px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
+.bal-lbl{font-size:11px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.bal-amt{font-size:26px;font-weight:800;color:var(--t1)}
+.bal-refresh{background:rgba(7,136,232,.15);border:1px solid rgba(7,136,232,.35);color:var(--gold);font-size:12px;font-weight:700;padding:8px 14px;border-radius:9px;cursor:pointer;font-family:inherit;transition:background .2s}
+.bal-refresh:hover{background:rgba(7,136,232,.25)}
+
+/* MAIN VA CARD */
+.va-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:18px}
+.va-card-header{background:linear-gradient(135deg,#0788e8 0%,#7c3aed 100%);padding:22px 22px 18px;color:#fff}
+.va-card-header h2{font-size:1.05rem;font-weight:800;margin-bottom:4px}
+.va-card-header p{font-size:.8rem;opacity:.88;line-height:1.45}
+.va-body{padding:22px}
+
+/* ACCOUNT DETAILS */
+.acc-detail{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:14px 16px;margin-bottom:10px}
+.acc-label{font-size:11px;color:var(--t2);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.acc-value{font-size:1.05rem;font-weight:800;color:var(--t1);letter-spacing:.3px}
+.acc-num{font-size:1.3rem;letter-spacing:2px}
+.copy-btn{background:rgba(7,136,232,.12);border:1px solid rgba(7,136,232,.25);color:var(--gold);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:background .2s;white-space:nowrap;flex-shrink:0}
+.copy-btn:hover{background:rgba(7,136,232,.22)}
+.copy-btn.copied{background:rgba(0,212,106,.12);border-color:rgba(0,212,106,.3);color:var(--green)}
+
+/* STATUS BADGE */
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.status-badge.active{background:rgba(0,212,106,.12);border:1px solid rgba(0,212,106,.3);color:var(--green)}
+.status-badge.inactive{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);color:var(--red)}
+.status-badge.pending{background:rgba(255,199,0,.1);border:1px solid rgba(255,199,0,.3);color:#ffc700}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+
+/* INFO BOX */
+.info-box{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.info-box h4{font-size:.85rem;font-weight:700;margin-bottom:10px;color:var(--t1)}
+.info-row{display:flex;gap:8px;align-items:flex-start;font-size:.82rem;color:var(--t2);line-height:1.55;margin-bottom:6px}
+.info-row:last-child{margin-bottom:0}
+.info-icon{font-size:.95rem;flex-shrink:0;margin-top:.05rem}
+
+/* NOT ENABLED STATE */
+.not-enabled{text-align:center;padding:36px 20px}
+.not-enabled .big-icon{font-size:3.5rem;margin-bottom:14px}
+.not-enabled h3{font-size:1.1rem;font-weight:800;margin-bottom:8px;color:var(--t1)}
+.not-enabled p{font-size:.85rem;color:var(--t2);line-height:1.6;margin-bottom:18px}
+.not-enabled .wa-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;padding:12px 22px;border-radius:11px;font-weight:700;font-size:.9rem;text-decoration:none;transition:opacity .2s}
+.not-enabled .wa-btn:hover{opacity:.9}
+
+/* HOW IT WORKS */
+.how-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+.how-card h3{font-size:.9rem;font-weight:700;margin-bottom:14px;color:var(--t1)}
+.how-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.how-step:last-child{margin-bottom:0}
+.step-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#0788e8,#7c3aed);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-body{flex:1}
+.step-title{font-size:.85rem;font-weight:700;color:var(--t1);margin-bottom:2px}
+.step-sub{font-size:.78rem;color:var(--t2);line-height:1.5}
+
+/* SPINNER */
+.spin{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:20px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 20px;font-size:13.5px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;color:var(--t1);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* RECENT DEPOSITS */
+.dep-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);font-size:.85rem}
+.dep-item:last-child{border-bottom:none}
+.dep-amount{font-weight:800;color:var(--green)}
+.dep-meta{font-size:.75rem;color:var(--t2);margin-top:2px}
+</style>
+  <link rel="stylesheet" href="theme.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
+  <link rel="stylesheet" href="css/pro-polish.css?v=20260910a"/>
+  <link rel="stylesheet" href="/css/redesign.css?v=20260910a"/>
+  <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
+  <link rel="stylesheet" href="/brand.css"/>
+  <link rel="stylesheet" href="/css/mobile-fix.css">
+<script src="/js/kls-ui.js?v=1"></script>
+
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+  <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+</head>
+<body class="mn-bg-social">
+<!-- Shared UI icon sprite (replaces emoji site-wide) — referenced via <svg class="icon i-NAME"><use href="#i-NAME"/></svg> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-check-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></g></symbol>
+    <symbol id="i-arrow-right" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M13 5l7 7-7 7"/></g></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12H4M11 5l-7 7 7 7"/></g></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 13l7 7 7-7"/></g></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></g></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></g></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="12" height="17" rx="2"/><rect x="9" y="2" width="6" height="4" rx="1"/></g></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 17l-5.6 3.1 1.4-6.3-4.8-4.3 6.4-.6z"/></g></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16l1-9-5 4-4-7-4 7-5-4z"/></g></symbol>
+    <symbol id="i-message-circle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 01-11.9 7.8L4 21l1.2-5A8.5 8.5 0 1121 12z"/></g></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6M8 12L5.5 14.5a3.5 3.5 0 004.9 4.9L13 17"/><path d="M16 12l2.5-2.5a3.5 3.5 0 00-4.9-4.9L11 7"/></g></symbol>
+    <symbol id="i-smartphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></g></symbol>
+    <symbol id="i-credit-card" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></g></symbol>
+    <symbol id="i-package" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></g></symbol>
+    <symbol id="i-gamepad" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="4"/><path d="M7 10v4M5 12h4M15 11h.01M18 13h.01"/></g></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12"/><path d="M3 9h18M12 9v12M12 9c-2-4-6-4-6-1s3 1 6 1M12 9c2-4 6-4 6-1s-3 1-6 1"/></g></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 015.7 5l-5 5-2.4-2.4-5 5a2 2 0 01-2.8-2.8l5-5L7.8 8.7a4 4 0 015-5.7L10 6l1 1z"/></g></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0112 0M16 8a3 3 0 010 6M21 20a6 6 0 00-6-6.5"/></g></symbol>
+    <symbol id="i-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H19v14a3 3 0 01-3 3H8a3 3 0 003-3V6a3 3 0 00-3-3z"/><path d="M8 3a3 3 0 00-3 3v11a3 3 0 003 3"/></g></symbol>
+    <symbol id="i-cart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M3 4h2l2.6 12.6a2 2 0 002 1.4h8.6a2 2 0 002-1.6L22 8H6"/></g></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 6l9 7 9-7"/></g></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0112 0v5l2 3H4l2-3z"/><path d="M10 20a2 2 0 004 0"/></g></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2v6M15 2v6M6 8h12v3a6 6 0 01-6 6 6 6 0 01-6-6z"/><path d="M12 17v5"/></g></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a7.6 7.6 0 000-2l2-1.5-2-3.5-2.4 1a7.6 7.6 0 00-1.7-1l-.3-2.5h-4l-.3 2.5a7.6 7.6 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7.6 7.6 0 000 2l-2 1.5 2 3.5 2.4-1a7.6 7.6 0 001.7 1l.3 2.5h4l.3-2.5a7.6 7.6 0 001.7-1l2.4 1 2-3.5z"/></g></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></g></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></g></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></g></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></g></symbol>
+    <symbol id="i-book-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.5-5-2-8-1v13c3-1 6-.5 8 1 2-1.5 5-2 8-1V5c-3-1-6-.5-8 1z"/><path d="M12 6v14"/></g></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></g></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></g></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></g></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v4a4 4 0 01-8 0z"/><path d="M6 5H4v2a3 3 0 003 3M18 5h2v2a3 3 0 01-3 3"/><path d="M10 15h4v3h-4zM8 21h8"/></g></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M7 21v-7h10v7"/></g></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6a1 1 0 011-1h5l2 2h9a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1z"/></g></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+    <symbol id="i-sparkles" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.8L18 8l-4.4 1.6L12 14l-1.6-4.4L6 8l4.4-1.2z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></g></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 012-2h13a1 1 0 011 1v3"/><path d="M3 7v11a2 2 0 002 2h14a1 1 0 001-1v-6a1 1 0 00-1-1h-4a2 2 0 000 4h5"/></g></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.8"/><path d="M21 16l-5.5-5.5L4 21"/></g></symbol>
+    <symbol id="i-dot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="6"/></g></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></g></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 1 5 5 5 9 0 3-1 5-2 6l-3 3-3-3c-1-1-2-3-2-6 0-4 2-8 5-9z"/><circle cx="12" cy="9" r="2"/><path d="M9 17l-3 4M15 17l3 4"/></g></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"/><path d="M5 10v9M10 10v9M14 10v9M19 10v9"/><path d="M3 21h18"/></g></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 6l4 4"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14A8 8 0 1110 4a6.5 6.5 0 0010 10z"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></g></symbol>
+    <symbol id="i-medal" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="15" r="6"/><path d="M9 3l3 6 3-6"/><path d="M10.5 13.5l1.5 3 1.5-3"/></g></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></g></symbol>
+    <symbol id="i-bot" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M12 2v4M9 3.5l1.5 1.5M15 3.5l-1.5 1.5"/><circle cx="9" cy="14" r="1.3"/><circle cx="15" cy="14" r="1.3"/></g></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v6h6"/><path d="M20 20v-6h-6"/><path d="M5 15a8 8 0 0014-4M19 9A8 8 0 005 13"/></g></symbol>
+    <symbol id="i-headphones" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0116 0v2"/><rect x="2" y="14" width="5" height="6" rx="1.5"/><rect x="17" y="14" width="5" height="6" rx="1.5"/></g></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4h4l7 4V6l-7 4z"/><path d="M17 9a4 4 0 010 6"/></g></symbol>
+    <symbol id="i-banknote" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9v.01M18 15v.01"/></g></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l2 2M14 9l2 2"/></g></symbol>
+    <symbol id="i-folder-open" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a1 1 0 011-1h5l2 2h8a1 1 0 011 1l-2 8H5z"/></g></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></g></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20 20l-5-5"/></g></symbol>
+    <symbol id="i-paperclip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12l6-6a3 3 0 014 4l-8 8a5 5 0 01-7-7l7-7"/></g></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l3 3v10l-3 3H7l-3-3V7z"/></g></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2 1a12 12 0 006 6l1-2 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></g></symbol>
+    <symbol id="i-car" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16V11l2-5h12l2 5v5"/><rect x="2" y="16" width="20" height="3" rx="1"/><circle cx="7" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></g></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 010 18M12 3a15 15 0 000 18"/></g></symbol>
+    <symbol id="i-mouse" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="5"/><path d="M12 3v6"/></g></symbol>
+    <symbol id="i-bar-chart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></g></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 20h16"/></g></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></g></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></g></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></g></symbol>
+    <symbol id="i-at-sign" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M16 12v1.5a2.5 2.5 0 005 0V12a9 9 0 10-4 7.5"/></g></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></g></symbol>
+    <symbol id="i-ghost" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V11a7 7 0 0114 0v9l-2.5-2-2 2-2.5-2-2 2-2.5-2z"/><circle cx="9.5" cy="10.5" r="1"/><circle cx="14.5" cy="10.5" r="1"/></g></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4.5 4.5 0 01-1-8.9A5.5 5.5 0 0116.5 7 4.5 4.5 0 0117 16H7z"/></g></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></g></symbol>
+</svg>
+
+
+<nav class="navbar">
+ <a href="/dashboard" class="brand"><span class="brand-icon"><svg class="icon i-crown" aria-hidden="true"><use href="#i-crown"/></svg></span> Marvel Nums Virtual Account</a>
+  <div class="nav-right">
+ <button class="back-btn" onclick="window.location.href='/deposit'"><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg> Deposit</button>
+ <button class="back-btn" onclick="window.location.href='/dashboard'"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Home</button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <div style="text-align:center;margin-bottom:20px;padding-top:12px">
+ <div class="chip"><svg class="icon i-bank" aria-hidden="true"><use href="#i-bank"/></svg> Virtual Bank Account</div>
+    <h1 style="font-size:clamp(22px,5vw,32px);font-weight:800;margin:10px 0 8px">Your Marvel Nums Virtual Account</h1>
+    <p style="color:var(--t2);font-size:.88rem;line-height:1.55;max-width:400px;margin:0 auto">Send money to this account number from any bank app — your Marvel Nums wallet is credited automatically within seconds.</p>
+  </div>
+
+  <!-- Balance -->
+  <div class="bal-card">
+    <div>
+      <div class="bal-lbl">Wallet Balance</div>
+      <div class="bal-amt"><span id="balDisplay">—</span></div>
+    </div>
+ <button class="bal-refresh" onclick="loadBalance()"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg> Refresh</button>
+  </div>
+
+  <!-- Main virtual account card -->
+  <div class="va-card" id="vaCard">
+    <div class="va-card-header">
+ <h2><svg class="icon i-bank" aria-hidden="true"><use href="#i-bank"/></svg> Your Dedicated Account</h2>
+      <p>This account is permanently assigned to you. Transfers here credit your Marvel Nums wallet automatically.</p>
+    </div>
+    <div class="va-body" id="vaBody">
+      <div class="spin"></div>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="how-card" id="howCard" style="display:none">
+ <h3><svg class="icon i-book-open" aria-hidden="true"><use href="#i-book-open"/></svg> How to Deposit via Virtual Account</h3>
+    <div class="how-step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Copy your account number</div>
+        <div class="step-sub">Use the copy button next to your account number above.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Open your banking app</div>
+        <div class="step-sub">Use any bank app, USSD, or internet banking. All Nigerian banks are supported.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Make a transfer to the account</div>
+        <div class="step-sub">Transfer any amount. Use "<span id="howAccName">your account name</span>" as the recipient and <span id="howBankName">the bank shown</span> as the destination bank.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Wallet credited automatically</div>
+        <div class="step-sub">Your Marvel Nums wallet is credited within seconds of the transfer confirming — no need to take a screenshot or contact support.</div>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Minimum & limits</div>
+        <div class="step-sub">No minimum. Transfer as little or as much as you like. Your account is static — use it any time, as often as you want.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent deposits -->
+  <div class="how-card" id="recentCard" style="display:none">
+ <h3><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Recent Virtual Account Deposits</h3>
+    <div id="recentList" style="color:var(--t2);font-size:.85rem">Loading…</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const token = localStorage.getItem('ksl_token');
+if (!token) window.location.replace('/login');
+
+function fmtN(n) { return window.KLSMoney ? window.KLSMoney.price(n) : '₦' + Number(n||0).toLocaleString('en-NG'); }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+function showToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.borderColor = ok ? 'rgba(0,212,106,.4)' : 'var(--border)';
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function req(url, method='GET', body=null) {
+  const res = await fetch(url, {
+    method, headers: { 'Content-Type':'application/json', Authorization:'Bearer '+token },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+async function loadBalance() {
+  try { const m = await req('/api/user/me'); document.getElementById('balDisplay').textContent = fmtN(m.balance); }
+  catch { document.getElementById('balDisplay').textContent = '—'; }
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = String(s ?? ''); return d.innerHTML; }
+function copyText(text, btnId) {
+  navigator.clipboard?.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+ if (btn) { btn.textContent = ' Copied'; btn.classList.add('copied'); setTimeout(()=>{ btn.textContent=' Copy'; btn.classList.remove('copied'); },2000); }
+    showToast('Copied!', true);
+  }).catch(() => showToast('Copy failed — try manually', false));
+}
+
+async function generateVA() {
+  const btn = document.getElementById('genVaBtn');
+  const fb = document.getElementById('genVaFeedback');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  fb.textContent = ''; fb.style.color = '';
+  try {
+    await req('/api/user/virtual-account/create', 'POST');
+ showToast(' Virtual account created!', true);
+    loadVA();
+  } catch (e) {
+ fb.textContent = ' ' + e.message;
+    fb.style.color = 'var(--red)';
+ btn.disabled = false; btn.textContent = ' Generate Virtual Account';
+  }
+}
+
+async function loadVA() {
+  const body = document.getElementById('vaBody');
+  try {
+    const va = await req('/api/user/virtual-account');
+
+    // Nigeria-only rail. The server decides this from the profile country and,
+    // when that is blank, from the caller's IP — so accounts created before the
+    // country field existed are covered too.
+    if (va.available === false && va.reason === 'country') {
+      body.innerHTML = `
+        <div class="not-enabled">
+          <div class="big-icon"><svg class="icon i-globe" aria-hidden="true"><use href="#i-globe"/></svg></div>
+          <h3>Not available in your country</h3>
+          <p>${va.message || 'Virtual accounts are available to customers in Nigeria only.'}</p>
+          <a class="wa-btn" href="/deposit" style="display:inline-block;margin-top:14px">Use payment link instead</a>
+        </div>`;
+      return;
+    }
+
+    if (!va.enabled || !va.accountNumber) {
+      if (!va.globalEnabled) {
+        // Admin has switched virtual accounts off site-wide — generating one would just fail.
+        body.innerHTML = `
+          <div class="not-enabled">
+            <div class="big-icon"><svg class="icon i-wrench" aria-hidden="true"><use href="#i-wrench"/></svg></div>
+            <h3>Virtual Accounts Temporarily Unavailable</h3>
+            <p>Virtual accounts are paused for maintenance right now. Please check back shortly, or use another deposit method in the meantime.</p>
+          </div>`;
+      } else {
+        // Self-serve — no admin needed. Generates instantly using your existing name/email
+        // (this works the same whether you signed up with a password or with Google).
+        body.innerHTML = `
+          <div class="not-enabled">
+            <div class="big-icon"><svg class="icon i-bank" aria-hidden="true"><use href="#i-bank"/></svg></div>
+            <h3>Get Your Virtual Account</h3>
+            <p>Generate a permanent bank account number tied to your Marvel Nums wallet — takes a few seconds, no admin needed.</p>
+            <button class="wa-btn" id="genVaBtn" onclick="generateVA()" style="background:linear-gradient(135deg,#0788e8,#7c3aed);border:none;cursor:pointer;font-family:inherit;font-size:.9rem">
+ Generate Virtual Account
+            </button>
+            <div id="genVaFeedback" style="margin-top:12px;font-size:.8rem"></div>
+          </div>`;
+      }
+      document.getElementById('howCard').style.display = 'none';
+      document.getElementById('recentCard').style.display = 'none';
+      return;
+    }
+
+    // Account is live
+    body.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <span class="status-badge active"><span class="dot"></span> Active</span>
+        <span style="font-size:.75rem;color:var(--t2)">Created ${fmtDate(va.createdAt)}</span>
+      </div>
+
+      <div class="acc-detail" style="background:linear-gradient(135deg,rgba(7,136,232,.12),rgba(124,58,237,.08));border:1px solid rgba(7,136,232,.25)">
+        <div>
+          <div class="acc-label">Your Marvel Nums Wallet Balance</div>
+          <div class="acc-value" style="font-size:1.4rem;color:var(--gold,#0788e8)">₦${(va.balance||0).toLocaleString('en-NG')}</div>
+        </div>
+      </div>
+
+      <div style="font-size:.78rem;color:var(--t2);margin:2px 0 14px;padding:0 2px">This is <b>Marvel Nums — ${esc(va.userName||'')}</b>'s deposit account. Transfers here credit your wallet above automatically.</div>
+
+      <div class="acc-detail">
+        <div>
+          <div class="acc-label">Account Number</div>
+          <div class="acc-value acc-num">${va.accountNumber}</div>
+        </div>
+        <button class="copy-btn" id="copyAccBtn" onclick="copyText('${va.accountNumber}','copyAccBtn')"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy</button>
+      </div>
+
+      <div class="acc-detail">
+        <div>
+          <div class="acc-label">Bank Name</div>
+          <div class="acc-value">${va.bankName}</div>
+        </div>
+        <button class="copy-btn" id="copyBankBtn" onclick="copyText('${va.bankName}','copyBankBtn')"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy</button>
+      </div>
+
+      <div class="acc-detail">
+        <div>
+          <div class="acc-label">Account Name</div>
+          <div class="acc-value">${va.accountName}</div>
+        </div>
+        <button class="copy-btn" id="copyNameBtn" onclick="copyText('${va.accountName}','copyNameBtn')"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy</button>
+      </div>
+
+      <button class="copy-btn" id="copyAllBtn" style="width:100%;justify-content:center;margin-top:4px" onclick="copyText('Bank: ${va.bankName}\\nAccount Number: ${va.accountNumber}\\nAccount Name: ${va.accountName}','copyAllBtn')"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy All Details</button>
+
+      <div class="info-box" style="margin-top:16px">
+        <div class="info-row"><span class="info-icon"><svg class="icon i-zap" aria-hidden="true"><use href="#i-zap"/></svg></span> Instant credit — transfers are detected and credited in seconds.</div>
+        <div class="info-row"><span class="info-icon"><svg class="icon i-refresh" aria-hidden="true"><use href="#i-refresh"/></svg></span> This account is permanent — use it any time, no expiry.</div>
+        <div class="info-row"><span class="info-icon"><svg class="icon i-lock" aria-hidden="true"><use href="#i-lock"/></svg></span> Secured by Flutterwave — Marvel Nums never sees your bank credentials.</div>
+        <div class="info-row"><span class="info-icon"><svg class="icon i-alert-triangle" aria-hidden="true"><use href="#i-alert-triangle"/></svg></span> Only send NGN — foreign currencies are not accepted.</div>
+      </div>`;
+
+    // Fill in the how-to section
+    document.getElementById('howAccName').textContent = va.accountName;
+    document.getElementById('howBankName').textContent = va.bankName;
+    document.getElementById('howCard').style.display = 'block';
+    document.getElementById('recentCard').style.display = 'block';
+    loadRecentDeposits();
+
+  } catch(e) {
+    body.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red)"><svg class="icon i-alert-triangle" aria-hidden="true"><use href="#i-alert-triangle"/></svg> Failed to load virtual account. Please refresh.</div>`;
+  }
+}
+
+async function loadRecentDeposits() {
+  const list = document.getElementById('recentList');
+  try {
+    const txRes = await req('/api/user/transactions?type=deposit&limit=10');
+    const items = (txRes.transactions || txRes || []).filter(t => t.description?.includes('Virtual Account'));
+    if (!items.length) { list.innerHTML = '<div style="color:var(--t2);font-size:.82rem;padding:8px 0">No virtual account deposits yet — make your first transfer!</div>'; return; }
+    list.innerHTML = items.map(t => `
+      <div class="dep-item">
+        <div>
+          <div class="dep-amount">+${fmtN(t.amount)}</div>
+          <div class="dep-meta">${fmtDate(t.createdAt)}</div>
+        </div>
+        <span style="font-size:.75rem;color:var(--green);font-weight:700"><svg class="icon i-check-circle" aria-hidden="true"><use href="#i-check-circle"/></svg> Credited</span>
+      </div>`).join('');
+  } catch { list.innerHTML = '<div style="color:var(--t2);font-size:.82rem">Could not load deposit history.</div>'; }
+}
+
+// Sync theme with main site
+window.addEventListener('storage', e => {
+  if (e.key === 'ksl_theme' && (e.newValue === 'light' || e.newValue === 'dark'))
+    document.documentElement.setAttribute('data-theme', e.newValue);
+});
+
+loadBalance();
+loadVA();
+</script>
+<script src="js/money.js?v=20260910a"></script>
+<script src="js/i18n.js?v=20260910a" defer></script>
+<script src="js/country-select.js?v=20260910a" defer></script>
+<script src="js/global-pay.js?v=20260910a" defer></script>
+  <script src="js/wallet.js?v=20260910a" defer></script>
+<script src="js/dev-credit.js?v=20260910a" defer></script>
+<script src="/js/mobile-features.js" defer></script>
+<script src="/js/vpn-notice.js" defer></script>
+</body>
+</html>

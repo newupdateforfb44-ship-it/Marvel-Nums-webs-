@@ -1,0 +1,17 @@
+{
+  "name": "MARVINUMS",
+  "short_name": "MARVINUMS",
+  "description": "MARVINUMS digital growth hub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08080f",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ]
+}
