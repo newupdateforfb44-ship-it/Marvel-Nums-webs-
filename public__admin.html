@@ -697,6 +697,36 @@ tr:hover td{background:rgba(255,255,255,.035)}
         <div id="wpMeta" style="font-size:12px;color:var(--t2);margin-top:12px"></div>
       </div>
     </div>
+    <div id="tab-tutorialsadmin" class="tab-panel">
+      <div class="sec">
+        <div class="sec-title"><svg class="icon i-video" aria-hidden="true"><use href="#i-video"/></svg> <span id="tutFormTitle">Add a tutorial</span></div>
+        <div class="info-box"><svg class="icon i-pin" aria-hidden="true"><use href="#i-pin"/></svg>
+          Add as many tutorial videos as you like. Customers see them on the <b>Tutorials</b> page (/tutorials) the moment you save &mdash; no redeploy needed.
+          Upload a video file (up to <span id="tutMaxMb">100</span> MB), or paste a YouTube / Vimeo / direct video link for longer videos.</div>
+        <div id="tutStorageWarn" class="info-box red" style="display:none"></div>
+        <div class="fg"><label>Title *</label><input type="text" id="tutTitle" maxlength="150" placeholder="e.g. How to log in a TikTok account" autocomplete="off"/></div>
+        <div class="fg"><label>Sub-heading</label><input type="text" id="tutSub" maxlength="200" placeholder="e.g. Step-by-step guide for new buyers" autocomplete="off"/></div>
+        <div class="fg"><label>Discussion / description</label><textarea id="tutDesc" rows="5" maxlength="5000" placeholder="Explain what the video covers, tips, warnings, steps…"></textarea></div>
+        <div class="form-row">
+          <div class="fg"><label id="tutFileLabel">Video file</label><input type="file" id="tutFile" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm"/></div>
+          <div class="fg"><label>&hellip;or video link</label><input type="url" id="tutLink" maxlength="500" placeholder="https://youtu.be/… or https://vimeo.com/…" autocomplete="off"/></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Show to customers?</label>
+            <select id="tutPublished"><option value="true">Yes &mdash; visible</option><option value="false">No &mdash; hidden (draft)</option></select></div>
+          <div class="fg"><label>Position (optional, 1 = first)</label><input type="number" id="tutOrder" placeholder="Leave empty to add at the end"/></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn-gold" type="button" id="tutSaveBtn" onclick="tutSave()" style="width:auto">Add tutorial</button>
+          <button class="btn-sm" type="button" id="tutCancelBtn" onclick="tutResetForm()" style="display:none">Cancel editing</button>
+        </div>
+        <div id="tutFb" style="font-size:13px;margin-top:10px"></div>
+      </div>
+      <div class="sec">
+        <div class="sec-title"><svg class="icon i-book-open" aria-hidden="true"><use href="#i-book-open"/></svg> Your tutorials <span id="tutCount" style="color:var(--t2);font-weight:500"></span></div>
+        <div id="tutList">Loading…</div>
+      </div>
+    </div>
     <div id="tab-tools" class="tab-panel">
       <div class="sec">
  <div class="sec-title"><svg class="icon i-plus" aria-hidden="true"><use href="#i-plus"/></svg> Add New Tool</div>
@@ -2132,6 +2162,7 @@ const ADMIN_NAV = [
   { group:'Community', owner:true, items:[
     { tab:'chatadmin',  icon:'i-message-circle', label:'Chat groups', owner:true },
     { tab:'gamesadmin', icon:'i-gamepad',        label:'Games',       owner:true },
+    { tab:'tutorialsadmin', icon:'i-video',      label:'Tutorials',   owner:true, keywords:'tutorial tutorials video guide how to learn' },
   ]},
   { group:'System', items:[
     { tab:'notifbar',   icon:'i-bell',           label:'Notifications bar (post, edit, delete)', owner:true,
@@ -2231,6 +2262,7 @@ function switchTab(name,el) {
   if(name==='logs2')        { m2LoadConfig(); m2LoadProducts(false); m2LoadBalance(); m2LoadOrders(); }
   if(name==='logs3')        { m3LoadConfig(); m3LoadProducts(false); m3LoadBalance(); m3LoadOrders(); }
   if(name==='welcomepopup') { wpLoad(); }
+  if(name==='tutorialsadmin') { tutLoad(); }
   if(name==='users')        { loadUsers(); loadActiveUsersAdmin(); }
   if(name==='credit')       { loadAllUsersFor('qcBody'); refreshCreditUsers(); }
   if(name==='transactions') loadTxns();
@@ -6358,6 +6390,101 @@ async function m3Resync(id){
 }
 async function m3ShowKeys(id){
   try { const r=await aFetch('/api/admin/market3/orders/'+id+'/keys'); alert((r.userEmail||'')+'\n\n'+((r.keys||[]).join('\n')||'(no keys stored)')); } catch(e){ alert(e.message); }
+}
+
+
+// ── Tutorials (videos shown to customers on /tutorials) ──
+let tutItems=[], tutEditId=null;
+const tutEl=id=>document.getElementById(id);
+function tutMsg(t,ok){ const f=tutEl('tutFb'); f.textContent=t||''; f.style.color= ok ? 'var(--green)' : 'var(--red)'; }
+function tutResetForm(){
+  tutEditId=null;
+  ['tutTitle','tutSub','tutDesc','tutLink','tutOrder'].forEach(i=>{ tutEl(i).value=''; });
+  tutEl('tutFile').value=''; tutEl('tutPublished').value='true';
+  tutEl('tutFormTitle').textContent='Add a tutorial'; tutEl('tutSaveBtn').textContent='Add tutorial';
+  tutEl('tutCancelBtn').style.display='none'; tutEl('tutFileLabel').textContent='Video file'; tutMsg('');
+}
+function tutEdit(id){
+  const t=tutItems.find(x=>x.id===id); if(!t) return;
+  tutEditId=id;
+  tutEl('tutTitle').value=t.title; tutEl('tutSub').value=t.subheading; tutEl('tutDesc').value=t.description;
+  tutEl('tutLink').value= t.videoSource==='link' ? t.videoUrl : ''; tutEl('tutFile').value='';
+  tutEl('tutPublished').value=String(t.published); tutEl('tutOrder').value=t.order||'';
+  tutEl('tutFormTitle').textContent='Edit tutorial'; tutEl('tutSaveBtn').textContent='Save changes';
+  tutEl('tutCancelBtn').style.display=''; tutEl('tutFileLabel').textContent='Replace video (leave empty to keep the current one)';
+  tutMsg(''); tutEl('tutTitle').scrollIntoView({behavior:'smooth',block:'center'});
+}
+function tutRender(){
+  const box=tutEl('tutList'); tutEl('tutCount').textContent = tutItems.length ? '('+tutItems.length+')' : '';
+  if(!tutItems.length){ box.innerHTML='<div style="color:var(--t2);font-size:13px">No tutorials yet. Add your first one above.</div>'; return; }
+  box.innerHTML = tutItems.map((t,i)=>
+    '<div style="border:1px solid var(--border);border-radius:var(--r12);padding:12px 14px;margin-bottom:10px;background:var(--bg4)">'+
+      '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start">'+
+        '<div style="min-width:0;flex:1"><div style="font-weight:700;font-size:14px;color:var(--t1)">'+(i+1)+'. '+esc(t.title)+'</div>'+
+        (t.subheading?'<div style="font-size:12.5px;color:var(--t2);margin-top:2px">'+esc(t.subheading)+'</div>':'')+
+        '<div style="font-size:11.5px;color:var(--t3);margin-top:6px">'+
+          (t.videoSource==='link'?'Video link':'Uploaded video')+' &middot; '+
+          (t.published?'<span style="color:var(--green)">Visible</span>':'<span style="color:var(--red)">Hidden</span>')+
+        '</div></div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
+          '<button class="btn-sm" type="button" onclick="tutMove(\''+t.id+'\',-1)"'+(i===0?' disabled':'')+'>&uarr;</button>'+
+          '<button class="btn-sm" type="button" onclick="tutMove(\''+t.id+'\',1)"'+(i===tutItems.length-1?' disabled':'')+'>&darr;</button>'+
+          '<button class="btn-sm" type="button" onclick="tutEdit(\''+t.id+'\')">Edit</button>'+
+          '<button class="btn-sm" type="button" onclick="tutToggle(\''+t.id+'\')">'+(t.published?'Hide':'Show')+'</button>'+
+          '<button class="btn-sm" type="button" onclick="tutDelete(\''+t.id+'\')">Delete</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>').join('');
+}
+async function tutLoad(){
+  try{
+    const d=await aFetch('/api/admin/tutorials'); tutItems=d.tutorials||[]; tutRender();
+    if(d.storage){
+      tutEl('tutMaxMb').textContent=d.storage.maxUploadMB;
+      const w=tutEl('tutStorageWarn');
+      if(!d.storage.cloudinary){ w.style.display=''; w.textContent='Cloudinary is not connected, so uploaded video files are saved on the server disk and will disappear when Render restarts. Either set the CLOUDINARY_* variables, or use YouTube/Vimeo video links (those never disappear).'; }
+      else w.style.display='none';
+    }
+  }catch(e){ tutEl('tutList').textContent='Could not load tutorials: '+e.message; }
+}
+async function tutSave(){
+  const title=tutEl('tutTitle').value.trim();
+  if(!title){ tutMsg('Please enter a title.'); tutEl('tutTitle').focus(); return; }
+  const file=tutEl('tutFile').files[0], link=tutEl('tutLink').value.trim();
+  if(!tutEditId && !file && !link){ tutMsg('Please choose a video file or paste a video link.'); return; }
+  if(file && link){ tutMsg('Use either a video file or a link, not both.'); return; }
+  const fd=new FormData();
+  fd.append('title',title); fd.append('subheading',tutEl('tutSub').value); fd.append('description',tutEl('tutDesc').value);
+  fd.append('published',tutEl('tutPublished').value);
+  const ord=tutEl('tutOrder').value.trim(); if(ord!=='') fd.append('order',ord);
+  if(link) fd.append('videoUrl',link);
+  if(file) fd.append('video',file);   // the file must be appended last so the text fields arrive first
+  const btn=tutEl('tutSaveBtn'), fb=tutEl('tutFb'), bar=progressBarFor(fb);
+  btn.disabled=true; tutMsg(file?'Uploading video…':'Saving…',true); if(file) bar.show();
+  try{
+    await aFetchUpload(tutEditId?'/api/admin/tutorials/'+tutEditId:'/api/admin/tutorials', tutEditId?'PUT':'POST', fd, p=>{ bar.set(p); if(p>=100) tutMsg('Processing video, please wait…',true); });
+    bar.hide(); const wasEdit=!!tutEditId; tutResetForm(); tutMsg(wasEdit?'Saved.':'Tutorial added.',true); await tutLoad();
+  }catch(e){ bar.hide(); tutMsg('Not saved: '+e.message); }
+  finally{ btn.disabled=false; }
+}
+async function tutToggle(id){
+  const t=tutItems.find(x=>x.id===id); if(!t) return;
+  try{ await aFetch('/api/admin/tutorials/'+id,'PUT',{published:!t.published}); await tutLoad(); }catch(e){ alert(e.message); }
+}
+async function tutDelete(id){
+  const t=tutItems.find(x=>x.id===id); if(!t) return;
+  if(!confirm('Delete "'+t.title+'"? The video will be removed too. This cannot be undone.')) return;
+  try{ await aFetch('/api/admin/tutorials/'+id,'DELETE'); if(tutEditId===id) tutResetForm(); await tutLoad(); }catch(e){ alert(e.message); }
+}
+async function tutMove(id,dir){
+  const i=tutItems.findIndex(x=>x.id===id), j=i+dir;
+  if(i<0||j<0||j>=tutItems.length) return;
+  const arr=tutItems.slice(); const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
+  try{
+    // Renumber 1..n so the new order is unambiguous, only sending the ones that changed.
+    for(let k=0;k<arr.length;k++){ if(arr[k].order!==k+1) await aFetch('/api/admin/tutorials/'+arr[k].id,'PUT',{order:k+1}); }
+    await tutLoad();
+  }catch(e){ alert(e.message); }
 }
 
 // ── Welcome popup settings ──

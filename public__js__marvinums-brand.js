@@ -90,3 +90,36 @@
   function init(){ buildDrift(); setupReveal(); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
+
+/* "Tutorials" link in the top menu of every page (the page itself lives at /tutorials). */
+(function(){
+  function add(){
+    try{
+      var nav=document.getElementById('navCenter'); if(!nav || nav.querySelector('[data-mn-tut]')) return;
+      var a=document.createElement('a'); a.className='nav-link'; a.href='/tutorials'; a.setAttribute('data-mn-tut','1'); a.textContent='Tutorials';
+      var support=nav.querySelector('a[href="/support"]');
+      if(support) nav.insertBefore(a,support); else nav.appendChild(a);
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',add); else add();
+})();
+
+/* Same link inside the phone "home" quick-menu grid (it is drawn a moment after page load). */
+(function(){
+  var tries=0;
+  function addGrid(){
+    try{
+      var g=document.querySelector('.hm-grid');
+      if(g){
+        if(!g.querySelector('[data-mn-tut]')){
+          var a=document.createElement('a'); a.href='/tutorials'; a.setAttribute('data-mn-tut','1');
+          a.innerHTML='<span class="hm-g-ico"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></g></svg></span>Tutorials';
+          g.appendChild(a);
+        }
+        return;
+      }
+    }catch(e){}
+    if(++tries<40) setTimeout(addGrid,250);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addGrid); else addGrid();
+})();

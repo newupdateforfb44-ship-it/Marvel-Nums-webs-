@@ -33,7 +33,8 @@ const MANIFEST = {
  "MARVINUMS-REDESIGN-NOTES.md": "9c90d54abaa2ddde88233c32d2e40ac44e0a7652a0d00cb0f5dd7ba6b0c04675",
  "NOVASOLUTION_RENDER_SETUP.md": "1f61a3e014fd7837d60b6f38d533919ff06383454ac824bce150bdef3bb4dc61",
  "README.md": "c9717ab46d7e187ed9f790d88011ecd55d4c5d72a7888c6ac158b654b542f51b",
- "Readme.md": "aa72a2da5cb6387d1434d8b68595147caa4a3b498c9b47eac9e64cfd9f2a0f86",
+ "Readme-full.md": "aa72a2da5cb6387d1434d8b68595147caa4a3b498c9b47eac9e64cfd9f2a0f86",
+ "TUTORIALS_FIX.md": "64941c71a48382a759d29a1a0eedd460b29353f6916972b2791b9dfe88f07e5a",
  "UPDATES_SUMMARY.md": "b26aa3a77308e64d31879f2392e5092d7d712b193ef7c145a428ee8237f18257",
  "docs/API.md": "b616b68292e621676ce0c267c6adda8b88b2e87e2b2d4b9943e13af65c428d23",
  "docs/BOOST_API.md": "ca93aa2a968ff42d38573d5ee35416fcbc0495c52a092d196eb2595e1b87e68e",
@@ -58,10 +59,11 @@ const MANIFEST = {
  "lib/platform.js": "66dae8224c1035cbbeec50233be3c2e61a323648d59edf0d56b1c5945a911096",
  "lib/restock-notify.js": "aca5a6ea0dca960d3414af762816b5387da19a86850585b23c10deb9d743f2e1",
  "lib/settings.js": "e742a3d3db8b578f0afd0f6d5eb264a572ef189fbe452808a7b6705e848453b6",
+ "lib/tutorials.js": "e092ef3c12d421852c824567a03fd9e19c7abd9d35dc2a4653512809c6a86392",
  "lib/welcomepopup.js": "434dae2616e7dcd3eaca24e2e03196aade0e983f6373a20103768cbc4f19d9ae",
  "package-lock.json": "fdc80e9d166ae4018777f80edb30fcb727689b1d28caaeb8850ea65c343dab4e",
  "package.json": "3f663c472a7de306956dcbf8532d3a08df1efae27d8f621bfce36707f702ed92",
- "public/admin.html": "b239735ad56c3188281914070624253d5f44427eb6f692d968b1b5d0f64b05d2",
+ "public/admin.html": "d4459aa52b5b5554506bd1b0e5bb938b94b13f490f8b359acc1814dc6057c833",
  "public/auth-keeper.js": "0a988594332169c79583abd23c072e0f49fbf35bc16d80a124c0ae8b07f9e89f",
  "public/back-button.js": "6ea86bfddbe3f4455f21ee19521b48f567eef9d719cad09b53417727bbdea8a2",
  "public/boost-all-services.html": "8354ebe750d9023ebcabfd96ac122747667a335185a04c3625e5416616a7c10d",
@@ -120,7 +122,7 @@ const MANIFEST = {
  "public/js/global-pay.js": "8fedd7b04100d68523ba99c0e17223ff9316f477af9e5faedbbf3a0852a125b4",
  "public/js/i18n.js": "ab62220185f9a01707be8f4e460397b70e4055f78951c22fed80fe26b38ea40a",
  "public/js/live-support.js": "ffde86669cd8e8f8a0773d6db0ea10b5733a58f7916bf1990bbe179f532d5363",
- "public/js/marvinums-brand.js": "a31cb747de844a4ff7f20bcab35bc4f0fca6fc4e096b90d3e430fdadd11ca1ee",
+ "public/js/marvinums-brand.js": "c9b10981d97d226677b2f126348767892942e775e07f3541891de8a6573f8b5d",
  "public/js/money.js": "d8de0084cc92ad4457863e94879d78299d161823018c8fa393f090592a3ca4fb",
  "public/js/wallet.js": "610437ba26244de49d100dfa584cadd96ec1494c9e6a4cbef4174805d8f4a701",
  "public/kls-ui.js": "61c3fa08562c41b49dff33c16aa2d3ad9b3672adf8e9a23fa3522ca4157afbdd",
@@ -147,9 +149,10 @@ const MANIFEST = {
  "public/tools.html": "6445b1f9d740017ae160d7937a6f9a02aa62d7f2bde6f74d043241d696d75070",
  "public/tools.js": "e4ca6825a1f1ebb003ff61a597b418a0b6519693dd0cb908a820d10a6a1f5495",
  "public/transactions.html": "e8b0cc7d22b09ba650a6e7942b10935eb18bd35fb49214e33ea7f7d8bc7bc666",
+ "public/tutorials.html": "618bab5099cf9ae534459aff00acdefaf3341e0fda70cb1f3fbc1ab46cd1a87f",
  "public/virtual-account.html": "1be6bd9c9e7e950fe683042b2938e82c6dfd25d132978fae813a673c1c9618ae",
  "public/welcome-popup.js": "06a19acbaca511346514ac812a71e0771de3e6f5288ec3c4f0bd416deffd8390",
- "server.js": "c933d22a8371961edfe5337b3bf975718c0798ef794df59e97063e7771656c43",
+ "server.js": "e72246752c806970b40358945d321902e5cba97e6faa8a7a0efed68626792d5f",
  "site.config.js": "f43f4a9f327a54856cc94cafc15929a2aa18cb492888e3c51bebb6826c4c302c"
 };
 
@@ -211,6 +214,16 @@ function run(opts) {
       if (cands.length > 1 || chosen.kind !== 'dest') stats.warnings.push('content differs from the expected version (kept anyway): ' + dest + '  <- ' + path.basename(chosen.file));
     }
     if (chosen.file !== destAbs) {
+      // A wrong file already sits under the real name: keep a copy of it in _duplicates before replacing it.
+      if (fs.existsSync(destAbs) && sha(destAbs) !== chosen.hash) {
+        stats.quarantined++; log('moved to _duplicates (replaced by the matching copy): ' + dest);
+        if (!dry) {
+          const qd = path.join(ROOT, '_duplicates'); fs.mkdirSync(qd, { recursive: true });
+          let t = path.join(qd, dest.split('/').join('__')), i = 1;
+          while (fs.existsSync(t)) t = path.join(qd, i++ + '_' + dest.split('/').join('__'));
+          fs.copyFileSync(destAbs, t);
+        }
+      }
       if (!dry) { fs.mkdirSync(destDir, { recursive: true }); fs.copyFileSync(chosen.file, destAbs); }
       stats.placed++; log('placed   ' + dest);
     } else stats.alreadyOk++;

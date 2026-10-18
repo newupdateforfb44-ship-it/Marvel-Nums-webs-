@@ -52,7 +52,7 @@ app.use((req, res, next) => {
 // ── sitemap.xml (Search Console needs a real XML file at the root) ──────────
 app.get('/sitemap.xml', (req, res) => {
   const base = 'https://' + (req.headers.host || BRAND.domain).replace(/^www\./, '');
-  const paths = ['/', '/marketplace', '/tools', '/logs', '/boost', '/buy-number', '/support', '/login', '/register'];
+  const paths = ['/', '/marketplace', '/tools', '/logs', '/boost', '/buy-number', '/tutorials', '/support', '/login', '/register'];
   const now = new Date().toISOString().slice(0, 10);
   const body = '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
@@ -1514,6 +1514,8 @@ require('./lib/market2').register(app, { mongoose, User, Transaction, auth, anyA
 require('./lib/market3').register(app, { mongoose, User, Transaction, auth, anyAdminAuth, sendAdminEmail });
 // Welcome popup (WhatsApp channel promo) - settings editable in Admin -> Welcome Popup
 require('./lib/welcomepopup').register(app, { mongoose, adminAuth });
+// Tutorials (admin uploads video guides, customers watch them on /tutorials) - see lib/tutorials.js
+require('./lib/tutorials').register(app, { mongoose, adminAuth });
 require('./lib/boost2')({ app, mongoose, User, Transaction, auth, anyAdminAuth, novaGate });
 function sanitizeUser(u) {
  return {

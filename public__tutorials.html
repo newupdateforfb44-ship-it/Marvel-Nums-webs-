@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Tutorials — Video Guides | Marvel Nums</title>
+<meta name="description" content="Step-by-step video tutorials for using Marvel Nums: logging in accounts, buying numbers, boosting and more."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/style.css?v=20260910a"/>
+<link rel="stylesheet" href="/theme.css?v=20260910a"/>
+<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
+<meta name="theme-color" content="#0788e8"/>
+<script>
+  /* Same dark-only brand theme as the other pages. This page is public: no login needed. */
+  try { document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+</script>
+<link rel="stylesheet" href="/brand.css"/>
+<link rel="stylesheet" href="/css/marvinums-brand.css">
+<script defer src="/js/marvinums-brand.js"></script>
+<style>
+.tut-wrap{max-width:1040px;margin:0 auto;padding:18px 16px 90px}
+.tut-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.tut-top a.tut-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--t1);font-family:'Sora','Plus Jakarta Sans',sans-serif;font-weight:800;font-size:16px}
+.tut-top a.tut-brand img{width:34px;height:34px;border-radius:10px;object-fit:cover}
+.tut-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);color:var(--t1);padding:9px 14px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;font-family:inherit}
+.tut-btn:hover{border-color:var(--gold)}
+.tut-hero h1{font-family:'Sora','Plus Jakarta Sans',sans-serif;font-size:clamp(1.6rem,1.2rem + 2vw,2.4rem);line-height:1.15;margin:0 0 6px;color:var(--t1)}
+.tut-hero p{margin:0 0 16px;color:var(--t2);font-size:14.5px;max-width:60ch}
+.tut-search{width:100%;max-width:420px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;color:var(--t1);padding:11px 14px;font-size:14px;font-family:inherit;outline:none;margin-bottom:18px}
+.tut-search:focus{border-color:var(--gold)}
+.tut-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.tut-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;text-align:left;padding:0;font-family:inherit;color:inherit;display:flex;flex-direction:column;transition:transform .16s ease,border-color .16s ease}
+.tut-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.tut-thumb{position:relative;aspect-ratio:16/9;background:#0b1220;overflow:hidden}
+.tut-thumb img,.tut-thumb video{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.tut-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.tut-play span{width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.55);border:2px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center}
+.tut-play svg{width:22px;height:22px;fill:#fff;margin-left:3px}
+.tut-num{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px}
+.tut-body{padding:12px 14px 14px}
+.tut-body h3{margin:0 0 4px;font-size:15px;line-height:1.3;color:var(--t1);font-weight:800}
+.tut-body p{margin:0;font-size:12.5px;color:var(--t2);line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tut-state{padding:40px 12px;text-align:center;color:var(--t2);font-size:14px}
+.tut-player{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.tut-player iframe,.tut-player video{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000}
+.tut-detail h2{font-family:'Sora','Plus Jakarta Sans',sans-serif;font-size:clamp(1.3rem,1.1rem + 1.2vw,1.8rem);line-height:1.2;margin:18px 0 4px;color:var(--t1)}
+.tut-sub{font-size:15px;font-weight:600;color:var(--gold);margin:0 0 14px}
+.tut-desc{white-space:pre-wrap;word-wrap:break-word;color:var(--t1);font-size:14.5px;line-height:1.7;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
+.tut-nav{display:flex;justify-content:space-between;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tut-more{margin-top:28px}
+.tut-more h4{font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--t2);margin:0 0 10px}
+[hidden]{display:none !important}
+</style>
+</head>
+<body class="mn-bg-social">
+<div class="tut-wrap">
+  <div class="tut-top">
+    <a class="tut-brand" href="/dashboard"><img src="/img/marvinums-logo.webp" alt=""/><span>Marvel Nums</span></a>
+    <a class="tut-btn" href="/dashboard" id="tutHomeBtn">&larr; Dashboard</a>
+  </div>
+
+  <!-- LIST VIEW -->
+  <section id="tutListView">
+    <div class="tut-hero">
+      <h1>Tutorials</h1>
+      <p>Watch our short video guides &mdash; step by step, so you can get the most out of your purchases.</p>
+    </div>
+    <input class="tut-search" id="tutSearch" type="search" placeholder="Search tutorials…" autocomplete="off" aria-label="Search tutorials"/>
+    <div id="tutGrid" class="tut-grid"></div>
+    <div id="tutState" class="tut-state">Loading tutorials…</div>
+  </section>
+
+  <!-- DETAIL VIEW -->
+  <section id="tutDetailView" class="tut-detail" hidden>
+    <button class="tut-btn" type="button" id="tutBack">&larr; All tutorials</button>
+    <div style="height:14px"></div>
+    <div class="tut-player" id="tutPlayer"></div>
+    <h2 id="tutDTitle"></h2>
+    <p class="tut-sub" id="tutDSub" hidden></p>
+    <div class="tut-desc" id="tutDDesc" hidden></div>
+    <div class="tut-nav">
+      <button class="tut-btn" type="button" id="tutPrev">&larr; Previous</button>
+      <button class="tut-btn" type="button" id="tutNext">Next &rarr;</button>
+    </div>
+    <div class="tut-more" id="tutMore" hidden><h4>More tutorials</h4><div class="tut-grid" id="tutMoreGrid"></div></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var items = [], currentId = null;
+  var $ = function (id) { return document.getElementById(id); };
+  var PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+
+  // Logged-in people go back to their dashboard, visitors to the homepage.
+  try { if (!localStorage.getItem('ksl_token')) { $('tutHomeBtn').setAttribute('href', '/'); $('tutHomeBtn').textContent = '\u2190 Home'; document.querySelector('.tut-brand').setAttribute('href', '/'); } } catch (e) {}
+
+  function ytThumb(embed) {
+    var m = /\/embed\/([\w-]+)/.exec(embed || '');
+    return m ? 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg' : '';
+  }
+  function thumbNode(t, n) {
+    var wrap = document.createElement('div'); wrap.className = 'tut-thumb';
+    var v = t.video || {};
+    if (v.kind === 'youtube' && ytThumb(v.embed)) {
+      var img = document.createElement('img'); img.src = ytThumb(v.embed); img.alt = ''; img.loading = 'lazy'; wrap.appendChild(img);
+    } else if (v.kind === 'file') {
+      var vid = document.createElement('video'); vid.muted = true; vid.preload = 'metadata'; vid.playsInline = true;
+      vid.src = v.src + (v.src.indexOf('#') === -1 ? '#t=0.6' : ''); wrap.appendChild(vid);
+    }
+    var num = document.createElement('div'); num.className = 'tut-num'; num.textContent = '#' + n; wrap.appendChild(num);
+    var p = document.createElement('div'); p.className = 'tut-play'; p.innerHTML = '<span>' + PLAY + '</span>'; wrap.appendChild(p);
+    return wrap;
+  }
+  function cardNode(t, n) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'tut-card';
+    b.appendChild(thumbNode(t, n));
+    var body = document.createElement('div'); body.className = 'tut-body';
+    var h = document.createElement('h3'); h.textContent = t.title; body.appendChild(h);
+    var sub = t.subheading || t.description;
+    if (sub) { var p = document.createElement('p'); p.textContent = sub; body.appendChild(p); }
+    b.appendChild(body);
+    b.addEventListener('click', function () { openTutorial(t.id, true); });
+    return b;
+  }
+
+  function renderList() {
+    var q = $('tutSearch').value.trim().toLowerCase();
+    var grid = $('tutGrid'); grid.innerHTML = '';
+    var shown = 0;
+    items.forEach(function (t, i) {
+      if (q && (t.title + ' ' + t.subheading + ' ' + t.description).toLowerCase().indexOf(q) === -1) return;
+      grid.appendChild(cardNode(t, i + 1)); shown++;
+    });
+    var st = $('tutState');
+    if (!items.length) { st.hidden = false; st.textContent = 'No tutorials yet \u2014 please check back soon.'; }
+    else if (!shown) { st.hidden = false; st.textContent = 'No tutorials match your search.'; }
+    else st.hidden = true;
+  }
+
+  function stopPlayer() { $('tutPlayer').innerHTML = ''; }
+  function showList(push) {
+    stopPlayer(); currentId = null;
+    $('tutDetailView').hidden = true; $('tutListView').hidden = false;
+    document.title = 'Tutorials \u2014 Video Guides | Marvel Nums';
+    if (push) history.pushState({}, '', '/tutorials');
+    window.scrollTo(0, 0);
+  }
+  function openTutorial(id, push) {
+    var idx = -1; items.forEach(function (t, i) { if (t.id === id) idx = i; });
+    if (idx < 0) { showList(false); return; }
+    var t = items[idx]; currentId = id;
+    $('tutListView').hidden = true; $('tutDetailView').hidden = false;
+    var box = $('tutPlayer'); box.innerHTML = '';
+    var v = t.video || {};
+    if (v.kind === 'youtube' || v.kind === 'vimeo') {
+      var f = document.createElement('iframe'); f.src = v.embed; f.title = t.title; f.allowFullscreen = true;
+      f.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen'); box.appendChild(f);
+    } else if (v.kind === 'file') {
+      var vid = document.createElement('video'); vid.controls = true; vid.playsInline = true; vid.preload = 'metadata'; vid.src = v.src;
+      vid.setAttribute('controlsList', 'nodownload'); box.appendChild(vid);
+    }
+    $('tutDTitle').textContent = t.title;
+    var s = $('tutDSub'); s.textContent = t.subheading || ''; s.hidden = !t.subheading;
+    var d = $('tutDDesc'); d.textContent = t.description || ''; d.hidden = !t.description;
+    $('tutPrev').hidden = idx === 0; $('tutNext').hidden = idx === items.length - 1;
+    $('tutPrev').onclick = function () { openTutorial(items[idx - 1].id, true); };
+    $('tutNext').onclick = function () { openTutorial(items[idx + 1].id, true); };
+    var more = $('tutMoreGrid'); more.innerHTML = '';
+    var others = items.filter(function (x) { return x.id !== id; }).slice(0, 6);
+    others.forEach(function (x) { more.appendChild(cardNode(x, items.indexOf(x) + 1)); });
+    $('tutMore').hidden = !others.length;
+    document.title = t.title + ' \u2014 Tutorials | Marvel Nums';
+    if (push) history.pushState({ id: id }, '', '/tutorials/' + id);
+    window.scrollTo(0, 0);
+  }
+
+  function idFromPath() { var m = /^\/tutorials\/([a-f0-9]{24})\/?$/i.exec(location.pathname); return m ? m[1] : null; }
+
+  $('tutBack').addEventListener('click', function () { showList(true); });
+  $('tutSearch').addEventListener('input', renderList);
+  window.addEventListener('popstate', function () { var id = idFromPath(); if (id) openTutorial(id, false); else showList(false); });
+
+  fetch('/api/tutorials', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
+    .then(function (d) {
+      items = d.tutorials || [];
+      renderList();
+      var id = idFromPath(); if (id) openTutorial(id, false);
+    })
+    .catch(function () { var st = $('tutState'); st.hidden = false; st.textContent = 'Could not load tutorials. Please refresh and try again.'; });
+})();
+</script>
+</body>
+</html>
