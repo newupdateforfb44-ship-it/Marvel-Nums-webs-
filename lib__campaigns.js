@@ -1,4 +1,4 @@
-// ── King Social Hub campaigns, email delivery tracking & referral rewards ───────────────
+// ── Marvel Nums campaigns, email delivery tracking & referral rewards ───────────────
 // Mounted once from server.js, after lib/engagement.js. Everything here is
 // additive — remove the mount and the rest of the site is unaffected.
 //
@@ -491,7 +491,7 @@ module.exports = function initCampaigns(ctx) {
       for (const person of people) {
         const r = await sendMail({
           to: person.email, category: 'mail_alert_test',
-          subject: '✅ Test — King Social Hub delivery alerts are working',
+          subject: '✅ Test — Marvel Nums delivery alerts are working',
           content: {
             title: 'Delivery alerts test',
             preheader: 'This is a test of the email delivery alert system.',
@@ -552,12 +552,12 @@ module.exports = function initCampaigns(ctx) {
     if (!to) return res.status(400).json({ error: 'Enter an email address to send the test to' });
     const r = await sendMail({
       to, category: 'test',
-      subject: 'King Social Hub email delivery test',
+      subject: 'Marvel Nums email delivery test',
       content: {
-        title: 'Your King Social Hub email setup works',
-        preheader: 'Test message from the King Social Hub admin panel.',
+        title: 'Your Marvel Nums email setup works',
+        preheader: 'Test message from the Marvel Nums admin panel.',
         lines: ['If you can read this, sending is configured correctly and reaching the inbox.'],
-        ctaText: 'Open King Social Hub', ctaUrl: siteUrl(),
+        ctaText: 'Open Marvel Nums', ctaUrl: siteUrl(),
         footNote: 'Sent from Admin → Email Delivery → Send test.'
       }
     });
@@ -575,13 +575,13 @@ module.exports = function initCampaigns(ctx) {
       to: user.email,
       userId: user._id,
       category: 'welcome',
-      subject: `Welcome to King Social Hub, ${first} — your account is ready`,
+      subject: `Welcome to Marvel Nums, ${first} — your account is ready`,
       content: {
-        title: 'Your King Social Hub account is live 🎉',
-        preheader: 'Here is everything your new King Social Hub account can do.',
+        title: 'Your Marvel Nums account is live 🎉',
+        preheader: 'Here is everything your new Marvel Nums account can do.',
         greeting: `Hi ${user.name || 'there'},`,
         lines: [
-          'Thanks for joining <b>King Social Hub</b>. Your account is active and your wallet is ready to fund.',
+          'Thanks for joining <b>Marvel Nums</b>. Your account is active and your wallet is ready to fund.',
           '<b>What you can do right now:</b>',
           '• Browse verified social accounts, logs and digital goods — delivery is instant<br/>'
           + '• Buy SMS verification numbers from any country<br/>'
@@ -653,7 +653,7 @@ module.exports = function initCampaigns(ctx) {
           preheader: `${claimed.name} completed their ${label} — ${money(forRef)} is in your wallet.`,
           greeting: `Hi ${referrer.name || 'there'},`,
           lines: [
-            `<b>${claimed.name}</b> joined King Social Hub with your referral link and has now completed their ${label}.`,
+            `<b>${claimed.name}</b> joined Marvel Nums with your referral link and has now completed their ${label}.`,
             `<b>${money(forRef)}</b> has been added to your wallet — and they got ${money(forNew)} too.`,
             'Keep sharing your link: every friend who joins and buys pays you again, on top of your ongoing 4% commission.'
           ],
@@ -665,10 +665,10 @@ module.exports = function initCampaigns(ctx) {
 
       sendMail({
         to: claimed.email, userId: claimed._id, category: 'referral',
-        subject: `${money(forNew)} referral bonus added to your King Social Hub wallet`,
+        subject: `${money(forNew)} referral bonus added to your Marvel Nums wallet`,
         content: {
           title: 'Here is your welcome bonus 🎁',
-          preheader: `${money(forNew)} has been added to your King Social Hub wallet.`,
+          preheader: `${money(forNew)} has been added to your Marvel Nums wallet.`,
           greeting: `Hi ${claimed.name || 'there'},`,
           lines: [
             `Because you joined through a friend's referral link and completed your ${label}, we have credited <b>${money(forNew)}</b> to your wallet.`,
@@ -752,10 +752,10 @@ module.exports = function initCampaigns(ctx) {
     try {
       return await sendMail({
         to: user.email, category: 'transactional',
-        subject: `✅ Purchase Confirmed — ${item.title} | King Social Hub`,
+        subject: `✅ Purchase Confirmed — ${item.title} | Marvel Nums`,
         content: {
           title: 'Your purchase was successful!',
-          preheader: `You just bought ${item.title} on King Social Hub.`,
+          preheader: `You just bought ${item.title} on Marvel Nums.`,
           lines: [
             `Hi <b>${esc(user.name || 'there')}</b>, your purchase is confirmed and ready.`,
             `<b>Item:</b> ${esc(item.title)}`,

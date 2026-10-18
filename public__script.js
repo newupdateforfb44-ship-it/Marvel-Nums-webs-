@@ -27,7 +27,7 @@ const PAGE_TO_PATH = {
   boost: '/boost', boost1: '/boost1', boost2: '/boost2', 'boost-services': '/boost-services', 'boost-history': '/boost-history'
 };
 const PATH_TO_PAGE = Object.fromEntries(Object.entries(PAGE_TO_PATH).map(([k,v]) => [v,k]));
-// '/marketplace' etc. are absolute site paths per King Social Hub's domain convention
+// '/marketplace' etc. are absolute site paths per Marvel Nums's domain convention
 // (e.g. https://klslogs.com/marketplace).
 function pathForPage(p) { return PAGE_TO_PATH[p] || '/'; }
 function pageForPath(path) {
@@ -47,8 +47,10 @@ async function applySiteLinks() {
     if (links.telegramChannelLink || links.whatsappChannelLink) document.querySelectorAll('a[data-link="channel"]').forEach(a => a.href = links.telegramChannelLink || links.whatsappChannelLink);
     document.querySelectorAll('a[data-link="contact"]').forEach(a => { a.href = `https://wa.me/${WA_NUMBER}`; });
     document.querySelectorAll('a[data-link="adminphone"]').forEach(a => { a.href = `https://wa.me/${adminPhone}`; });
+    // Terms & Conditions page uses its own admin-set number (Admin → Site Links); blank = the Home page number
+    const termsNum = links.termsNumber || WA_NUMBER;
     const textLink = document.getElementById('termsWaTextLink');
-    if (textLink) { textLink.href = `https://wa.me/${WA_NUMBER}`; textLink.textContent = `wa.me/${WA_NUMBER}`; }
+    if (textLink) { textLink.href = `https://wa.me/${termsNum}`; textLink.textContent = `wa.me/${termsNum}`; }
     document.querySelectorAll('.ksl-admin-phone-text').forEach(el => el.textContent = `+${adminPhone}`);
     document.querySelectorAll('.ksl-wa-number-text').forEach(el => el.textContent = `+${WA_NUMBER}`);
     // Telegram support (admin-editable in Admin → Site Links). Defaults to t.me/klslogs.
@@ -172,7 +174,7 @@ function startBalanceSSE() {
           const bannerWrap = document.querySelector('.va-confirm-banner');
           if (bannerWrap) {
             const subEl = bannerWrap.querySelector('.va-confirm-sub');
-            if (subEl) subEl.textContent = `${P2(added)} credited to your King Social Hub wallet automatically.`;
+            if (subEl) subEl.textContent = `${P2(added)} credited to your Marvel Nums wallet automatically.`;
             bannerWrap.style.display = 'flex';
             setTimeout(() => { if (bannerWrap) bannerWrap.style.display = 'none'; }, 12000);
           }
@@ -208,7 +210,7 @@ function startBalanceSSE() {
         const bannerWrap = document.querySelector('.va-confirm-banner');
         if (bannerWrap && creditAmount) {
           const subEl = bannerWrap.querySelector('.va-confirm-sub');
-          if (subEl) subEl.textContent = `${P2(creditAmount)} credited to your King Social Hub wallet automatically.`;
+          if (subEl) subEl.textContent = `${P2(creditAmount)} credited to your Marvel Nums wallet automatically.`;
           bannerWrap.style.display = 'flex';
           setTimeout(() => { if (bannerWrap) bannerWrap.style.display = 'none'; }, 12000);
         }
@@ -1055,7 +1057,7 @@ function showPageReal(p, opts) {
   // Pages that require a logged-in account to view (browsing listings requires login/signup)
   const requiresAuth = ['home','market','market2','market3','tools','deposit','wallet','purchases','transactions','settings','chat','games','groups','dm','referrals','notifications','numberhistory'];
   if (requiresAuth.includes(p) && !token) {
-    showToast('Please login or create an account to browse King Social Hub','err');
+    showToast('Please login or create an account to browse Marvel Nums','err');
     const welcomeEl = document.getElementById('page-welcome');
     if (welcomeEl) welcomeEl.classList.add('active');
     if (!opts.fromPopstate) updateUrl('welcome', opts.replace);
@@ -1098,7 +1100,7 @@ function showPageReal(p, opts) {
   // Await the page's own loader (if it returns a promise) so the bar finishes exactly when the
   // new page's content is actually ready — falls back to a short fixed delay for pages with no
   // loader (e.g. static pages like Terms) so the bar never gets stuck mid-way.
-  Promise.resolve(loader ? loader() : null)
+  return Promise.resolve(loader ? loader() : null)
     .catch(() => {})
     .finally(finishPageLoadBar);
 }
@@ -1439,7 +1441,7 @@ async function loadApiKeySection() {
     const d = await req('/api/user/api-key','GET',null,true);
     if (!d.hasSecret) {
       box.innerHTML = `
-        <p class="mgid-hint" style="margin:0 0 14px">Generate a personal API key to connect King Social Hub to your own scripts or third-party apps — check your balance, list items, and buy programmatically.</p>
+        <p class="mgid-hint" style="margin:0 0 14px">Generate a personal API key to connect Marvel Nums to your own scripts or third-party apps — check your balance, list items, and buy programmatically.</p>
         <button class="btn-gold" onclick="generateApiKey()"><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg> Generate API Key</button>
         <div id="apiKeyFeedback" class="form-feedback"></div>
       `;
@@ -2266,7 +2268,7 @@ function copyHistory(idx,btn) {
   const detailEl=card.querySelector('.pc-details')||card.querySelector('.trb-input');
   const details=detailEl?.textContent||detailEl?.value||'';
   const text=`═══════════════════════════
-King Social Hub
+Marvel Nums
 PURCHASE RECEIPT
 ═══════════════════════════
 ${pid.replace(' ','')}
@@ -2379,7 +2381,7 @@ function renderTxnList() {
 }
 function downloadApiDocs() {
   const base = document.getElementById('apiBaseUrlBlock')?.textContent.trim() || 'https://your-site.example.com/api/v1';
-  const text = `King Social Hub API DOCUMENTATION
+  const text = `Marvel Nums API DOCUMENTATION
 ======================
 GETTING STARTED
 Generate a personal API Key + API Secret from Settings API Access.
@@ -2417,7 +2419,7 @@ ERRORS
   const blob = new Blob([text], { type: 'text/plain' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'King Social Hub-API-Docs.txt';
+  a.download = 'Marvel Nums-API-Docs.txt';
   a.click();
 }
 function toggleFaq(btn) {
@@ -2428,12 +2430,12 @@ function toggleFaq(btn) {
 }
 function copyTxn(i,btn) {
   const t=window._txnList[i];
-  const text=`King Social Hub Transaction\n─────────────────\nType:   ${t.type}\nAmount: ${t.type==='purchase'?'-':'+'}${P(t.amount)}\nDesc:   ${t.description||t.type}\nDate:   ${new Date(t.createdAt).toLocaleString('en-NG')}\nStatus: ${t.status}`;
+  const text=`Marvel Nums Transaction\n─────────────────\nType:   ${t.type}\nAmount: ${t.type==='purchase'?'-':'+'}${P(t.amount)}\nDesc:   ${t.description||t.type}\nDate:   ${new Date(t.createdAt).toLocaleString('en-NG')}\nStatus: ${t.status}`;
  copyRaw(text,btn,'');
 }
 function exportAllTxns(btn) {
   if (!window._txnList?.length) return;
-  const header=`King Social Hub\nTRANSACTION HISTORY EXPORT\nGenerated: ${new Date().toLocaleString('en-NG')}\n${'═'.repeat(50)}\n`;
+  const header=`Marvel Nums\nTRANSACTION HISTORY EXPORT\nGenerated: ${new Date().toLocaleString('en-NG')}\n${'═'.repeat(50)}\n`;
   const rows=window._txnList.map((t,i)=>`${i+1}. ${new Date(t.createdAt).toLocaleString('en-NG')} | ${t.type.padEnd(14)} | ${t.type==='purchase'?'-':'+'}${P(t.amount)} | ${t.description||''}`).join('\n');
  copyRaw(header+rows,btn,' Copy All Transactions');
 }
@@ -2486,7 +2488,7 @@ function drawTxnReceipt(t) {
   // Brand header
   ctx.textAlign = 'center';
   ctx.fillStyle = textMuted; ctx.font = '700 12px "Plus Jakarta Sans", sans-serif';
- ctx.fillText(' King Social Hub · KingBadBoi Log Sale', W / 2, 30);
+ ctx.fillText(' Marvel Nums · KingBadBoi Log Sale', W / 2, 30);
   // Status icon circle (check / clock / cross, OPay-style)
   const iconCy = 80;
   ctx.beginPath(); ctx.arc(W / 2, iconCy, 30, 0, Math.PI * 2);
@@ -2554,7 +2556,7 @@ function downloadTxnReceipt() {
   if (!txnReceiptDataUrl) return;
   const a = document.createElement('a');
   a.href = txnReceiptDataUrl;
-  a.download = `King Social Hub-receipt-${Date.now()}.png`;
+  a.download = `Marvel Nums-receipt-${Date.now()}.png`;
   a.click();
 }
 async function shareTxnReceipt() {
@@ -2564,7 +2566,7 @@ async function shareTxnReceipt() {
     const blob = await res.blob();
     const file = new File([blob], 'ksl-receipt.png', { type: 'image/png' });
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'King Social Hub Receipt' });
+      await navigator.share({ files: [file], title: 'Marvel Nums Receipt' });
     } else {
       downloadTxnReceipt();
       showToast('Sharing not supported on this device — downloaded instead');
@@ -2601,7 +2603,7 @@ function toggleAiChatFab() {
   renderAiChatQuickTopics();
   if (opening && !overlay.dataset.greeted) {
     overlay.dataset.greeted = '1';
-    appendAiChatFabBubble("Hi! I'm the King Social Hub Assistant. Ask me about deposits, purchases, refunds, referrals, the API, or anything else basic — I'll do my best to help. Or tap a topic below to get started.", 'bot');
+    appendAiChatFabBubble("Hi! I'm the Marvel Nums Assistant. Ask me about deposits, purchases, refunds, referrals, the API, or anything else basic — I'll do my best to help. Or tap a topic below to get started.", 'bot');
   }
 }
 function appendAiChatFabBubble(text, who, isTyping) {
@@ -2733,7 +2735,7 @@ function reportClientError(message, url, status, contentType) {
 }
 async function req(url,method='GET',body=null,auth=false,_isRetry=false,silent=false) {
   const _klsStarted = Date.now();
-  console.log(`[King Social Hub] → ${method} ${url}`);
+  console.log(`[Marvel Nums] → ${method} ${url}`);
   const headers={'Content-Type':'application/json'};
   if (auth&&token) headers['Authorization']=`Bearer ${token}`;
   const opts={method,headers,cache:'no-store'};
@@ -2750,7 +2752,7 @@ async function req(url,method='GET',body=null,auth=false,_isRetry=false,silent=f
           : 'Connection problem — check your internet and try again'
     );
   }
-  console.log(`[King Social Hub] ← ${method} ${url} ${res.status} ${Date.now()-_klsStarted}ms`);
+  console.log(`[Marvel Nums] ← ${method} ${url} ${res.status} ${Date.now()-_klsStarted}ms`);
   const contentType = res.headers.get('content-type') || '';
   let parseFailed = false;
   const data=await res.json().catch(() => { parseFailed = true; return {error:'Invalid server response'}; });
@@ -3039,7 +3041,7 @@ async function loadVAInDeposit() {
     const token = localStorage.getItem('ksl_token');
     const res = await fetch('/api/user/virtual-account?gateway=' + encodeURIComponent(selectedVAGateway || 'flutterwave'), { headers: { Authorization: 'Bearer ' + token } });
     const va  = await res.json();
-    console.log('[King Social Hub] virtual-account response', res.status, va);
+    console.log('[Marvel Nums] virtual-account response', res.status, va);
     if (loadEl) loadEl.style.display = 'none';
     if (!res.ok) throw new Error(va.error || ('Server returned ' + res.status));
     if (va.available === false && va.reason === 'country') {
@@ -3057,7 +3059,7 @@ async function loadVAInDeposit() {
     // an old cached body) was treated as "disabled", which is why some people
     // saw "Temporarily Unavailable" while others did not.
     if (va.globalEnabled === false) {
-      console.warn('[King Social Hub] Virtual accounts are globally disabled by admin');
+      console.warn('[Marvel Nums] Virtual accounts are globally disabled by admin');
       const disabledEl = document.getElementById('vaDisabledCard');
       if (disabledEl) disabledEl.style.display = 'block';
       return;
@@ -3087,7 +3089,7 @@ async function loadVAInDeposit() {
           <div>
             <div class="va-newuser-title">Welcome! Set up your virtual bank account</div>
             <div class="va-newuser-sub">
-              Generate your free permanent Nigerian bank account below. Transfer money to it anytime and your King Social Hub wallet is credited automatically — no approval, no screenshots needed.
+              Generate your free permanent Nigerian bank account below. Transfer money to it anytime and your Marvel Nums wallet is credited automatically — no approval, no screenshots needed.
             </div>
           </div>`;
         genEl.insertBefore(banner, genEl.firstChild);
@@ -3096,8 +3098,8 @@ async function loadVAInDeposit() {
     }
     // Populate account details
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    // Account name format: "King Social Hub {Username}" — clearly shows the bank name + King Social Hub branding
-    const displayAccName = va.accountName || ('King Social Hub ' + (currentUser?.name || 'User'));
+    // Account name format: "Marvel Nums {Username}" — clearly shows the bank name + Marvel Nums branding
+    const displayAccName = va.accountName || ('Marvel Nums ' + (currentUser?.name || 'User'));
     const displayBank = va.bankName || 'Wema Bank';
     set('vaDisplayAccNum', va.accountNumber);
     set('vaDisplayBank',   displayBank);
@@ -3116,7 +3118,7 @@ async function loadVAInDeposit() {
     // Start the live poller now that the account card is visible
     if (typeof startVAPoller === 'function') startVAPoller();
   } catch (e) {
-    console.error('[King Social Hub] loadVAInDeposit failed:', e);
+    console.error('[Marvel Nums] loadVAInDeposit failed:', e);
     if (loadEl) loadEl.style.display = 'none';
     const genEl = document.getElementById('vaGenerateCard');
     if (genEl) genEl.style.display = 'block';
@@ -3137,7 +3139,7 @@ async function generateVirtualAccount() {
       body: JSON.stringify({ gateway: selectedVAGateway || 'flutterwave' })
     });
     const data = await res.json();
-    console.log('[King Social Hub] virtual-account/create response', res.status, data);
+    console.log('[Marvel Nums] virtual-account/create response', res.status, data);
     if (!res.ok) throw new Error(data.error || 'Failed to create virtual account');
     if (fb) { fb.textContent = 'Account generated! Loading details…'; fb.style.color = 'var(--green)'; }
     setTimeout(() => loadVAInDeposit(), 800);
@@ -3244,7 +3246,7 @@ async function _vaPollTick() {
         const bannerWrap2 = document.querySelector('.va-confirm-banner');
         if (bannerWrap2) {
           const subEl2 = bannerWrap2.querySelector('.va-confirm-sub');
-          if (subEl2) subEl2.textContent = `${P2(displayAdded)} credited to your King Social Hub wallet automatically.`;
+          if (subEl2) subEl2.textContent = `${P2(displayAdded)} credited to your Marvel Nums wallet automatically.`;
           bannerWrap2.style.display = 'flex';
           setTimeout(() => { if (bannerWrap2) bannerWrap2.style.display = 'none'; }, 12000);
         }
@@ -3258,7 +3260,7 @@ async function _vaPollTick() {
           const confirmBanner = document.getElementById('vaConfirmBanner');
           if (confirmBanner) {
             const subEl = confirmBanner.closest ? confirmBanner.closest('.va-confirm-banner')?.querySelector('.va-confirm-sub') : null;
-            if (subEl) subEl.textContent = `${P2(displayAdded)} credited to your King Social Hub wallet automatically.`;
+            if (subEl) subEl.textContent = `${P2(displayAdded)} credited to your Marvel Nums wallet automatically.`;
           }
         }
  console.log(`[VA-poller] Balance ₦${_vaLastBalance} ₦${newBal} (+₦${displayAdded})`);
@@ -3699,7 +3701,7 @@ function showPhoneModal() {
       <div style="background:linear-gradient(135deg,#0788e8 0%,#7c3aed 100%);padding:28px 24px 22px;text-align:center;color:#fff">
         <div style="font-size:3rem;margin-bottom:10px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg></div>
         <h3 style="margin:0 0 6px;font-size:1.2rem;font-weight:800;letter-spacing:-.02em">Phone Number Required</h3>
-        <p style="margin:0;font-size:.85rem;opacity:.9;line-height:1.5">To protect your account and help us reach you about orders — a valid Nigerian number is required before you can use King Social Hub.</p>
+        <p style="margin:0;font-size:.85rem;opacity:.9;line-height:1.5">To protect your account and help us reach you about orders — a valid Nigerian number is required before you can use Marvel Nums.</p>
       </div>
       <!-- Body -->
       <div style="padding:22px 22px 24px">
@@ -3764,7 +3766,7 @@ async function submitPhonePrompt() {
     // Remove modal and restore scroll
     document.getElementById('phonePromptModal')?.remove();
     document.body.style.overflow = '';
-    showToast('Phone number saved — welcome to King Social Hub!', 'ok');
+    showToast('Phone number saved — welcome to Marvel Nums!', 'ok');
     window.location.href = '/dashboard';
   } catch(e) {
  if(fb) fb.textContent = ' ' + (e.message || 'Failed — try again');
@@ -3796,6 +3798,9 @@ async function updatePhone() {
 // nothing here fakes data, it just adds a beat of perceived loading before the page appears.
 const DBFL_MESSAGES = ['Loading…', 'Almost there…'];
 let dbflBusy = false;
+// The overlay now STAYS on screen until the next page has really loaded (its own data requests
+// finished), then fades away. A minimum time avoids a flash, and a long safety cap makes sure a
+// broken request can never trap the visitor behind the loader.
 function openFakeLoad(then) {
   const overlay = document.getElementById('dbfl-overlay');
   const textEl = document.getElementById('dbfl-text');
@@ -3807,13 +3812,27 @@ function openFakeLoad(then) {
   const msgTimer = setInterval(() => {
     i = (i + 1) % DBFL_MESSAGES.length;
     textEl.textContent = DBFL_MESSAGES[i];
-  }, 400);
-  setTimeout(() => {
+  }, 700);
+  let finished = false;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
     clearInterval(msgTimer);
-    then();
+    clearTimeout(safety);
     overlay.classList.remove('show');
     dbflBusy = false;
-  }, 700);
+  };
+  const safety = setTimeout(finish, 20000);
+  const started = Date.now();
+  setTimeout(() => {
+    let result = null;
+    try { result = then(); } catch (e) { console.error(e); }
+    // wait for the new page's loader, then let the page paint before the overlay lifts
+    Promise.resolve(result).catch(() => {}).then(() => {
+      const wait = Math.max(0, 450 - (Date.now() - started));
+      setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(finish)), wait);
+    });
+  }, 250);
 }
 // ── METHOD 2: Payment Link (Flutterwave hosted checkout — Bank Transfer / Card / OPay) ─────
 // Deposit fees are calculated and charged entirely server-side (see server.js calcDepositFee)
@@ -4168,7 +4187,7 @@ async function revokeOtherSessions() {
 }
 
 
-/* ─── King Social Hub presence heartbeat ────────────────────────────────────────────────
+/* ─── Marvel Nums presence heartbeat ────────────────────────────────────────────────
  * Pings the server every 60 s while a page is open so that anyone reading the
  * site counts as "online" in the admin panel — including accounts created
  * before activity tracking existed, which otherwise never showed up there.
@@ -4179,8 +4198,8 @@ async function revokeOtherSessions() {
     if (!t || document.hidden) return;
     try {
       const r = await fetch('/api/heartbeat', { method: 'POST', headers: { Authorization: 'Bearer ' + t } });
-      console.log('[King Social Hub] heartbeat', r.status);
-    } catch (e) { console.warn('[King Social Hub] heartbeat failed', e.message); }
+      console.log('[Marvel Nums] heartbeat', r.status);
+    } catch (e) { console.warn('[Marvel Nums] heartbeat failed', e.message); }
   };
   ping();
   setInterval(ping, 60000);

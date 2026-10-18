@@ -176,7 +176,7 @@
     const host = pageHost();
     if (!host) return;
     if (!items.length) { host.innerHTML = ''; return; }
-    host.innerHTML = `<div class="klsann-page-head">From King Social Hub <span class="klsann-page-count">${items.filter(a => !a.read).length} unread</span></div>`
+    host.innerHTML = `<div class="klsann-page-head">From Marvel Nums <span class="klsann-page-count">${items.filter(a => !a.read).length} unread</span></div>`
       + items.map(a => `
       <article class="klsann-card ${a.read ? 'is-read' : 'is-unread'}" data-level="${esc(a.level || 'info')}" data-id="${esc(a.id)}">
         ${a.image ? `<img class="klsann-card-image" src="${esc(a.image)}" alt="${esc(a.title)}" loading="lazy">` : ''}

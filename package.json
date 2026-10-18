@@ -1,7 +1,7 @@
 {
   "name": "marvel-nums",
   "version": "1.0.0",
-  "description": "MARVINUMS \u2014 Digital Growth Hub",
+  "description": "MARVEL NUMS \u2014 Digital Growth Hub",
   "main": "server.js",
   "scripts": {
     "start": "node organize.js && node server.js",

@@ -1,4 +1,4 @@
-// ── King Social Hub engagement + account-security layer ─────────────────────────────────
+// ── Marvel Nums engagement + account-security layer ─────────────────────────────────
 // Everything in this file is additive; server.js mounts it once, near the end,
 // and keeps working unchanged if this module is removed.
 //
@@ -123,7 +123,7 @@ module.exports = function initEngagement(ctx) {
       const user = await User.findOne({ email });
       // Always answer the same way — never reveal whether an email is registered.
       const generic = {
-        message: `If ${email} has a King Social Hub account, a 6-digit reset code is on its way. It expires in ${CODE_TTL_MIN} minutes.`,
+        message: `If ${email} has a Marvel Nums account, a 6-digit reset code is on its way. It expires in ${CODE_TTL_MIN} minutes.`,
         spamNote: "Can't see it? Check your Spam / Junk / Promotions folder and mark it as \"Not spam\".",
         cooldownSeconds: CODE_RESEND_SEC
       };
@@ -152,16 +152,16 @@ module.exports = function initEngagement(ctx) {
         to: user.email,
         userId: user._id,
         category: 'reset',
-        subject: `${code} is your King Social Hub password reset code`,
+        subject: `${code} is your Marvel Nums password reset code`,
         content: {
-          title: 'Reset your King Social Hub password',
+          title: 'Reset your Marvel Nums password',
           preheader: `Your reset code is ${code} — it expires in ${CODE_TTL_MIN} minutes.`,
           greeting: `Hi ${user.name || 'there'},`,
           lines: [
-            'We received a request to reset the password on your King Social Hub account. Enter the code below on the login page to set a new password.'
+            'We received a request to reset the password on your Marvel Nums account. Enter the code below on the login page to set a new password.'
           ],
           code,
-          footNote: `This code expires in ${CODE_TTL_MIN} minutes and can only be used once. If you did not ask for a password reset you can safely ignore this email — your password stays the same.<br/><br/><b>Not in your inbox?</b> Check your Spam / Junk / Promotions folder and mark this message as "Not spam" so future King Social Hub emails arrive properly.`
+          footNote: `This code expires in ${CODE_TTL_MIN} minutes and can only be used once. If you did not ask for a password reset you can safely ignore this email — your password stays the same.<br/><br/><b>Not in your inbox?</b> Check your Spam / Junk / Promotions folder and mark this message as "Not spam" so future Marvel Nums emails arrive properly.`
         }
       });
       if (!result.sent) {
@@ -220,15 +220,15 @@ module.exports = function initEngagement(ctx) {
         to: user.email,
         userId: user._id,
         category: 'security',
-        subject: 'Your King Social Hub password was changed',
+        subject: 'Your Marvel Nums password was changed',
         content: {
           title: 'Your password was changed',
           greeting: `Hi ${user.name || 'there'},`,
           lines: [
-            'The password on your King Social Hub account was just reset, and every device that was signed in has been logged out.',
+            'The password on your Marvel Nums account was just reset, and every device that was signed in has been logged out.',
             'If this was not you, reply to this email immediately and change your password again.'
           ],
-          ctaText: 'Log in to King Social Hub',
+          ctaText: 'Log in to Marvel Nums',
           ctaUrl: `${siteUrl()}/login`
         }
       }).catch(() => {});
@@ -320,7 +320,7 @@ module.exports = function initEngagement(ctx) {
 
   // ══ 2. "WE MISS YOU" WIN-BACK EMAILS ══════════════════════════════════════
   async function runWinbackSweep(opts = {}) {
-    // Win-back ("we miss you") emails have been removed. King Social Hub only sends
+    // Win-back ("we miss you") emails have been removed. Marvel Nums only sends
     // password-reset and welcome (account created) emails now, so this sweep
     // is a no-op that is kept only so the admin panel keeps working.
     return { emailed: 0, paused: true, disabled: true, reason: 'Win-back emails are disabled' };
@@ -366,17 +366,17 @@ module.exports = function initEngagement(ctx) {
           userId: user._id,
           category: 'winback',
           unsubscribable: true,
-          subject: `We've missed you at King Social Hub, ${String(user.name || '').split(' ')[0] || 'friend'}`,
+          subject: `We've missed you at Marvel Nums, ${String(user.name || '').split(' ')[0] || 'friend'}`,
           content: {
             title: 'We really missed you 👋',
-            preheader: `A lot has changed on King Social Hub in the last ${daysAway} days — come and see.`,
+            preheader: `A lot has changed on Marvel Nums in the last ${daysAway} days — come and see.`,
             greeting: `Hi ${user.name || 'there'},`,
             lines: [
               `It has been about ${daysAway} days since you last stopped by, and the site is not the same place you left.`,
               'Fresh verified stock lands daily, delivery is instant to your Purchases page, deposits clear straight into your wallet, and there are now giveaways, games and a 4% referral commission waiting for you.',
               'Your account, balance and history are exactly where you left them.'
             ],
-            ctaText: 'See what is new on King Social Hub',
+            ctaText: 'See what is new on Marvel Nums',
             ctaUrl: `${siteUrl()}/marketplace`,
             footNote: 'If you would rather not get these occasional check-ins, just reply with "unsubscribe" and we will stop.'
           }

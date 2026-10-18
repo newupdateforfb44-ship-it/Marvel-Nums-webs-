@@ -1,7 +1,7 @@
 /**
  * public/js/money.js — one place that decides how money is shown
  * ─────────────────────────────────────────────────────────────────────────────
- * The King Social Hub ledger is denominated in naira. That is an accounting decision, not a
+ * The Marvel Nums ledger is denominated in naira. That is an accounting decision, not a
  * customer-facing one:
  *
  *   • Nigeria      → everything is shown and charged in naira (₦)

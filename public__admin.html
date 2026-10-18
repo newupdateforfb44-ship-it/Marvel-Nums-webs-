@@ -1527,7 +1527,7 @@ tr:hover td{background:rgba(255,255,255,.035)}
           <div style="font-size:.82rem;color:var(--t2);margin-bottom:12px">This is the number users contact for support. Used in all WhatsApp chat links (wa.me/...). Enter digits only — no +, spaces, or dashes.</div>
           <div class="form-row" style="margin-bottom:10px">
             <div class="fg">
-              <label>WhatsApp Contact Number <span style="color:var(--red)">*</span></label>
+              <label>Home Page WhatsApp Number <span style="color:var(--red)">*</span></label>
               <input type="text" id="slNumber" placeholder="e.g. 2349065518402" maxlength="15"
                 style="font-size:1.05rem;letter-spacing:1px"
                 oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
@@ -1538,6 +1538,23 @@ tr:hover td{background:rgba(255,255,255,.035)}
             <span id="slNumberPreview" style="font-size:.82rem;color:var(--t2)"></span>
           </div>
           <div id="slNumberFb" class="fb" style="margin-top:8px"></div>
+        </div>
+        <div style="background:var(--card2,#1a1a2e);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px">
+ <div style="font-weight:700;font-size:.95rem;margin-bottom:4px;color:var(--accent)"><svg class="icon i-phone" aria-hidden="true"><use href="#i-phone"/></svg> Terms &amp; Conditions Number</div>
+          <div style="font-size:.82rem;color:var(--t2);margin-bottom:12px">The WhatsApp number shown in the Contact section of the Terms &amp; Conditions page. You can set any number you like here (it is separate from the Home page number above). Leave it empty and press Save to use the Home page number instead. Digits only.</div>
+          <div class="form-row" style="margin-bottom:10px">
+            <div class="fg">
+              <label>Terms Page Number</label>
+              <input type="text" id="slTermsNumber" placeholder="e.g. 2349065518402 (empty = Home number)" maxlength="15"
+                style="font-size:1.05rem;letter-spacing:1px"
+                oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+ <button class="btn-primary" onclick="saveSiteLinksField('termsnumber')" style="min-width:160px"><svg class="icon i-save" aria-hidden="true"><use href="#i-save"/></svg> Save Terms Number</button>
+            <span id="slTermsNumberPreview" style="font-size:.82rem;color:var(--t2)"></span>
+          </div>
+          <div id="slTermsNumberFb" class="fb" style="margin-top:8px"></div>
         </div>
         <div style="background:var(--card2,#1a1a2e);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px">
  <div style="font-weight:700;font-size:.95rem;margin-bottom:4px;color:var(--accent)"><svg class="icon i-smartphone" aria-hidden="true"><use href="#i-smartphone"/></svg> Admin Contact Phone (Support Page)</div>
@@ -4954,6 +4971,10 @@ async function loadSiteLinksAdmin() {
     const grp = links.whatsappGroupLink || '';
     const chn = links.whatsappChannelLink || '';
     document.getElementById('slNumber').value = num;
+    const termsEl = document.getElementById('slTermsNumber');
+    if (termsEl) termsEl.value = links.termsNumber || '';
+    const prevTerms = document.getElementById('slTermsNumberPreview');
+    if (prevTerms) prevTerms.textContent = (links.termsNumber || num) ? ` wa.me/${links.termsNumber || num}` : '';
     document.getElementById('slGroupLink').value = grp;
     document.getElementById('slChannelLink').value = chn;
     // Admin Phone
@@ -4973,7 +4994,7 @@ async function loadSiteLinksAdmin() {
 }
 // Save a single field without requiring all three to be filled
 async function saveSiteLinksField(field) {
-  const fbIds = { number: 'slNumberFb', group: 'slGroupFb', channel: 'slChannelFb', adminphone: 'slAdminPhoneFb' };
+  const fbIds = { number: 'slNumberFb', group: 'slGroupFb', channel: 'slChannelFb', adminphone: 'slAdminPhoneFb', termsnumber: 'slTermsNumberFb' };
   const fb = document.getElementById(fbIds[field]);
   try {
     let payload = {};
@@ -4996,6 +5017,12 @@ async function saveSiteLinksField(field) {
       payload.whatsappChannelLink = val;
       const btn = document.getElementById('slChannelPreviewBtn');
       if (btn) { btn.href = val; btn.style.display = 'inline'; }
+    } else if (field === 'termsnumber') {
+      const val = document.getElementById('slTermsNumber').value.replace(/[^0-9]/g, '');
+      if (val && val.length < 10) return setFb(fb, ' Enter a valid number (digits only, min 10 digits) or leave empty', 'err');
+      payload.termsNumber = val;
+      const prev = document.getElementById('slTermsNumberPreview');
+      if (prev) prev.textContent = val ? ` wa.me/${val}` : ' (using the Home page number)';
     } else if (field === 'adminphone') {
       const val = document.getElementById('slAdminPhone').value.replace(/[^0-9]/g, '');
  if (!val || val.length < 10) return setFb(fb, ' Enter a valid number (digits only, min 10 digits)', 'err');
@@ -5008,6 +5035,7 @@ async function saveSiteLinksField(field) {
     const merged = {
       whatsappNumber:      current.whatsappNumber      || '',
       adminPhone:          current.adminPhone          || current.whatsappNumber || '',
+      termsNumber:         current.termsNumber         || '',
       whatsappGroupLink:   current.whatsappGroupLink   || '',
       whatsappChannelLink: current.whatsappChannelLink || '',
       ...payload

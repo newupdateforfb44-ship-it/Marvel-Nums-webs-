@@ -34,7 +34,7 @@
   }
   function notifyReply(row) {
     if (!row || document.visibilityState === 'visible' || !('Notification' in window)) return;
-    if (Notification.permission === 'granted') new Notification('King Social Hub Support replied', { body: (row.text || 'Sent an image').slice(0, 120) });
+    if (Notification.permission === 'granted') new Notification('Marvel Nums Support replied', { body: (row.text || 'Sent an image').slice(0, 120) });
   }
   async function load(initial) {
     if (loading) return; loading = true;
@@ -44,7 +44,7 @@
       const latestAdmin = [...rows].reverse().find(row => row.sender === 'admin');
       if (!initial && latestAdmin && lastAdminId && String(latestAdmin._id) !== lastAdminId) notifyReply(latestAdmin);
       if (latestAdmin) lastAdminId = String(latestAdmin._id);
-      log.innerHTML = rows.length ? rows.map(row => `<div class="live-support-msg ${row.sender}">${row.attachmentUrl ? `<a href="${esc(row.attachmentUrl)}" target="_blank" rel="noopener"><img src="${esc(row.attachmentUrl)}" alt="Support attachment" style="display:block;max-width:240px;width:100%;border-radius:8px;margin-bottom:${row.text?'7px':'0'}"/></a>` : ''}${esc(row.text)}<small style="display:block;opacity:.65;margin-top:4px">${esc(row.senderName || (row.sender === 'admin' ? 'King Social Hub Support' : 'You'))} · ${new Date(row.createdAt).toLocaleString()}</small></div>`).join('') : '<span style="color:var(--t2)">Send your first message. Our support team will reply here.</span>';
+      log.innerHTML = rows.length ? rows.map(row => `<div class="live-support-msg ${row.sender}">${row.attachmentUrl ? `<a href="${esc(row.attachmentUrl)}" target="_blank" rel="noopener"><img src="${esc(row.attachmentUrl)}" alt="Support attachment" style="display:block;max-width:240px;width:100%;border-radius:8px;margin-bottom:${row.text?'7px':'0'}"/></a>` : ''}${esc(row.text)}<small style="display:block;opacity:.65;margin-top:4px">${esc(row.senderName || (row.sender === 'admin' ? 'Marvel Nums Support' : 'You'))} · ${new Date(row.createdAt).toLocaleString()}</small></div>`).join('') : '<span style="color:var(--t2)">Send your first message. Our support team will reply here.</span>';
       log.scrollTop = log.scrollHeight; paintStatus(data.status);
     } catch (error) { if (window.showToast) showToast(error.message, 'error'); }
     finally { loading = false; }

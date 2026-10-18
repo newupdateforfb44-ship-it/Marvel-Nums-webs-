@@ -600,6 +600,7 @@ const siteLinksSchema = new mongoose.Schema({
  _id: { type: String, default: 'main' },
  whatsappNumber: { type: String, default: '2349065518402' }, // digits only, no + or spaces — used as wa.me/{number}
  adminPhone: { type: String, default: '2349065518402' }, // admin contact number shown on support/contact pages
+ termsNumber: { type: String, default: '' }, // number shown on the Terms & Conditions page (blank = use the main contact number)
  whatsappGroupLink: { type: String, default: 'https://chat.whatsapp.com/HBqJeik773M1pqEmIjfpXr' },
  whatsappChannelLink: { type: String, default: 'https://whatsapp.com/channel/0029Vb7ivq9HLHQcS4XgQu2Q' },
  // Telegram + support contact details are admin-editable (Admin → Site Links) and are
@@ -7799,7 +7800,7 @@ app.get('/api/public/site-links', async (req, res) => {
  const links = await getSiteLinks();
  const tgUser = String(links.telegramUsername || 'klslogs').replace(/^@/, '');
    const tgLink = links.telegramLink || ('https://t.me/' + tgUser);
-   res.json({ whatsappNumber: links.whatsappNumber, adminPhone: links.adminPhone || links.whatsappNumber, whatsappGroupLink: links.whatsappGroupLink, whatsappChannelLink: links.whatsappChannelLink, telegramUsername: tgUser, telegramLink: tgLink, telegramChannelLink: links.telegramChannelLink || '', telegramCommunityLink: links.telegramCommunityLink || '', whatsappChatLink: links.whatsappChatLink || ('https://wa.me/' + links.whatsappNumber), supportHours: links.supportHours || '' });
+   res.json({ whatsappNumber: links.whatsappNumber, termsNumber: links.termsNumber || '', adminPhone: links.adminPhone || links.whatsappNumber, whatsappGroupLink: links.whatsappGroupLink, whatsappChannelLink: links.whatsappChannelLink, telegramUsername: tgUser, telegramLink: tgLink, telegramChannelLink: links.telegramChannelLink || '', telegramCommunityLink: links.telegramCommunityLink || '', whatsappChatLink: links.whatsappChatLink || ('https://wa.me/' + links.whatsappNumber), supportHours: links.supportHours || '' });
  } catch (e) { res.status(500).json({ error: 'Failed to load site links' }); }
 });
 app.get('/api/admin/site-links', anyAdminAuth, async (req, res) => {
@@ -7807,7 +7808,7 @@ app.get('/api/admin/site-links', anyAdminAuth, async (req, res) => {
 });
 app.post('/api/admin/site-links', anyAdminAuth, async (req, res) => {
  try {
- const { whatsappNumber, adminPhone, whatsappGroupLink, whatsappChannelLink , telegramUsername, telegramLink, telegramChannelLink, telegramCommunityLink, whatsappChatLink, supportHours } = req.body;
+ const { whatsappNumber, adminPhone, termsNumber, whatsappGroupLink, whatsappChannelLink , telegramUsername, telegramLink, telegramChannelLink, telegramCommunityLink, whatsappChatLink, supportHours } = req.body;
  const update = { updatedAt: new Date() };
  if (whatsappNumber !== undefined) {
  const cleaned = String(whatsappNumber).replace(/[^\d]/g, '');
@@ -7819,6 +7820,12 @@ app.post('/api/admin/site-links', anyAdminAuth, async (req, res) => {
  const cleaned = String(adminPhone).replace(/[^\d]/g, '');
  if (cleaned.length < 10) return res.status(400).json({ error: 'Admin phone must be at least 10 digits' });
  update.adminPhone = cleaned;
+ }
+ if (termsNumber !== undefined) {
+ // blank clears it (the Terms page then falls back to the main contact number)
+ const cleaned = String(termsNumber).replace(/[^\d]/g, '');
+ if (cleaned && cleaned.length < 10) return res.status(400).json({ error: 'Terms number must be at least 10 digits (or leave it empty)' });
+ update.termsNumber = cleaned;
  }
  if (whatsappGroupLink !== undefined) {
  const link = String(whatsappGroupLink).trim();

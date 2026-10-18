@@ -1,5 +1,5 @@
 /**
- * public/js/i18n.js — King Social Hub multi-language layer
+ * public/js/i18n.js — Marvel Nums multi-language layer
  * ─────────────────────────────────────────────────────────────────────────────
  * Two ways to translate, both handled here:
  *

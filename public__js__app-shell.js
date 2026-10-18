@@ -1,5 +1,5 @@
 /* ────────────────────────────────────────────────────────────────────────────
-   King Social Hub App Shell (js)
+   Marvel Nums App Shell (js)
 
    Runs on every page. Responsibilities:
      1. Mark <body> as app-shell and remove the old slide-out drawer.
@@ -182,13 +182,13 @@
     wrap.innerHTML =
       '<div class="hm-top">' +
         '<span class="hm-ava" id="hmAva">' + esc(initial) + '</span>' +
-        '<span class="hm-hi">Hi, ' + esc(name) + '<small>Welcome back to King Social Hub</small></span>' +
+        '<span class="hm-hi">Hi, ' + esc(name) + '<small>Welcome back to Marvel Nums</small></span>' +
         '<a class="hm-ico-btn" href="/support" aria-label="Support">' + ico('i-headset') + '</a>' +
         '<a class="hm-ico-btn" href="/notifications" aria-label="Notifications">' + ico('i-bell') +
           '<span class="hm-dot" id="hmNotifDot" style="display:none">0</span></a>' +
       '</div>' +
       '<a class="hm-ticker" id="hmTicker" href="/notifications">' + ico('i-bell') +
-        '<span id="hmTickerText">King Social Hub is fully operational — deposits and orders are running normally</span>' + ico('i-arrow-right') + '</a>' +
+        '<span id="hmTickerText">Marvel Nums is fully operational — deposits and orders are running normally</span>' + ico('i-arrow-right') + '</a>' +
       '<div>' +
         '<div class="hm-bal">' +
           '<div class="hm-bal-row">' +

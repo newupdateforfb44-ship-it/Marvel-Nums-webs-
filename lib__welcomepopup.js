@@ -9,15 +9,15 @@
 // the server - the browser-side checks are only for convenience.
 
 const DEFAULTS = Object.freeze({
-  enabled: false,           // switched on by the admin once a channel link is saved
+  enabled: true,            // on by default: shows to every visitor (the admin can switch it off)
   channelUrl: '',
-  heading: 'Welcome to King Social Hub',
+  heading: 'Welcome to Marvel Nums',
   subtitle: "We're happy to have you here! 🎉",
-  description: 'King Social Hub is your trusted marketplace for premium digital products, social media services and more.',
-  additionalMessage: 'Stay connected with us so you never miss important updates, new services and special offers.',
+  description: 'Thank you for visiting Marvel Nums, your trusted marketplace for premium digital products, social media services and more.',
+  additionalMessage: 'Please join our WhatsApp channel for more updates, new services and special offers.',
   whatsappButtonText: 'Join Our WhatsApp Channel',
   dismissButtonText: 'Maybe Later',
-  displayFrequency: 'first',
+  displayFrequency: 'every',
   displayDelay: 1000,
   eligiblePages: ['all']
 });
@@ -131,6 +131,15 @@ function register(app, deps) {
   app.get('/api/welcome-popup', async (req, res) => {
     try {
       const s = await load();
+      // No channel link saved in the popup settings? Use the WhatsApp channel link from Admin -> Site Links.
+      if (!s.channelUrl) {
+        try {
+          const SL = mongoose.models.SiteLinks;
+          const sl = SL ? await SL.findById('main').lean() : null;
+          const u = sl ? normaliseChannelUrl(sl.whatsappChannelLink) : '';
+          if (u) s.channelUrl = u;
+        } catch (e) { /* keep the button disabled if the lookup fails */ }
+      }
       res.set('Cache-Control', 'public, max-age=30');
       res.json({
         enabled: !!s.enabled,

@@ -19,8 +19,8 @@ const env = process.env;
 
 const BRAND = {
   // Names shown across the site, emails and browser tab
-  name:      env.BRAND_NAME      || 'King Social Hub',                       // short name, e.g. "King Social Hub"
-  fullName:  env.BRAND_FULL_NAME || 'King Social Hub', // long name for the homepage title
+  name:      env.BRAND_NAME      || 'Marvel Nums',                       // short name, e.g. "Marvel Nums"
+  fullName:  env.BRAND_FULL_NAME || 'Marvel Nums', // long name for the homepage title
   tagline:   env.BRAND_TAGLINE   ||
     "Nigeria's marketplace for verified social media accounts and digital tools — secure wallet, instant delivery, real reviews.",
 

@@ -26,7 +26,7 @@
     let r;
     try {
       r = await fetch(url, { headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + T() } });
-    } catch (e) { throw new Error('No connection to King Social Hub. Check your internet and try again.'); }
+    } catch (e) { throw new Error('No connection to Marvel Nums. Check your internet and try again.'); }
     const raw = await r.text();
     let d = {};
     if (raw) { try { d = JSON.parse(raw); } catch { d = {}; } }

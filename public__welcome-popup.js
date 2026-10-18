@@ -1,4 +1,4 @@
-/* King Social Hub - welcome popup (WhatsApp channel promo)
+/* Marvel Nums - welcome popup (WhatsApp channel promo)
  *
  * Settings come from GET /api/welcome-popup and are edited in Admin -> Welcome Popup.
  * Styled only with the site's own CSS variables (--gold, --card, --border, --t1 ...), so it
@@ -104,8 +104,12 @@
       '.kshwp-preview-tag{position:absolute;top:14px;left:16px;z-index:2;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--gold,#0788e8)}',
       '.kshwp-dialog :focus-visible{outline:2px solid var(--gold,#0788e8);outline-offset:2px}',
       '@keyframes kshwp-pop{from{transform:scale(.6) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}',
+      '@keyframes kshwp-glow{0%,100%{box-shadow:0 10px 26px -6px var(--gold,#0788e8)}50%{box-shadow:0 10px 38px 2px var(--gold,#0788e8)}}',
+      '@keyframes kshwp-shine{0%{background-position:0% 50%}100%{background-position:200% 50%}}',
+      '.kshwp-icon{animation:kshwp-pop .5s .12s cubic-bezier(.2,.9,.3,1.3) both,kshwp-glow 2.6s 0.7s ease-in-out infinite!important}',
+      '.kshwp-title .kshwp-brand{background:linear-gradient(95deg,#25c9ff,#1769ff,#ff3e87,#25c9ff);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:kshwp-shine 3.4s linear infinite}',
       '@media (max-width:420px){.kshwp-body{padding:30px 18px 20px}.kshwp-title{font-size:21px}}',
-      '@media (prefers-reduced-motion:reduce){.kshwp-overlay,.kshwp-dialog,.kshwp-btn,.kshwp-close{transition:none!important}.kshwp-icon{animation:none!important}}'
+      '@media (prefers-reduced-motion:reduce){.kshwp-overlay,.kshwp-dialog,.kshwp-btn,.kshwp-close{transition:none!important}.kshwp-icon,.kshwp-title .kshwp-brand{animation:none!important}}'
     ].join('');
     var st = document.createElement('style');
     st.id = 'kshwp-style';
@@ -124,12 +128,12 @@
     return n;
   }
 
-  // "King Social Hub" inside the heading is shown in the brand colour; everything is plain text.
+  // "Marvel Nums" inside the heading is shown in the brand colour; everything is plain text.
   function fillHeading(h, text) {
-    var parts = String(text).split(/(king social hub)/i);
+    var parts = String(text).split(/(marvel nums)/i);
     parts.forEach(function (part) {
       if (!part) return;
-      if (/^king social hub$/i.test(part)) h.appendChild(el('span', 'kshwp-brand', part));
+      if (/^marvel nums$/i.test(part)) h.appendChild(el('span', 'kshwp-brand', part));
       else h.appendChild(document.createTextNode(part));
     });
   }

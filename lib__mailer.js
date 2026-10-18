@@ -1,4 +1,4 @@
-// ── King Social Hub transactional mailer (Resend only) ──────────────────────────────────
+// ── Marvel Nums transactional mailer (Resend only) ──────────────────────────────────
 // ONE provider, ONE API key: Resend (RESEND_API_KEY).
 //
 // The free Resend plan allows 100 emails per day. That daily budget is split
@@ -23,7 +23,7 @@
 //   • the From domain must be SPF/DKIM/DMARC-verified inside Resend
 const axios = require('axios');
 
-const BRAND = process.env.MAIL_BRAND_NAME || 'King Social Hub';
+const BRAND = process.env.MAIL_BRAND_NAME || 'Marvel Nums';
 const FROM_EMAIL = process.env.MAIL_FROM_EMAIL || 'noreply@klslogs.com';
 const REPLY_TO = process.env.MAIL_REPLY_TO || process.env.SUPPORT_EMAIL || FROM_EMAIL;
 const SITE_URL = (process.env.SITE_URL || 'https://klslogs.com').replace(/\/$/, '');
@@ -106,7 +106,7 @@ const DAILY_LIMIT = Math.max(1, Number(process.env.RESEND_DAILY_LIMIT || 100));
 const RESET_RESERVE = Math.min(DAILY_LIMIT - 1, Math.max(0, Number(process.env.RESEND_RESET_RESERVE || 10)));
 const GENERAL_LIMIT = DAILY_LIMIT - RESET_RESERVE; // 90 by default
 
-// ── Which emails King Social Hub is allowed to send at all ──────────────────────────────
+// ── Which emails Marvel Nums is allowed to send at all ──────────────────────────────
 // Only two emails go out to customers now:
 //   • password reset / security codes   (category: reset)
 //   • the welcome mail sent when an account is created (category: welcome)

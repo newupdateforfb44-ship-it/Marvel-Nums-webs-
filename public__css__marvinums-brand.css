@@ -1,9 +1,5 @@
-/* ── Smooth page-in (added): every page fades in softly instead of snapping on. Pairs with js/marvinums-brand.js ── */
-html{animation:mzHtmlIn .4s ease-out both}
-@keyframes mzHtmlIn{from{opacity:0}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){html{animation:none}}
 
-/* MARVINUMS global visual layer — presentation only; preserves page structure and functionality. */
+/* MARVEL NUMS global visual layer — presentation only; preserves page structure and functionality. */
 :root{
  --mz-cyan:#16c8ff; --mz-blue:#1769ff; --mz-pink:#ff1768; --mz-ink:#050817;
  --mz-glass:rgba(5,12,32,.78); --mz-edge:rgba(38,177,255,.28);
@@ -125,3 +121,45 @@ html:root[data-theme]{
 html[data-theme] body.mz-bg-speed{--mz-ov:linear-gradient(180deg,rgba(2,6,24,.46),rgba(2,6,24,.76))}
 html[data-theme] body.mz-bg-phone{--mz-ov:linear-gradient(180deg,rgba(2,6,24,.36),rgba(2,6,24,.66))}
 .page-hero h1,.page-hero p,.ph-sub,.hub-back,.boost-hub .lead,.boost-hub h1{text-shadow:0 1px 10px rgba(2,6,24,.9)}
+
+/* ══ Moving "Marvel Nums" name across the whole background ═════════════════ */
+#mn-drift{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;user-select:none;-webkit-user-select:none}
+#mn-drift .mn-row{position:absolute;left:0;white-space:nowrap;display:flex;width:max-content;
+ font-family:"Sora","Plus Jakarta Sans",system-ui,sans-serif;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+ color:transparent;-webkit-text-stroke:1px rgba(120,205,255,.30);will-change:transform;
+ animation:mn-slide var(--mn-dur,60s) linear infinite;animation-direction:var(--mn-dir,normal)}
+#mn-drift .mn-row span{padding-right:.9em;flex:none}
+#mn-drift .mn-row.mn-fill span:nth-child(3n){color:rgba(37,201,255,.10);-webkit-text-stroke-color:transparent}
+#mn-drift .mn-row.mn-pink span:nth-child(2n){-webkit-text-stroke-color:rgba(255,62,135,.34)}
+@keyframes mn-slide{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+#mn-drift .mn-float{position:absolute;font-family:"Sora",system-ui,sans-serif;font-weight:800;white-space:nowrap;letter-spacing:.08em;
+ color:rgba(120,205,255,.16);text-shadow:0 0 24px rgba(23,105,255,.35);animation:mn-bob var(--mn-dur,14s) ease-in-out infinite;animation-delay:var(--mn-del,0s)}
+@keyframes mn-bob{0%,100%{transform:translate3d(0,0,0) rotate(var(--mn-rot,-8deg))}50%{transform:translate3d(24px,-26px,0) rotate(calc(var(--mn-rot,-8deg) + 5deg))}}
+
+/* ══ Feature cards: transparent, only the icon + name ═════════════════════ */
+.why-card,.kls-what-card,.rs-item{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.why-card,.kls-what-card{display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:18px 10px!important}
+.why-card p,.kls-what-card p,.kls-what-card .kls-go{display:none!important}
+.why-card h3,.kls-what-card h3,.rs-item span{color:#eaf6ff!important;font-weight:800!important;text-shadow:0 1px 12px rgba(2,6,24,.9)}
+.why-card .why-icon,.rs-item .rs-ic,.kls-what-card .kls-what-ico{
+ width:46px!important;height:46px!important;margin:0 auto!important;display:flex;align-items:center;justify-content:center;
+ color:#25c9ff!important;background:transparent!important;border:0!important;box-shadow:none!important;
+ filter:drop-shadow(0 0 10px rgba(37,201,255,.55));animation:mn-icon-float 4.2s ease-in-out infinite}
+.kls-what-card .kls-what-ico svg{width:40px;height:40px}
+.kls-what-card:hover,.why-card:hover{transform:translateY(-4px) scale(1.04)!important}
+.kls-what-card,.why-card,.rs-item{transition:transform .3s cubic-bezier(.2,.8,.3,1.2)}
+.rs-item{display:flex;flex-direction:column!important;align-items:center;text-align:center;gap:8px}
+@keyframes mn-icon-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* ══ Appear animation for the feature cards (set up by marvinums-brand.js) ═ */
+.mn-reveal{opacity:0;transform:translateY(34px) scale(.86);filter:blur(6px)}
+.mn-reveal.mn-in{animation:mn-pop .75s cubic-bezier(.2,.9,.3,1.25) forwards;animation-delay:var(--mn-d,0s)}
+.mn-reveal.mn-from-left{transform:translateX(-40px) scale(.86)}
+.mn-reveal.mn-from-right{transform:translateX(40px) scale(.86)}
+@keyframes mn-pop{0%{opacity:0;filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none;filter:blur(0)}}
+@media(prefers-reduced-motion:reduce){
+ #mn-drift .mn-row,#mn-drift .mn-float,.why-icon,.rs-ic,.kls-what-ico{animation:none!important}
+ .mn-reveal{opacity:1!important;transform:none!important;filter:none!important}
+}
