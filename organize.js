@@ -94,7 +94,7 @@ const MANIFEST = {
  "public/css/numbers-redesign.css": "b23842f77de63135ba78a155e1bc83103b2ce94d2303a2cd57c755b4bf903f09",
  "public/css/pro-polish.css": "85bb19689fd476e328d2d67e61a4b2d5c31f39b3a99594eaf012240e21e6c105",
  "public/css/redesign.css": "17e127e35fd349a7199eff0bd5488e2583534efb468f3b01da2230af147e7c0f",
- "public/dashboard.html": "754ef936c2e880931aede34fa7dbe262e2afcd55d068f705ca03f133b0e39fed",
+ "public/dashboard.html": "845ccb25ec87452d0e27d57abac30e2858541f46b244dad969e7d6f45667e3ab",
  "public/data-bill.html": "4873be5be0873e1c41e570fb263db14774052ca21450847b38d8db00b27da2e4",
  "public/deposit.html": "3a5b929adaaeddb44704b14ad99a6faaeddb8debf129b4993841c97aa63a68ff",
  "public/favicon.ico.HEIC": "edcd84a81353f3cc38f32462f0757e654af9d37ca1f791af65c8a6823d2f9624",
