@@ -24,8 +24,15 @@
   // ── tiny safe storage helpers ──────────────────────────────────────────────
   function lsGet() { try { var v = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
   function lsSet(o) { try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); } catch (e) { /* private mode: ignore */ } }
-  function sessionSeen() { try { return sessionStorage.getItem(SESSION_KEY) === '1'; } catch (e) { return memorySession; } }
-  function markSession() { memorySession = true; try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) { /* ignore */ } }
+  // The banner is shown ONCE per visit: only when a visitor first enters the site. Moving to other
+  // pages afterwards never shows it again. (If the browser blocks sessionStorage, a 30-minute
+  // marker in localStorage is used so a page change still does not bring it back.)
+  function sessionSeen() {
+    if (memorySession) return true;
+    try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+    catch (e) { try { var t = Number(localStorage.getItem(SESSION_KEY + '_t')) || 0; return Date.now() - t < 30 * 60 * 1000; } catch (e2) { return false; } }
+  }
+  function markSession() { memorySession = true; try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) { try { localStorage.setItem(SESSION_KEY + '_t', String(Date.now())); } catch (e2) { /* ignore */ } } }
 
   // ── page eligibility ───────────────────────────────────────────────────────
   function pageKey() {
@@ -238,12 +245,16 @@
       if (window.KSH_NO_WELCOME_AUTOSTART) return;                                  // admin panel sets this: preview only, never auto-open
       if (/admin/.test((location.pathname || '').split('/')[1] || '')) return;
       if (!pageKey()) return;
+      if (sessionSeen()) return;                                                   // already welcomed during this visit
       fetchConfig().then(function (cfg) {
-        if (!cfg || !cfg.enabled || !eligible(cfg) || !shouldShow(cfg)) return;
+        if (!cfg || !cfg.enabled) return;
+        if (sessionSeen()) return;
+        cfg.displayFrequency = 'every';                                            // once per visit, whatever an older saved setting says
         var delay = Math.max(0, Math.min(10000, Number(cfg.displayDelay) || 0));
         setTimeout(function () {
-          // Re-check at the moment of showing: the visitor may have moved to a login page, or another tab may have shown it.
-          if (!eligible(cfg) || !shouldShow(cfg)) return;
+          // Re-check at the moment of showing: another tab/page may have shown it meanwhile.
+          if (sessionSeen() || !pageKey()) return;
+          markSession();                                                           // remembered from the moment it appears
           open(cfg, {});
         }, delay);
       });
