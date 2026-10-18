@@ -65,7 +65,6 @@ const PAGE_SEO_TEMPLATE = {
   '/login':        { title: 'Login — {brand}', description: 'Log in to your {brand} account.' },
   '/register':     { title: 'Create an Account — {brand}', description: 'Sign up for {brand} to buy verified accounts, tools, and more.' },
   '/terms':        { title: 'Terms & Conditions — {brand}', description: '{brand}\u2019s terms and conditions of use.' },
-  '/api-docs':     { title: 'Developer API Documentation — {brand}', description: 'Integrate with the {brand} marketplace API — check balance, browse listings, and buy items via REST endpoints.' },
   '/groups':       { title: 'Community Groups — {brand}', description: 'Chat with the {brand} community.' },
   '/messages':     { title: 'Messages — {brand}', description: 'Your direct messages on {brand}.' },
   '/referrals':    { title: 'Referral Program | {brand}', description: 'Invite friends to {brand} and earn commission on every purchase they make.' },

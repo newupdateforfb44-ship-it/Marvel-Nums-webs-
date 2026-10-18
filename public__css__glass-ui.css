@@ -1,0 +1,156 @@
+/* glass-ui.css — Marvel Nums glassmorphism layer (loaded AFTER the other stylesheets).
+ * 1) One floating pill bottom navigation, identical on every page (.bottom-tabbar and the
+ *    dashboard's .dsh-bottom-nav).
+ * 2) Dashboard / homepage: big group cards are dissolved; every feature is its own small,
+ *    transparent, rounded box so the background artwork shows through and between them.
+ * Colours come from the site's own variables; light and dark themes are both handled.
+ */
+:root{
+  --glass-bg: rgba(12,18,34,.46);
+  --glass-bg-hover: rgba(18,28,52,.58);
+  --glass-border: rgba(56,170,245,.24);
+  --glass-border-hover: rgba(86,200,255,.60);
+  --glass-glow: 0 0 0 1px rgba(7,136,232,.05), 0 8px 22px -12px rgba(7,136,232,.55);
+  --glass-glow-hover: 0 0 0 1px rgba(86,200,255,.18), 0 10px 26px -10px rgba(40,190,255,.65);
+  --pill-bg: rgba(10,16,30,.62);
+  --pill-border: rgba(56,170,245,.26);
+  --pill-active-bg: rgba(7,136,232,.20);
+  --pill-active-fg: #6fd0ff;
+  --pill-idle-fg: rgba(214,224,245,.62);
+}
+html[data-theme="light"]{
+  --glass-bg: rgba(255,255,255,.55);
+  --glass-bg-hover: rgba(255,255,255,.75);
+  --glass-border: rgba(10,111,208,.20);
+  --glass-border-hover: rgba(10,111,208,.50);
+  --glass-glow: 0 6px 18px -12px rgba(10,111,208,.45);
+  --glass-glow-hover: 0 10px 24px -10px rgba(10,111,208,.55);
+  --pill-bg: rgba(255,255,255,.70);
+  --pill-border: rgba(10,111,208,.22);
+  --pill-active-bg: rgba(10,111,208,.14);
+  --pill-active-fg: #0a6fd0;
+  --pill-idle-fg: rgba(40,50,80,.62);
+}
+
+/* ───────────── 1. PILL BOTTOM NAVIGATION (same on every page) ───────────── */
+.bottom-tabbar,
+.dsh-bottom-nav{
+  position:fixed !important;
+  left:50% !important; right:auto !important;
+  transform:translateX(-50%) !important;
+  bottom:calc(10px + env(safe-area-inset-bottom,0px)) !important;
+  width:92% !important; max-width:480px !important;
+  display:flex !important; align-items:stretch; gap:2px;
+  padding:6px !important;
+  background:var(--pill-bg) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.3) !important;
+  backdrop-filter:blur(18px) saturate(1.3) !important;
+  border:1px solid var(--pill-border) !important;
+  border-radius:999px !important;
+  box-shadow:0 12px 34px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.05) !important;
+  z-index:250;
+}
+.bt-item,
+.dsh-nav-item{
+  flex:1; min-width:0; min-height:48px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  padding:6px 2px !important;
+  border:0; background:transparent; border-radius:999px !important;
+  color:var(--pill-idle-fg); font-size:10.5px; font-weight:700; line-height:1.1; font-family:inherit;
+  transition:background .18s, color .18s, box-shadow .18s;
+}
+.bt-item .bt-label,
+.dsh-nav-item{white-space:nowrap}
+.bt-item .bt-icon{font-size:22px;line-height:1;display:inline-flex}
+.bt-item svg,
+.dsh-nav-item svg{width:22px;height:22px;stroke:currentColor}
+.bt-item.active,
+.dsh-nav-item.active{
+  color:var(--pill-active-fg) !important;
+  background:var(--pill-active-bg) !important;
+  box-shadow:inset 0 0 0 1px rgba(86,200,255,.28), 0 0 16px -4px rgba(40,190,255,.55);
+}
+.dsh-nav-item.active svg{stroke:var(--pill-active-fg) !important}
+.dsh-nav-dot{border-color:transparent !important}
+/* room so the floating pill never covers the last row of content */
+.dsh-shell{padding-bottom:104px !important}
+body:has(.bottom-tabbar){padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+
+/* ───────────── 2. DASHBOARD / HOMEPAGE: separate transparent boxes ───────────── */
+/* let the background artwork show behind and between boxes */
+.dsh-shell{background:transparent !important}
+.dsh-header{
+  background:var(--glass-bg) !important;
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--glass-border) !important;
+}
+/* the big group cards become plain, borderless wrappers (title + free-standing boxes) */
+.dsh-card{
+  background:transparent !important; border:0 !important; box-shadow:none !important;
+  overflow:visible !important; padding:0;
+}
+.dsh-card-head{padding:2px 4px 10px !important}
+.dsh-card-title{letter-spacing:.2px}
+
+/* every individual feature = its own compact glass box */
+.dsh-svc-item,
+.dsh-stat-cell,
+.dsh-contact-item,
+.dsh-activity-row,
+.dsh-alert,
+.dsh-action-btn{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:16px !important;
+  box-shadow:var(--glass-glow) !important;
+  -webkit-backdrop-filter:blur(10px) saturate(1.2); backdrop-filter:blur(10px) saturate(1.2);
+  transition:background .18s, border-color .18s, box-shadow .18s, transform .18s;
+}
+.dsh-svc-item:hover,.dsh-svc-item:focus-visible,
+.dsh-contact-item:hover,.dsh-action-btn:hover{
+  background:var(--glass-bg-hover) !important;
+  border-color:var(--glass-border-hover) !important;
+  box-shadow:var(--glass-glow-hover) !important;
+  transform:translateY(-1px);
+}
+/* grids: real gaps so the artwork is visible between the boxes */
+.dsh-services-grid{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:10px !important;padding:0 !important}
+.dsh-stats-grid{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:10px !important;padding:0 !important}
+.dsh-contact-grid{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important;padding:0 !important}
+.dsh-stat-cell{padding:12px 6px !important}
+.dsh-svc-item{padding:12px 6px !important}
+.dsh-contact-item{padding:10px !important}
+/* activity list: one box per row with spacing instead of one long divided card */
+#dshActivity{display:flex;flex-direction:column;gap:8px}
+.dsh-activity-row{padding:10px 12px !important}
+.dsh-empty{
+  background:var(--glass-bg);border:1px dashed var(--glass-border);border-radius:16px;
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+}
+@media (max-width:380px){
+  .dsh-services-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:8px !important}
+  .dsh-stats-grid{gap:8px !important}
+}
+/* promo strip + balance card keep their gradient but follow the same rounded look */
+.dsh-promo{border:1px solid rgba(255,255,255,.14);box-shadow:0 10px 26px -14px rgba(7,136,232,.7)}
+
+/* ───────────── 3. LANDING PAGE (index.html): same separate-box language ───────────── */
+.hero-stats .hstat,
+.ls-card,
+.wo-card,
+.why-card,
+.kls-what-card,
+.trust-pill,
+.hlink{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:16px;
+  box-shadow:var(--glass-glow);
+  -webkit-backdrop-filter:blur(10px) saturate(1.2); backdrop-filter:blur(10px) saturate(1.2);
+}
+.trust-pill,.hlink{border-radius:999px}
+.hero-stats{gap:10px !important}
+.hero-stats .hstat{padding:10px 6px}
+.wo-card:hover,.why-card:hover,.kls-what-card:hover,.hlink:hover{
+  background:var(--glass-bg-hover) !important;border-color:var(--glass-border-hover) !important;box-shadow:var(--glass-glow-hover);
+}

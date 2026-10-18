@@ -19,7 +19,7 @@ const PAGE_TO_PATH = {
   home: '/', market: '/marketplace', market2: '/marketplace2', market3: '/marketplace3', tools: '/tools', deposit: '/deposit', wallet: '/wallet',
   purchases: '/purchases', transactions: '/transactions', support: '/support',
   settings: '/settings', login: '/login', register: '/register', terms: '/terms',
-  apidocs: '/api-docs', games: '/games', groups: '/groups', dm: '/messages', referrals: '/referrals',
+  games: '/games', groups: '/groups', dm: '/messages', referrals: '/referrals',
   notifications: '/notifications', numberhistory: '/number-history', orderstatus: '/order-status',
   // Standalone pages that ship their own HTML file. These MUST be listed here, otherwise
   // pageForPath() returns null, the router falls back to 'home', #page-home does not exist
@@ -1094,7 +1094,6 @@ function showPageReal(p, opts) {
     dm:           () => switchChatMode('dm'),
     games:        initGames,
     settings:     initSettings,
-    apidocs:      fillApiBaseUrl,
   };
   const loader = pageLoaders[p];
   // Await the page's own loader (if it returns a promise) so the bar finishes exactly when the
@@ -1375,7 +1374,6 @@ function initSettings() {
   // Phone field
   const phoneEl = document.getElementById('settingsPhone');
   if (phoneEl) phoneEl.value = currentUser.contactPhone || '';
-  loadApiKeySection();
 }
 async function updateProfile() {
   const name=v('settingsName'), email=v('settingsEmail');
@@ -1424,79 +1422,6 @@ async function setPassword() {
 }
 // ── API KEY MANAGEMENT ────────────────────────────────────────
 // ── API DOCS PAGE ────────────────────────────────────────────
-function switchLangTab(btn, panelId) {
-  const group = btn.closest('.api-doc-section');
-  group.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
-  group.querySelectorAll('.lang-panel').forEach(p => p.style.display = 'none');
-  btn.classList.add('active');
-  document.getElementById(panelId).style.display = 'block';
-}
-function fillApiBaseUrl() {
-  const el = document.getElementById('apiBaseUrlBlock');
-  if (el) el.textContent = window.location.origin + '/api/v1';
-}
-async function loadApiKeySection() {
-  const box = document.getElementById('apiKeySection');
-  try {
-    const d = await req('/api/user/api-key','GET',null,true);
-    if (!d.hasSecret) {
-      box.innerHTML = `
-        <p class="mgid-hint" style="margin:0 0 14px">Generate a personal API key to connect Marvel Nums to your own scripts or third-party apps — check your balance, list items, and buy programmatically.</p>
-        <button class="btn-gold" onclick="generateApiKey()"><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg> Generate API Key</button>
-        <div id="apiKeyFeedback" class="form-feedback"></div>
-      `;
-    } else {
-      box.innerHTML = `
-        <div class="api-key-box">
-          <div class="api-key-row">
-            <span class="api-key-label">API Key</span>
-            <span class="api-key-value" id="apiKeyDisplay">${esc(d.apiKey)}</span>
-            <button class="api-key-copy" onclick="copyText('apiKeyDisplay',this)">Copy</button>
-          </div>
-        </div>
-        <p class="mgid-hint" style="margin:0 0 10px">Created ${d.createdAt?new Date(d.createdAt).toLocaleDateString('en-NG'):'—'} ${d.lastUsedAt?'· Last used '+new Date(d.lastUsedAt).toLocaleString('en-NG'):'· Never used yet'}</p>
-        <div class="api-docs-block">GET  /api/v1/me
-GET  /api/v1/balance
-GET  /api/v1/purchases
-GET  /api/v1/listings
-GET  /api/v1/listings/:id
-POST /api/v1/buy/:id
-Headers required on every request:
-X-API-Key: your_api_key
-X-API-Secret: your_api_secret</div>
-        <button class="btn-del" style="margin-top:14px" onclick="revokeApiKey()"><svg class="icon i-ban" aria-hidden="true"><use href="#i-ban"/></svg> Revoke Key</button>
-        <div id="apiKeyFeedback" class="form-feedback"></div>
-      `;
-    }
-  } catch(e) { box.innerHTML = `<p style="color:var(--red)">${e.message}</p>`; }
-}
-async function generateApiKey() {
-  const fb = document.getElementById('apiKeyFeedback');
-  try {
-    const d = await req('/api/user/api-key/generate','POST',{},true);
-    document.getElementById('apiKeySection').innerHTML = `
-      <div class="api-secret-warning"><svg class="icon i-alert-triangle" aria-hidden="true"><use href="#i-alert-triangle"/></svg> Save your secret now — for your security it will never be shown again after you leave this page.</div>
-      <div class="api-key-box">
-        <div class="api-key-row">
-          <span class="api-key-label">API Key</span>
-          <span class="api-key-value" id="apiKeyDisplay">${esc(d.apiKey)}</span>
-          <button class="api-key-copy" onclick="copyText('apiKeyDisplay',this)">Copy</button>
-        </div>
-        <div class="api-key-row">
-          <span class="api-key-label">Secret</span>
-          <span class="api-key-value" id="apiSecretDisplay">${esc(d.apiSecret)}</span>
-          <button class="api-key-copy" onclick="copyText('apiSecretDisplay',this)">Copy</button>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="loadApiKeySection()">Done — I've saved it</button>
-    `;
-  } catch(e) { setFb(fb,e.message,'err'); }
-}
-async function revokeApiKey() {
-  if (!await kslConfirm('Revoke your API key? Any scripts using it will stop working immediately.')) return;
-  try { await req('/api/user/api-key/revoke','POST',{},true); loadApiKeySection(); showToast('API key revoked'); }
-  catch(e) { showToast(e.message,'err'); }
-}
 // ── HOME ───────────────────────────────────────────────────────
 async function initHome() {
   try {
@@ -2378,49 +2303,6 @@ function renderTxnList() {
         </div>
       </div>`;
   }).join('')}</div>`;
-}
-function downloadApiDocs() {
-  const base = document.getElementById('apiBaseUrlBlock')?.textContent.trim() || 'https://your-site.example.com/api/v1';
-  const text = `Marvel Nums API DOCUMENTATION
-======================
-GETTING STARTED
-Generate a personal API Key + API Secret from Settings API Access.
-All endpoints are scoped to your own account only.
-AUTHENTICATION
-Every request must include these headers:
-  X-API-Key: your_api_key
-  X-API-Secret: your_api_secret
-BASE URL
-${base}
-ENDPOINTS
-  GET   /me            Your account info (name, email, balance, Game ID)
-  GET   /balance        Your current wallet balance
-  GET   /purchases      Your full purchase history
-  GET   /listings       All available logs/tools (?type=tool or ?type=log to filter)
-  GET   /listings/:id   Details of one specific listing
-  POST  /buy/:id        Purchase a listing using your wallet balance
-EXAMPLE — Check your balance (cURL)
-curl ${base}/balance \\
-  -H "X-API-Key: your_api_key" \\
-  -H "X-API-Secret: your_api_secret"
-EXAMPLE — Buy an item (cURL)
-curl -X POST ${base}/buy/LISTING_ID_HERE \\
-  -H "X-API-Key: your_api_key" \\
-  -H "X-API-Secret: your_api_secret"
-Note: no platform fee — you're charged exactly the item's listed price via
-the API, deducted from your wallet balance the same way a marketplace
-purchase would be.
-ERRORS
-  401  Missing or invalid API key/secret
-  403  Account restricted
-  404  Listing not found or no longer available
-  400  Insufficient balance, sold out, or invalid request
-`;
-  const blob = new Blob([text], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Marvel Nums-API-Docs.txt';
-  a.click();
 }
 function toggleFaq(btn) {
   const item = btn.closest('.faq-item');

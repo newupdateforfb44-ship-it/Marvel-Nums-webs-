@@ -57,27 +57,24 @@ const MANIFEST = {
  "lib/minipdf.js": "a40d09e5d238c36077301c9092248dbb568d554d751b383f4a26fc625c50d27d",
  "lib/platform.js": "66dae8224c1035cbbeec50233be3c2e61a323648d59edf0d56b1c5945a911096",
  "lib/restock-notify.js": "aca5a6ea0dca960d3414af762816b5387da19a86850585b23c10deb9d743f2e1",
- "lib/server.js": "d0c59d4d085cde4cef94d294090e66309417030efda57a76dd87504d7a17e44b",
- "lib/server2.js": "de0c5166282ad85110abd01580ff7a6d89930a3632df32687e108b08bd403b60",
  "lib/settings.js": "e742a3d3db8b578f0afd0f6d5eb264a572ef189fbe452808a7b6705e848453b6",
  "lib/welcomepopup.js": "434dae2616e7dcd3eaca24e2e03196aade0e983f6373a20103768cbc4f19d9ae",
  "package-lock.json": "fdc80e9d166ae4018777f80edb30fcb727689b1d28caaeb8850ea65c343dab4e",
  "package.json": "3f663c472a7de306956dcbf8532d3a08df1efae27d8f621bfce36707f702ed92",
- "public/admin.html": "d4a8e2e88144e1d87f69443c5464576190774f5e03b82b84eb83e94b3f44bc6f",
- "public/apidocs.html": "ede2a9024f016fc0d749e76bb7f56ba8653f979b8751cb7dc9b2b90cdb67d205",
+ "public/admin.html": "b239735ad56c3188281914070624253d5f44427eb6f692d968b1b5d0f64b05d2",
  "public/auth-keeper.js": "0a988594332169c79583abd23c072e0f49fbf35bc16d80a124c0ae8b07f9e89f",
  "public/back-button.js": "6ea86bfddbe3f4455f21ee19521b48f567eef9d719cad09b53417727bbdea8a2",
- "public/boost-all-services.html": "50196b6023f280fd0bc73c3aa4a91d91f1b00718a05d890000e0d8808f8146b7",
- "public/boost-history.html": "44cee617e414784328d0b0b216a7ea6228fe7636a017e8a83123d4d1255a0d0a",
+ "public/boost-all-services.html": "8354ebe750d9023ebcabfd96ac122747667a335185a04c3625e5416616a7c10d",
+ "public/boost-history.html": "28a6af06f2020a1e4322bae141cb2a1573b16b6ac725ee6eb16c90ddc083aa10",
  "public/boost-history.js": "0e8d80afee59c29e3f60f70d527296b87aa5f8368a0fd9ddd7b7dd3ed0c769cc",
- "public/boost-services.html": "2779ae2269ad50b903d9772449be08ed9a423d29e60def91dc7d471d3c8922c4",
- "public/boost.html": "8241f52954fdd4c24935c33dae487133833cecc5bbd526a029ce658c9d69026f",
+ "public/boost-services.html": "01f0e8ec9b268c1b362f9cd5a29f316d5ea45512068c9be42b7ec802d2fde267",
+ "public/boost.html": "ec43b33efbe7f5b3aa0e97c02496762aa9e9212f0a297316082ba7e8fd844d88",
  "public/boost.js": "016f5b5f5e5ca7b872d6da4dd8e0157aa05569f7d4ad1a2cc6f8ea950d1882e9",
- "public/boost1.html": "2a4234d452a75b2290fbf5e2d549871c7aaccfdc1e2a8f8627969c3b7ed1fd09",
- "public/boost2.html": "6455c3524be98847159ddd9c8b63ee59f34956035e7f8a16b86a572f8719f281",
- "public/buy-number.html": "1ec453d8befaf7a0cc1e0b21b6a042f6cdbdfae5985973dfa18144dbd5a27108",
+ "public/boost1.html": "149e5a2c9afb8c717ef075997800db0d4e6a886fad06a121998492ba8d29529d",
+ "public/boost2.html": "c93496c1fd6f878cd953628c953e2a590cec2dfd028a83696798e34fc68e9ecd",
+ "public/buy-number.html": "de84a48233a25210e87420048626dcfd511600d1d8713fe561da51631666a2dd",
  "public/buy-number.js": "0f32a0f2d97ef872cd0e2e33513e850bb0272f409764a92c15f1d46b2da86cfa",
- "public/chat.html": "1a5f40f23170940467e2cf98d290fa89bbc73a5cd023ae425fe097d1cab2937f",
+ "public/chat.html": "900d1815fdb8b337fc042afffd210d247b996051fe958ff33d205272e1f9100b",
  "public/css/admin-pro.css": "176e699a41a59f74934686d59ff8e9a2c0889c47cd44657197c88d2314d2cbe4",
  "public/css/announce.css": "049e05c0cce40b49d94692a890a4a36d44770553cb3ae3334433335addf85a49",
  "public/css/app-shell.css": "87fd21bdcd5b6995a7a93cc17a5661fcbebfa46dbdf1aae32c1958e59e56febb",
@@ -86,28 +83,29 @@ const MANIFEST = {
  "public/css/boost-wizard.css": "f53b83178b4d6003358e243ea1556e12c35780247ef956bbd6adef02221958d7",
  "public/css/boost.css": "aa0f7359a8b2b82c29e62fa1c2c9ec88e7560190a00ddc39994c41b499461a4e",
  "public/css/fix-pack.css": "e90f61013c43b46d75e9ccaed292ef1b6a93d7f3658911cf4cda8f22f9e15652",
+ "public/css/glass-ui.css": "c56c1b9289714a08bc8b4584b9b94ce72648aa815afa3d737ef03e3c6cea3f08",
  "public/css/layout-polish.css": "293860356f8f371bd0cea99b286b30a6510910bf6215deaf628db40dbd104727",
  "public/css/marketplace-standard.css": "22bd63c8d11a2d43411b7e1274385c701e8ac867f7890e43306dd2b6b2cd0e17",
  "public/css/marvel-nums-mobile-polish.css": "ccae026d0d241d005f8fdbd7aec1a38756d63d2614fce2714f5a5271ee6559d1",
- "public/css/marvinums-brand.css": "d71ddbe01a0123062f0cdb534fe544d3fd84f04f7ff5a8f7cb53bd61b1f98e9b",
+ "public/css/marvinums-brand.css": "80c5780a356b0520d4c690e033b3b07f9a66250865593d4999fb4a0d94badc24",
  "public/css/mobile-fix.css": "fd213ee0d3485cf7d40b4b2305d12539a5993ac598b31c2836c953766c3db3c3",
  "public/css/numbers-redesign.css": "b23842f77de63135ba78a155e1bc83103b2ce94d2303a2cd57c755b4bf903f09",
  "public/css/pro-polish.css": "85bb19689fd476e328d2d67e61a4b2d5c31f39b3a99594eaf012240e21e6c105",
  "public/css/redesign.css": "17e127e35fd349a7199eff0bd5488e2583534efb468f3b01da2230af147e7c0f",
- "public/dashboard.html": "6466e79e3da3d85709d6fc0f1d2038a76b0debd679e96d1c8edf4f768c855256",
+ "public/dashboard.html": "754ef936c2e880931aede34fa7dbe262e2afcd55d068f705ca03f133b0e39fed",
  "public/data-bill.html": "4873be5be0873e1c41e570fb263db14774052ca21450847b38d8db00b27da2e4",
  "public/deposit.html": "3a5b929adaaeddb44704b14ad99a6faaeddb8debf129b4993841c97aa63a68ff",
  "public/favicon.ico.HEIC": "edcd84a81353f3cc38f32462f0757e654af9d37ca1f791af65c8a6823d2f9624",
  "public/favicon.png": "8eee11d3e75ad074ebf3539bf3cc3a6f0931bc227d130705296d028ff0fe0d73",
- "public/game.html": "7fa5fa7afaab82d2d00da1970d788cca6bdd1c6b35a4774ad4bbb251601d9cd6",
+ "public/game.html": "1efc5b74230c257aec08667cb41a7ef3812c7c80367a47590b06e0b739a735a9",
  "public/game.js": "800b7eafc7770c1959c9623ad6f04c617740a954ad905dd61069efb127700a19",
- "public/giveaway.html": "a94e2d28d38ecc448dc96d76b6a77024e733a7d8e005f334e58fcfbffcd3e964",
- "public/groups.html": "e31e66c00c45a028ded5a370446965ff0e355237b669ef28a3eb276ed2973594",
+ "public/giveaway.html": "c94c8ce6117d625042a8f50e27caa829076df9b7ddd5b2a81297e050d892b4d3",
+ "public/groups.html": "13b99c95d066430bf154ced8da443a254dc216298799efa1a3963f8e80ef1e35",
  "public/img/marvinums-bg-phone.webp": "fcb1db31f0e7339c5743e82d12c08a8c7e473b0348e8b420c17612467549f42a",
  "public/img/marvinums-bg-social.webp": "7a4a75c06b0f773643f8a7ed8c0f2c1a680db4771e037348126d1a81534f01e8",
  "public/img/marvinums-bg-speed.webp": "b1a03760e97c306605310365d5f9957fada9b72772ad9f73faf7d8cfeb2d2f51",
  "public/img/marvinums-logo.webp": "cd4d74922c4d0aff606699420993dd41d1f0d4eacebad48b9b4bb8b45fba5b1e",
- "public/index.html": "b1deaf44dbb9ce98621be7f2b1234cf743de6c34940ec1f0cde3d5f158a755a7",
+ "public/index.html": "3fde025c8616124e454b9f5a93377293aac04f2f55d533e4c654327e0b2efff5",
  "public/js/announcements.js": "2d8a80aceae703aaf815203754060b1ce77558fc15fe02e2c9dbdc452b904dd4",
  "public/js/app-guide.js": "1a6db049ec221772f1287a70a594ee6cbaec0de97cca8c5afd505685aa55d69f",
  "public/js/app-shell.js": "1f374009d1f8b2ebe3a82266422eab2feef59cc0ccbaad4808796e615fa1e247",
@@ -122,7 +120,7 @@ const MANIFEST = {
  "public/js/global-pay.js": "8fedd7b04100d68523ba99c0e17223ff9316f477af9e5faedbbf3a0852a125b4",
  "public/js/i18n.js": "ab62220185f9a01707be8f4e460397b70e4055f78951c22fed80fe26b38ea40a",
  "public/js/live-support.js": "ffde86669cd8e8f8a0773d6db0ea10b5733a58f7916bf1990bbe179f532d5363",
- "public/js/marvinums-brand.js": "7b09e2633610a510d8b7a9286a0b425bccea9c7bceca8642d2e8bd4bad534e19",
+ "public/js/marvinums-brand.js": "a31cb747de844a4ff7f20bcab35bc4f0fca6fc4e096b90d3e430fdadd11ca1ee",
  "public/js/money.js": "d8de0084cc92ad4457863e94879d78299d161823018c8fa393f090592a3ca4fb",
  "public/js/wallet.js": "610437ba26244de49d100dfa584cadd96ec1494c9e6a4cbef4174805d8f4a701",
  "public/kls-ui.js": "61c3fa08562c41b49dff33c16aa2d3ad9b3672adf8e9a23fa3522ca4157afbdd",
@@ -130,30 +128,34 @@ const MANIFEST = {
  "public/manifest.json": "776a8d123fa0ba3b71d29da38f67c9ced7f3d4268c8b1a06cb96fba109d7c6c4",
  "public/market2.js": "0dca74ad836249a640ac04d1196186b20cd664aff25b04740158a181cd83ee1f",
  "public/market3.js": "07183527fa185b759e90f151cf07ccc37421597295bda4f7d6acd3b4b5087c9b",
- "public/marketplace.html": "445bb87fa3b4ced74260445d7b0a9fc389b27d45d6b84e5d2ef28898fcdda5fd",
+ "public/marketplace.html": "21220c368888222dd01b8f2480e984c3773a72ec25a72d36595a7c94e08a94c2",
  "public/marketplace.js": "376006cfc9750aa40b2aae7acdaa68842a4413f8e5eb1ed371af3323ef149642",
- "public/marketplace2.html": "310c30ac13038e8dd2adf26386dfc61b669dd985155c418584456198e5c2fe7e",
- "public/marketplace3.html": "090242a1fe7a97d6d4cefa757ea3a5f3c25696da270d392e3b596b16f2e22d44",
- "public/messages.html": "37c41b14b599a3a15f28c0913b5df7baafb6ef88782fe634c24c16fe912ccbc5",
- "public/number-history.html": "a7e999d2e8f549eda433b3cdcdc162ec25241131528c3195474a0297be625699",
- "public/order-status.html": "eae0863b7d9aeb403e9d5f9bfcc6acbfe493d9ed698d88a7168000af7e698881",
- "public/purchases.html": "6bdecc4911b484862700a95aa51345289e74ba5a0d73fb3a66c938caa8fa8f29",
+ "public/marketplace2.html": "663cb1ee938764ef1f72d5ce49d7d119e99c6ad9d6e5e602c09dc782bc0d52d3",
+ "public/marketplace3.html": "644658c3c65530f25d5fb75a9c9ade1e972f9454d4941a729cff83cdd6af1619",
+ "public/messages.html": "c97a47572b8b8ce11e31a264114abbec2ac6009d5fd4ccc572def45ff45e8198",
+ "public/number-history.html": "17da902eec3f24e864f8ede143a62de5623dee80b27229783093881bdc968297",
+ "public/order-status.html": "cea73b22a3c3eb5cde8c4cab4eb65bfa36693fe49ed6e1b419f61092c7a7936f",
+ "public/purchases.html": "1396160b89ded181254af603c11b025b5238612de170fe46af9d8c855a158d85",
  "public/referrals-fragment.html": "170821ccdff4501c1338f13877a4b357d1ebdd227e83476ddfbe790da988c684",
- "public/referrals.html": "292d2d0e13a0e78b2265b95e032343406cf52a641eea123c453895bc1e891713",
+ "public/referrals.html": "72bca6c21f00821ffc6e8f0b0d594e846f700235675a4bbe2ce9cfa6d85ea619",
  "public/robots.txt": "236b754c33fe20a7d0f21875eca3ff66ba3de6d153c4a14dbef61fb62e35d456",
- "public/script.js": "cbd693d4763202c6df8bb443d9239b02fc569f7af357c53e4a0af67f52907a53",
- "public/settings.html": "b3bcb5c97a98f5603ceb63dd5c0d6252048344d129d3eeeba19923571d24ae1a",
+ "public/script.js": "05e22525872fce9122dd1094a6cbee9d3dacde28d53cf38d7fbec035905f7e97",
+ "public/settings.html": "93ae16c8ac2fafcfe95981484c4571720f8d561a96fa0178f9fcef6f96b9daf2",
  "public/style.css": "5c23c8fbb5646607741ca6ccd29163548b9a5b7b2e6a62164f25123a02ece4ce",
- "public/support.html": "5a45a3eb60aeb8b486bda4e4fc950f2ccdffcf06a583e719d6768e363d434a7f",
+ "public/support.html": "aee3229b1993ad07895505df7f84a6d8a478c81d724da7779ed8d1694a062797",
  "public/theme.css": "268dd239fc277da65b02e25aab47f40edfc5779900387f1bbd81e2caad8f3970",
- "public/tools.html": "ec44d49d14b400f817b380fec30ae1b981fc50d286c4ebba25c342d6757f6bae",
+ "public/tools.html": "6445b1f9d740017ae160d7937a6f9a02aa62d7f2bde6f74d043241d696d75070",
  "public/tools.js": "e4ca6825a1f1ebb003ff61a597b418a0b6519693dd0cb908a820d10a6a1f5495",
- "public/transactions.html": "1caef36e06968c2d22b848598a3682ee0d00be556a0741769a6c42291e72d6de",
- "public/virtual-account.html": "999dfbdde0f58bd26a3a882ecb5ed8fb32a8f795087f48e51da027b3e4ad07ba",
- "public/welcome-popup.js": "927c6c57620d860ba2af0b2c308bfbe58978b6cdcaa2bab9219ebc7b373fc4bf",
- "server.js": "cb7d4ee9754a04d340d666f74c6dd7d15a6d4df7e4db3c45271a4588550833fe",
- "site.config.js": "828ec119cab1cba694468edfe86c172ea0761a089e744413492abf543d1ea5c5"
+ "public/transactions.html": "e8b0cc7d22b09ba650a6e7942b10935eb18bd35fb49214e33ea7f7d8bc7bc666",
+ "public/virtual-account.html": "1be6bd9c9e7e950fe683042b2938e82c6dfd25d132978fae813a673c1c9618ae",
+ "public/welcome-popup.js": "06a19acbaca511346514ac812a71e0771de3e6f5288ec3c4f0bd416deffd8390",
+ "server.js": "c933d22a8371961edfe5337b3bf975718c0798ef794df59e97063e7771656c43",
+ "site.config.js": "f43f4a9f327a54856cc94cafc15929a2aa18cb492888e3c51bebb6826c4c302c"
 };
+
+// Files that were deleted from the project. A copy is removed only when its content matches the known
+// old version; anything different is moved to _duplicates instead of being deleted.
+const REMOVED = { "public/apidocs.html": ["ede2a9024f016fc0d749e76bb7f56ba8653f979b8751cb7dc9b2b90cdb67d205", "136a7d1a602075eeaa03d20b5781b5540e93558e7034f18b9c878632895f29b0"] };
 
 const sha = (f) => crypto.createHash('sha256').update(fs.readFileSync(f)).digest('hex');
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -172,7 +174,7 @@ function run(opts) {
   opts = opts || {};
   const dry = !!opts.dry;
   const log = opts.quiet ? function () {} : function () { console.log.apply(console, arguments); };
-  const stats = { placed: 0, alreadyOk: 0, cleaned: 0, quarantined: 0, missing: [], warnings: [] };
+  const stats = { removed: 0, placed: 0, alreadyOk: 0, cleaned: 0, quarantined: 0, missing: [], warnings: [] };
   const dests = Object.keys(MANIFEST);
   const realFlat = new Set(dests.map(flat));
   const realDest = new Set(dests);
@@ -219,8 +221,17 @@ function run(opts) {
       else { quarantine(c.file); stats.quarantined++; log('moved to _duplicates: ' + rel(c.file)); }
     }
   }
+  for (const dest of Object.keys(REMOVED)) {
+    const cands = [path.join(ROOT, flat(dest)), path.join(ROOT, ...dest.split('/'))]
+      .concat(variantsIn(ROOT, flat(dest)), variantsIn(path.dirname(path.join(ROOT, ...dest.split('/'))), path.basename(dest)));
+    cands.forEach((f) => {
+      if (!fs.existsSync(f)) return;
+      if ([].concat(REMOVED[dest]).indexOf(sha(f)) !== -1) { if (!dry) { try { fs.unlinkSync(f); } catch (e) {} } stats.removed++; log('removed obsolete ' + rel(f)); }
+      else { quarantine(f); stats.quarantined++; log('moved to _duplicates: ' + rel(f)); }
+    });
+  }
   if (!dry) for (const d of KEEP_DIRS) fs.mkdirSync(path.join(ROOT, d), { recursive: true });
-  log('\norganize: placed ' + stats.placed + ' | already in place ' + stats.alreadyOk + ' | duplicate copies removed ' + stats.cleaned + ' | different leftovers moved ' + stats.quarantined);
+  log('\norganize: placed ' + stats.placed + ' | already in place ' + stats.alreadyOk + ' | duplicate copies removed ' + stats.cleaned + ' | different leftovers moved ' + stats.quarantined + (stats.removed ? ' | obsolete files removed ' + stats.removed : ''));
   if (stats.missing.length) log('NOT FOUND (upload these): ' + stats.missing.join(', '));
   stats.warnings.forEach((w) => log('WARNING: ' + w));
   return stats;

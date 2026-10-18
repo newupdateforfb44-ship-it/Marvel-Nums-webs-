@@ -4,35 +4,36 @@
  * Styled only with the site's own CSS variables (--gold, --card, --border, --t1 ...), so it
  * follows the dark / light / off themes automatically.
  *
- * Frequency memory lives in this browser only (localStorage), so "first visit only" means
- * first visit per browser profile - not per account or per device.
- *   first / 7d / 15d / 30d : remembered from the last dismissal.
- *   every                  : once per browser session (tab), so it does not reappear on every
- *                            page change or reload inside the same visit.
+ * The popup is shown ONCE PER BROWSER SESSION, whatever frequency an older saved setting says.
+ * "Seen" is remembered with sessionStorage only (a session cookie is the fallback when
+ * sessionStorage is blocked) - never localStorage - so it is forgotten automatically when the
+ * browser session ends and may appear again in the next session.
+ * Page changes, reloads, tab switches inside the site and returning Home never bring it back.
  */
 (function () {
   'use strict';
   if (window.KSHWelcomePopup) return;
 
-  var STORE_KEY = 'ksh_welcome_popup_v1';
   var SESSION_KEY = 'ksh_welcome_popup_session';
-  var DAY = 24 * 60 * 60 * 1000;
   var WA_RE = /^https:\/\/(www\.)?whatsapp\.com\/channel\/[A-Za-z0-9_-]{6,80}\/?$/;
   var memorySession = false;   // fallback when sessionStorage is blocked
   var current = null;          // the open popup, if any
 
-  // ── tiny safe storage helpers ──────────────────────────────────────────────
-  function lsGet() { try { var v = JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; } }
-  function lsSet(o) { try { localStorage.setItem(STORE_KEY, JSON.stringify(o)); } catch (e) { /* private mode: ignore */ } }
-  // The banner is shown ONCE per visit: only when a visitor first enters the site. Moving to other
-  // pages afterwards never shows it again. (If the browser blocks sessionStorage, a 30-minute
-  // marker in localStorage is used so a page change still does not bring it back.)
+  // ── session-only memory ────────────────────────────────────────────────────
+  // Primary: sessionStorage. Fallback: a session cookie (no expiry => gone when the browser
+  // session ends). Last resort: a JS variable (survives single-page navigation only).
+  function cookieHas() { try { return document.cookie.split('; ').indexOf(SESSION_KEY + '=1') !== -1; } catch (e) { return false; } }
+  function cookieSet() { try { document.cookie = SESSION_KEY + '=1; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : ''); } catch (e) { /* ignore */ } }
   function sessionSeen() {
     if (memorySession) return true;
-    try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
-    catch (e) { try { var t = Number(localStorage.getItem(SESSION_KEY + '_t')) || 0; return Date.now() - t < 30 * 60 * 1000; } catch (e2) { return false; } }
+    try { if (sessionStorage.getItem(SESSION_KEY) === '1') return true; } catch (e) { /* blocked */ }
+    return cookieHas();
   }
-  function markSession() { memorySession = true; try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) { try { localStorage.setItem(SESSION_KEY + '_t', String(Date.now())); } catch (e2) { /* ignore */ } } }
+  function markSession() {
+    memorySession = true;
+    try { sessionStorage.setItem(SESSION_KEY, '1'); } catch (e) { /* blocked */ }
+    cookieSet();
+  }
 
   // ── page eligibility ───────────────────────────────────────────────────────
   function pageKey() {
@@ -50,20 +51,9 @@
     return pages.indexOf('all') !== -1 || pages.indexOf(k) !== -1;
   }
 
-  // ── frequency rules ────────────────────────────────────────────────────────
-  function shouldShow(cfg) {
-    var f = cfg.displayFrequency;
-    if (f === 'every') return !sessionSeen();
-    var rec = lsGet();
-    if (!rec || !rec.dismissedAt) return true;
-    if (f === 'first') return false;
-    var days = { '7d': 7, '15d': 15, '30d': 30 }[f];
-    if (!days) return false;
-    var elapsed = Date.now() - Number(rec.dismissedAt);
-    if (!(elapsed >= 0)) return true;                 // clock was changed; do not lock the visitor out forever
-    return elapsed >= days * DAY;
-  }
-  function recordDismissal() { lsSet({ dismissedAt: Date.now() }); }
+  // ── frequency rule: once per browser session, always ───────────────────────
+  function shouldShow() { return !sessionSeen(); }
+  function recordDismissal() { markSession(); }   // dismissing = already seen this session (no permanent storage)
 
   // ── styles (injected once) ─────────────────────────────────────────────────
   function injectStyles() {
@@ -225,7 +215,7 @@
     current = c;
     document.body.appendChild(overlay);
     document.documentElement.classList.add('kshwp-lock');
-    if (!c.preview && cfg.displayFrequency === 'every') markSession();
+    if (!c.preview) markSession();
     // two frames so the browser registers the starting state and the transition runs
     requestAnimationFrame(function () { requestAnimationFrame(function () { overlay.classList.add('kshwp-in'); (url ? wa : later).focus({ preventScroll: true }); }); });
     return true;
@@ -264,7 +254,7 @@
   window.KSHWelcomePopup = {
     preview: function (cfg, onClosed) { return open(cfg || {}, { preview: true, onClosed: onClosed }); },
     close: function () { close({ instant: true }); },
-    clearBrowserMemory: function () { try { localStorage.removeItem(STORE_KEY); sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ } memorySession = false; }
+    clearBrowserMemory: function () { try { sessionStorage.removeItem(SESSION_KEY); document.cookie = SESSION_KEY + '=; path=/; max-age=0'; } catch (e) { /* ignore */ } memorySession = false; }
   };
 
   if (document.readyState === 'complete') start();

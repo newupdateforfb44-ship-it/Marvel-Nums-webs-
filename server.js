@@ -1,5 +1,19 @@
 try { require('./organize.js').run({ quiet: true }); } catch (e) { console.error('[organize] skipped:', e.message); } // arranges flat-uploaded files into folders (no-op when already arranged)
 require('dotenv').config();
+// ── Security guard: never run with a missing/weak token secret (sub-admin tokens use JWT_SECRET + '_subadmin') ──
+if (!process.env.JWT_SECRET) { console.error('[SECURITY] JWT_SECRET is not set. Add it in your Render environment variables. Refusing to start.'); process.exit(1); }
+if (process.env.JWT_SECRET.length < 24) console.warn('[SECURITY] JWT_SECRET is short. Use a random value of 32+ characters.');
+// Constant-time string compare; false when either side is empty (an unset ADMIN_PASSCODE can never match).
+const safeEq = (a, b) => {
+  try {
+    a = String(a == null ? '' : a); b = String(b == null ? '' : b);
+    if (!a || !b) return false;
+    const x = require('crypto').createHash('sha256').update(a).digest();
+    const y = require('crypto').createHash('sha256').update(b).digest();
+    return require('crypto').timingSafeEqual(x, y);
+  } catch (e) { return false; }
+};
+const passcodeOk = (p) => safeEq(p, process.env.ADMIN_PASSCODE);
 // ── Site branding / look-and-feel lives in ONE file: site.config.js ─────────
 // Clone the project, edit site.config.js (or the BRAND_* vars in .env), and the
 // whole site renames, recolours and re-titles itself. No need to dig in here.
@@ -116,7 +130,7 @@ const apiV1Limiter = rateLimit({
  message: { error: 'API rate limit exceeded — please slow down your requests.' },
  trustProxy: true
 });
-app.use('/api/v1/', apiV1Limiter);
+app.use('/api/v1', (req, res) => res.status(404).json({ error: 'Not found' })); // the public developer API has been removed
 app.use(express.json({ limit: '20mb', verify: (req, res, buf) => { if ((req.originalUrl || '').startsWith('/api/webhooks/')) req.rawBody = buf; } })); // rawBody lets us verify Paystack's HMAC signature
 // ── KLS request console log ──────────────────────────────────────────────────
 // Every API call is logged with method, path, status, duration and the caller,
@@ -186,7 +200,7 @@ function makeStorage(folder, resourceType) {
  const dir = folder === 'receipts' ? receiptDir : folder === 'files' ? fileDir : uploadDir;
  return multer.diskStorage({
  destination: (req, file, cb) => cb(null, dir),
- filename: (req, file, cb) => cb(null, `${folder}_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`)
+ filename: (req, file, cb) => cb(null, `${folder}_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`)
  });
 }
 function fileUrl(file) {
@@ -194,11 +208,20 @@ function fileUrl(file) {
  if (cloudinaryConfigured) return file.path; // Cloudinary gives the full https:// URL in file.path
  return `/${file.destination.includes('receipts') ? 'receipts' : file.destination.includes('files') ? 'files' : 'uploads'}/${file.filename}`;
 }
+// Only these extensions are ever written to disk; the browser-supplied file name/extension is never trusted
+// (an uploaded .html/.svg/.js would otherwise be served from our own domain).
+const SAFE_EXT = /^\.(jpe?g|png|gif|webp|pdf|mp4|mov|webm)$/;
+const safeExt = (file) => {
+  const e = path.extname((file && file.originalname) || '').toLowerCase();
+  if (SAFE_EXT.test(e)) return e;
+  const m = String((file && file.mimetype) || '').toLowerCase();
+  return ({ 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp', 'application/pdf': '.pdf', 'video/mp4': '.mp4', 'video/quicktime': '.mov', 'video/webm': '.webm' })[m] || '.bin';
+};
 const upload = multer({ storage: makeStorage('uploads', 'image'), limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (req, file, cb) => /jpeg|jpg|png|gif|webp/.test(file.mimetype) ? cb(null, true) : cb(new Error('Images only')) });
 const receiptUpload = multer({
  storage: multer.diskStorage({
  destination: (req, file, cb) => cb(null, receiptDir),
- filename: (req, file, cb) => cb(null, `receipt_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`)
+ filename: (req, file, cb) => cb(null, `receipt_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`)
  }),
  limits: { fileSize: 10 * 1024 * 1024 },
  fileFilter: (req, file, cb) => /jpeg|jpg|png|gif|webp|pdf/.test(file.mimetype) ? cb(null, true) : cb(new Error('Image or PDF only'))
@@ -227,7 +250,7 @@ const uploadLogFields = multer({
  const isReview = file.fieldname === 'adminReviewFile' || file.fieldname.startsWith('subReviewFile_');
  const isTutorial = file.fieldname === 'tutorialImages' || file.fieldname === 'tutorialVideo' || file.fieldname.startsWith('subTutorialFile_');
  const prefix = file.fieldname === 'deliverableFile' ? 'file' : isReview ? 'review' : isTutorial ? 'tutorial' : 'img';
- cb(null, `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`);
+ cb(null, `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`);
  }
  }),
  limits: { fileSize: 100 * 1024 * 1024 },
@@ -259,7 +282,7 @@ const reviewUpload = multer({
  })
  : multer.diskStorage({
  destination: (req, file, cb) => cb(null, uploadDir),
- filename: (req, file, cb) => cb(null, `review_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`)
+ filename: (req, file, cb) => cb(null, `review_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`)
  }),
  limits: { fileSize: 50 * 1024 * 1024 },
  fileFilter: (req, file, cb) => /jpeg|jpg|png|gif|webp|mp4|mov|webm|quicktime/.test(file.mimetype) ? cb(null, true) : cb(new Error('Image or video only'))
@@ -277,9 +300,10 @@ const chatUpload = multer({
  })
  : multer.diskStorage({
  destination: (req, file, cb) => cb(null, uploadDir),
- filename: (req, file, cb) => cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`)
+ filename: (req, file, cb) => cb(null, `chat_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`)
  }),
- limits: { fileSize: 50 * 1024 * 1024 }
+ limits: { fileSize: 50 * 1024 * 1024 },
+ fileFilter: (req, file, cb) => /jpeg|jpg|png|gif|webp/.test(file.mimetype) ? cb(null, true) : cb(new Error('Images only'))
 });
 const depositTutorialUpload = multer({
  storage: cloudinaryConfigured
@@ -294,7 +318,7 @@ const depositTutorialUpload = multer({
  })
  : multer.diskStorage({
  destination: (req, file, cb) => cb(null, uploadDir),
- filename: (req, file, cb) => cb(null, `deptut_${Date.now()}_${Math.random().toString(36).slice(2)}${path.extname(file.originalname)}`)
+ filename: (req, file, cb) => cb(null, `deptut_${Date.now()}_${Math.random().toString(36).slice(2)}${safeExt(file)}`)
  }),
  limits: { fileSize: 100 * 1024 * 1024 },
  fileFilter: (req, file, cb) => {
@@ -1461,23 +1485,9 @@ const optionalAuth = async (req, res, next) => {
  } catch { /* an invalid/expired token just means "not logged in" here, not an error */ }
  next();
 };
-const apiKeyAuth = async (req, res, next) => {
- try {
- const key = req.headers['x-api-key'];
- const secret = req.headers['x-api-secret'];
- if (!key || !secret) return res.status(401).json({ error: 'Missing X-API-Key or X-API-Secret header' });
- const user = await User.findOne({ apiKey: key, apiEnabled: true }).select('-password');
- if (!user || user.apiSecret !== secret) return res.status(401).json({ error: 'Invalid API key or secret' });
- if (user.restricted) return res.status(403).json({ error: 'This account has been restricted', restricted: true });
- user.apiLastUsedAt = new Date();
- await user.save();
- req.apiUser = user;
- next();
- } catch (e) { res.status(500).json({ error: 'API auth error' }); }
-};
 const adminAuth = (req, res, next) => {
  const p = req.headers['x-admin-passcode'];
- if (!p || p !== process.env.ADMIN_PASSCODE) return res.status(403).json({ error: 'Access denied' });
+ if (!passcodeOk(p)) return res.status(403).json({ error: 'Access denied' });
  req.adminRole = 'super';
  next();
 };
@@ -1495,7 +1505,7 @@ const subAdminAuth = async (req, res, next) => {
 };
 const anyAdminAuth = async (req, res, next) => {
  const p = req.headers['x-admin-passcode'];
- if (p && p === process.env.ADMIN_PASSCODE) { req.adminRole = 'super'; return next(); }
+ if (passcodeOk(p)) { req.adminRole = 'super'; return next(); }
  return subAdminAuth(req, res, next);
 };
 // Marketplace 2 (NovaSolution API) + marketplace on/off switches — see lib/market2.js
@@ -2119,29 +2129,6 @@ app.post('/api/user/profile-picture', auth, upload.single('picture'), async (req
  user.profilePicture = fileUrl(req.file);
  await user.save();
  res.json({ message: ' Profile picture updated', profilePicture: user.profilePicture });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/user/api-key', auth, async (req, res) => {
- const user = await User.findById(req.user._id).select('apiKey apiEnabled apiKeyCreatedAt apiLastUsedAt');
- res.json({ apiKey: user.apiKey || null, apiEnabled: user.apiEnabled, createdAt: user.apiKeyCreatedAt, lastUsedAt: user.apiLastUsedAt, hasSecret: !!user.apiKey });
-});
-app.post('/api/user/api-key/generate', auth, async (req, res) => {
- try {
- const user = await User.findById(req.user._id);
- user.apiKey = 'ksl_live_' + crypto.randomBytes(16).toString('hex');
- user.apiSecret = crypto.randomBytes(32).toString('hex');
- user.apiEnabled = true;
- user.apiKeyCreatedAt = new Date();
- await user.save();
- res.json({ apiKey: user.apiKey, apiSecret: user.apiSecret, message: ' API key generated. Save your secret now — it will not be shown again.' });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.post('/api/user/api-key/revoke', auth, async (req, res) => {
- try {
- const user = await User.findById(req.user._id);
- user.apiKey = undefined; user.apiSecret = undefined; user.apiEnabled = false;
- await user.save();
- res.json({ message: ' API key revoked' });
  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.get('/api/user/me', auth, async (req, res) => res.json(await User.findById(req.user._id).select('-password -apiSecret')));
@@ -2939,21 +2926,15 @@ async function flwHeaders() {
 async function handleFlutterwaveWebhook(req, res) {
  const receivedHash = req.headers['verif-hash'];
  const expectedHash = process.env.FLW_SECRET_HASH || process.env.FLW_WEBHOOK_HASH || '';
- console.log(' KLS webhook received:');
- console.log(' verif-hash header :', receivedHash || '(MISSING)');
- console.log(' expected hash :', expectedHash ? expectedHash.slice(0, 6) + '***' : '(NOT SET IN ENV)');
- console.log(' match? :', receivedHash && expectedHash && receivedHash === expectedHash ? 'YES ' : 'NO ');
- console.log(' raw headers :', JSON.stringify(req.headers).slice(0, 300));
- if (expectedHash && receivedHash !== expectedHash) {
- console.error(' KLS webhook REJECTED: signature mismatch.');
- console.error(' Got :', receivedHash);
- console.error(' Expected:', expectedHash);
- console.error(' Fix: set FLW_SECRET_HASH in your Render/env vars to match your Flutterwave Webhook Secret Hash');
+ // Unsigned or wrongly-signed webhooks are never processed (they could be forged to credit wallets).
+ if (!expectedHash) {
+ console.error('[SECURITY] Flutterwave webhook rejected: FLW_SECRET_HASH is not set. Set it in Render to your Flutterwave Webhook Secret Hash.');
+ return res.status(401).json({ error: 'Webhook not configured' });
+ }
+ if (!safeEq(receivedHash, expectedHash)) {
+ console.error('Flutterwave webhook REJECTED: verif-hash mismatch.');
  if (klsPlatform) await klsPlatform.logWebhook({ channel: 'charge', status: 'signature_rejected', message: 'verif-hash mismatch', payload: req.body });
  return res.status(401).json({ error: 'Invalid webhook signature' });
- }
- if (!expectedHash) {
- console.warn(' KLS webhook: FLW_SECRET_HASH not set — processing anyway (set it in env vars for security)');
  }
  const event = req.body;
  const tx = event.data || {};
@@ -4558,7 +4539,7 @@ async function sendWhatsAppNotification(user, amount, bank, accountName, receipt
 app.get('/api/admin/receipts/:id/quick-action', async (req, res) => {
  try {
  const { action, passcode } = req.query;
- if (!passcode || passcode !== process.env.ADMIN_PASSCODE)
+ if (!passcodeOk(passcode))
  return res.status(403).send(`<h2> Wrong passcode. Access denied.</h2>`);
  if (!['approved', 'rejected'].includes(action))
  return res.status(400).send(`<h2>Invalid action.</h2>`);
@@ -4877,184 +4858,7 @@ app.get('/api/games/my-scores', auth, async (req, res) => {
  const scores = await GameScore.find({ userId: req.user._id }).sort({ createdAt: -1 }).limit(20);
  res.json(scores);
 });
-app.get('/api/v1/me', apiKeyAuth, async (req, res) => {
- res.json({ id: req.apiUser._id, name: req.apiUser.name, email: req.apiUser.email, balance: req.apiUser.balance, gameId: req.apiUser.gameId, restricted: req.apiUser.restricted });
-});
-app.get('/api/v1/balance', apiKeyAuth, async (req, res) => {
- res.json({ balance: req.apiUser.balance || 0 });
-});
-app.get('/api/v1/purchases', apiKeyAuth, async (req, res) => {
- const u = await User.findById(req.apiUser._id).select('purchaseDetails');
- res.json(u.purchaseDetails || []);
-});
-app.get('/api/v1/purchases/:purchaseId', apiKeyAuth, async (req, res) => {
- const u = await User.findById(req.apiUser._id).select('purchaseDetails');
- const purchase = (u.purchaseDetails || []).id(req.params.purchaseId);
- if (!purchase) return res.status(404).json({ error: 'Purchase not found on your account' });
- res.json(purchase);
-});
-app.get('/api/v1/listings', apiKeyAuth, async (req, res) => {
- const filter = { available: true };
- if (req.query.type && req.query.type !== 'all') filter.type = req.query.type;
- const logs = await Log.find(filter).select('-details -toolLink -deliverableFile').sort({ createdAt: -1 });
- const visible = logs.filter(l => l.type === 'tool' || l.maxPurchases <= 0 || l.soldCount < l.maxPurchases);
- res.json(visible);
-});
-app.get('/api/v1/listings/:id', apiKeyAuth, async (req, res) => {
- const log = await Log.findById(req.params.id).select('-details -toolLink -deliverableFile');
- if (!log) return res.status(404).json({ error: 'Not found' });
- res.json(log);
-});
-app.post('/api/v1/buy/:id', apiKeyAuth, async (req, res) => {
- try {
- const log = await Log.findById(req.params.id);
- if (!log || !log.available) return res.status(404).json({ error: 'Item not available' });
- const user = await User.findById(req.apiUser._id);
- if (log.listingType === 'folder') {
- const available = (log.subAccounts || []).filter(sa => !sa.sold);
- if (!available.length) return res.status(400).json({ error: 'Sold out' });
- let targetId = req.body.subAccountId;
- if (!targetId) {
- available.sort((a, b) => (a.price||0) - (b.price||0));
- targetId = available[0]._id;
- }
- const claimed = await Log.findOneAndUpdate(
- { _id: log._id, 'subAccounts._id': targetId, 'subAccounts.sold': false },
- { $set: { 'subAccounts.$.sold': true, 'subAccounts.$.soldTo': user._id, 'subAccounts.$.soldAt': new Date() } },
- { new: true }
- );
- if (!claimed) return res.status(400).json({ error: 'That account was just sold to someone else — try again or omit subAccountId to auto-pick another.' });
- const sub = claimed.subAccounts.id(targetId);
- if ((user.balance || 0) < sub.price) {
- await Log.updateOne({ _id: log._id, 'subAccounts._id': targetId }, { $set: { 'subAccounts.$.sold': false, 'subAccounts.$.soldTo': null, 'subAccounts.$.soldAt': null } });
- return res.status(400).json({ error: `Insufficient balance — this account costs ₦${sub.price}` });
- }
- user.balance = (user.balance || 0) - sub.price;
- user.purchaseDetails.push({
- logId: log._id, logTitle: `${log.title} — ${sub.label}`, logType: log.type, logDetails: sub.details || '',
- toolLink: sub.toolLink || '', deliveryType: sub.deliveryType || 'link',
- deliverableFile: sub.deliverableFile || '', deliverableFileName: sub.deliverableFileName || '',
- pricePaid: sub.price, subAccountId: sub._id
- });
- await user.save();
- const purchaseRecord = user.purchaseDetails[user.purchaseDetails.length - 1];
- await Transaction.create({ userId: user._id, type: 'purchase', amount: sub.price, description: `Purchased via API: ${log.title} — ${sub.label}`, status: 'success' });
- await creditReferralCommission(user, sub.price, `${log.title} — ${sub.label}`);
- checkAndAwardBadges(user._id).catch(() => {});
- return res.json({
- message: 'Purchase successful', newBalance: user.balance, purchaseId: purchaseRecord._id, purchasedAt: purchaseRecord.purchasedAt,
- itemPrice: sub.price, totalCharged: sub.price,
- logDetails: sub.details || '', toolLink: sub.toolLink || '', deliveryType: sub.deliveryType || 'link',
- deliverableFile: sub.deliverableFile || '', deliverableFileName: sub.deliverableFileName || ''
- });
- }
- if (log.type === 'log') {
- if (log.maxPurchases > 0 && log.soldCount >= log.maxPurchases) return res.status(400).json({ error: 'Sold out' });
- } else if (log.toolQty > 0 && log.soldCount >= log.toolQty) {
- return res.status(400).json({ error: 'Out of stock' });
- }
- if ((user.balance || 0) < log.price) return res.status(400).json({ error: `Insufficient balance — this item costs ₦${log.price}` });
- user.balance = (user.balance || 0) - log.price;
- user.purchaseDetails.push({
- logId: log._id, logTitle: log.title, logType: log.type, logDetails: log.details || '',
- toolLink: log.toolLink || '', deliveryType: log.deliveryType || 'link',
- deliverableFile: log.deliverableFile || '', deliverableFileName: log.deliverableFileName || '',
- pricePaid: log.price
- });
- await user.save();
- const purchaseRecord = user.purchaseDetails[user.purchaseDetails.length - 1];
- await Transaction.create({ userId: user._id, type: 'purchase', amount: log.price, description: `Purchased via API: ${log.title}`, status: 'success' });
- await creditReferralCommission(user, log.price, log.title);
- checkAndAwardBadges(user._id).catch(() => {});
- log.soldCount += 1;
- await log.save();
- res.json({
- message: 'Purchase successful', newBalance: user.balance, purchaseId: purchaseRecord._id, purchasedAt: purchaseRecord.purchasedAt,
- itemPrice: log.price, totalCharged: log.price,
- logDetails: log.details || '', toolLink: log.toolLink || '', deliveryType: log.deliveryType || 'link',
- deliverableFile: log.deliverableFile || '', deliverableFileName: log.deliverableFileName || ''
- });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.post('/api/v1/buy-multi/:id', apiKeyAuth, async (req, res) => {
- const claimedIds = [];
- try {
- const { subAccountIds } = req.body;
- if (!Array.isArray(subAccountIds) || !subAccountIds.length)
- return res.status(400).json({ error: 'subAccountIds must be a non-empty array' });
- if (subAccountIds.length > 50) return res.status(400).json({ error: 'Max 50 accounts per batch' });
- const log = await Log.findById(req.params.id);
- if (!log || !log.available) return res.status(404).json({ error: 'Item not available' });
- if (log.listingType !== 'folder') return res.status(400).json({ error: 'This item does not support multi-buy' });
- const user = await User.findById(req.apiUser._id);
- const claimedSubs = [];
- for (const subId of subAccountIds) {
- const claimed = await Log.findOneAndUpdate(
- { _id: log._id, 'subAccounts._id': subId, 'subAccounts.sold': false },
- { $set: { 'subAccounts.$.sold': true, 'subAccounts.$.soldTo': user._id, 'subAccounts.$.soldAt': new Date() } },
- { new: true }
- );
- if (!claimed) {
- for (const rid of claimedIds) await Log.updateOne({ _id: log._id, 'subAccounts._id': rid }, { $set: { 'subAccounts.$.sold': false, 'subAccounts.$.soldTo': null, 'subAccounts.$.soldAt': null } });
- return res.status(400).json({ error: 'One of the requested accounts was already sold. Nothing was charged — retry with different IDs.' });
- }
- claimedIds.push(subId);
- claimedSubs.push(claimed.subAccounts.id(subId));
- }
- const total = claimedSubs.reduce((s, sa) => s + (sa.price || 0), 0);
- if ((user.balance || 0) < total) {
- for (const rid of claimedIds) await Log.updateOne({ _id: log._id, 'subAccounts._id': rid }, { $set: { 'subAccounts.$.sold': false, 'subAccounts.$.soldTo': null, 'subAccounts.$.soldAt': null } });
- return res.status(400).json({ error: `Insufficient balance — this batch costs ₦${total}` });
- }
- user.balance = (user.balance || 0) - total;
- for (const sub of claimedSubs) {
- user.purchaseDetails.push({
- logId: log._id, logTitle: `${log.title} — ${sub.label}`, logType: log.type, logDetails: sub.details || '',
- toolLink: sub.toolLink || '', deliveryType: sub.deliveryType || 'link',
- deliverableFile: sub.deliverableFile || '', deliverableFileName: sub.deliverableFileName || '',
- pricePaid: sub.price, subAccountId: sub._id
- });
- }
- await user.save();
- const newRecords = user.purchaseDetails.slice(-claimedSubs.length);
- await Transaction.create({ userId: user._id, type: 'purchase', amount: total, description: `Purchased ${claimedSubs.length} accounts via API: ${log.title}`, status: 'success' });
- for (const sub of claimedSubs) await creditReferralCommission(user, sub.price, `${log.title} — ${sub.label}`);
- checkAndAwardBadges(user._id).catch(() => {});
- res.json({
- message: `${claimedSubs.length} accounts purchased`, newBalance: user.balance, totalCharged: total,
- items: newRecords.map(r => ({
- purchaseId: r._id, purchasedAt: r.purchasedAt, pricePaid: r.pricePaid, logTitle: r.logTitle,
- logDetails: r.logDetails, toolLink: r.toolLink, deliveryType: r.deliveryType,
- deliverableFile: r.deliverableFile, deliverableFileName: r.deliverableFileName
- }))
- });
- } catch (e) {
- for (const rid of claimedIds) { try { await Log.updateOne({ _id: req.params.id, 'subAccounts._id': rid }, { $set: { 'subAccounts.$.sold': false, 'subAccounts.$.soldTo': null, 'subAccounts.$.soldAt': null } }); } catch {} }
- res.status(500).json({ error: e.message });
- }
-});
 // Developer API — same live services as Server 1, but with a slightly smaller profit (cheaper).
-app.get('/api/v1/numbers/countries', apiKeyAuth, async (req, res) => {
- try {
-   const payload = await novaGetCatalog({ scope: 'global' });
-   res.json(novaCountryRows(payload).map(c => ({ code: c.iso || c.code || c.country_code || c.iso2, name: c.name || c.country_name || c.label })));
- } catch (e) { novaErrorResponse(res, e); }
-});
-app.get('/api/v1/numbers/options', apiKeyAuth, async (req, res) => {
- try {
-   const country = String(req.query.country || 'US').trim();
-   const serverId = Number(req.query.serverId || req.query.server_id || 0);
-   const payload = await novaCatalogForCountry(country);
-   const cfg = await getNumberServerConfig();
-   res.json(novaServiceRows(payload)
-     .filter(s => !serverId || Number(s.server_id ?? s.serverId) === serverId)
-     .map(s => ({
-       id: s.id ?? s.service_id, serviceId: s.id ?? s.service_id, provider: novaServiceDisplayName(s),
-       serverId: Number(s.server_id ?? s.serverId), serverName: String(s.server_name || s.server || ''), country,
-       price: novaServicePriceNgn(s, cfg, { api: true })
-     })));
- } catch (e) { novaErrorResponse(res, e); }
-});
 // Legacy {provider, country} callers: pick the cheapest matching service across servers.
 async function novaFindServiceByName(countryCode, provider, serverId) {
   const rows = (await novaCatalogForCountry(countryCode)).services || [];
@@ -5065,170 +4869,6 @@ async function novaFindServiceByName(countryCode, provider, serverId) {
   const m = matches[0];
   return m ? { serviceId: Number(m.id ?? m.service_id), serverId: Number(m.server_id ?? m.serverId) } : null;
 }
-app.post('/api/v1/buy-number', apiKeyAuth, async (req, res) => {
- try {
-   const b = req.body || {};
-   const countryCode = String(b.country || '').trim();
-   if (!countryCode) return res.status(400).json({ error: 'country is required (plus serviceId + serverId, or provider)' });
-   let serviceId = Number(b.serviceId || b.service_id);
-   let serverId = Number(b.serverId || b.server_id);
-   if (!Number.isInteger(serviceId) || serviceId <= 0 || !Number.isInteger(serverId) || serverId <= 0) {
-     if (!b.provider) return res.status(400).json({ error: 'Send serviceId and serverId (from /numbers/options), or provider and country.' });
-     const found = await novaFindServiceByName(countryCode, b.provider, Number.isInteger(serverId) && serverId > 0 ? serverId : 0);
-     if (!found) return res.status(400).json({ error: 'Out of stock for that provider/country. Nothing was charged.' });
-     serviceId = found.serviceId; serverId = found.serverId;
-   }
-   const r = await novaPurchaseNumber({ userId: req.apiUser._id, serviceId, serverId, countryCode, expectedPrice: b.expected_price ?? b.expectedPrice, pricing: 'api' });
-   const l = r.listing;
-   res.json({ order_id: l._id, number: l.phoneNumber, price: r.sellPrice, status: 'waiting', provider: l.provider, country: l.country, server_id: serverId, expires_at: l.expiresAt });
- } catch (e) {
-   if (e.orderId) e.orderId = String(e.orderId);
-   novaPurchaseErrorResponse(res, e);
- }
-});
-app.get('/api/v1/get-sms', apiKeyAuth, async (req, res) => {
- try {
-   const { order_id } = req.query;
-   if (!order_id) return res.status(400).json({ error: 'order_id is required' });
-   let listing = await NumberListing.findOne({ _id: order_id, soldTo: req.apiUser._id });
-   if (!listing) return res.status(404).json({ error: 'Order not found' });
-   if (listing.status === 'sold' && !listing.code) { try { const code = await fetchCodeFromProvider(listing); if (code) { listing.code = code; listing.codeAddedAt = new Date(); await listing.save(); } } catch (_) {} }
-   listing = await expireStaleNumberOrder(listing);
-   res.json({ order_id: listing._id, status: listing.code ? 'received' : listing.status === 'sold' ? 'waiting' : listing.status, sms: listing.code || null });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.post('/api/v1/cancel-number', apiKeyAuth, async (req, res) => {
- try {
-   const { order_id } = req.body; if (!order_id) return res.status(400).json({ error: 'order_id is required' });
-   const listing = await NumberListing.findOne({ _id: order_id, soldTo: req.apiUser._id });
-   if (!listing) return res.status(404).json({ error: 'Order not found' });
-   if (listing.status !== 'sold' || listing.code) return res.status(400).json({ error: 'This order can no longer be cancelled' });
-   // Atomic claim: only ONE concurrent request can move sold -> cancelled, so only one refund can happen.
-   const cancelled = await NumberListing.findOneAndUpdate(
-     { _id: listing._id, soldTo: req.apiUser._id, status: 'sold', code: '' },
-     { $set: { status: 'cancelled', cancelledAt: new Date() } }, { new: true });
-   if (!cancelled) return res.status(409).json({ error: 'This order has already changed state; check it with get-sms.' });
-   await User.updateOne({ _id: cancelled.soldTo }, { $inc: { balance: cancelled.sellPrice } });
-   await Transaction.create({ userId: cancelled.soldTo, type: 'admin_credit', amount: cancelled.sellPrice, description: `Refund: ${cancelled.provider} number (${cancelled.country}) — cancelled via API`, status: 'success' });
-   const released = await releaseNumberOnProvider(cancelled);
-   await NumberListing.updateOne({ _id: cancelled._id }, { $set: { providerCancelled: !!released?.ok, providerCancelDetail: String(released?.detail && typeof released.detail === 'string' ? released.detail : (released?.ok ? 'cancel requested' : '')).slice(0, 200) } });
-   res.json({ order_id: cancelled._id, status: 'cancelled', refunded: cancelled.sellPrice, provider_cancelled: !!released?.ok });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/v1/categories', apiKeyAuth, async (req, res) => {
- try {
- const cats = await Category.find().sort({ name: 1 });
- res.json({ categories: cats.map(c => ({ id: c._id, name: c.name })) });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/v1/marketplace', apiKeyAuth, async (req, res) => {
- try {
- const { category, type, search } = req.query;
- const page = Math.max(1, parseInt(req.query.page) || 1);
- const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
- const skip = (page - 1) * limit;
- const filter = { available: true };
- if (type && type !== 'all') filter.type = type;
- if (category) filter.category = category;
- if (search) filter.$or = [
- { title: { $regex: search, $options: 'i' } },
- { description: { $regex: search, $options: 'i' } },
- { category: { $regex: search, $options: 'i' } }
- ];
- const [total, logs] = await Promise.all([
- Log.countDocuments(filter),
- Log.find(filter)
- .select('title description type category price soldCount maxPurchases toolQty listingType picture available createdAt')
- .sort({ createdAt: -1 })
- .skip(skip).limit(limit)
- ]);
- const items = logs.map(l => {
- const isTool = l.type === 'tool';
- const soldOut = isTool ? (l.toolQty > 0 && l.soldCount >= l.toolQty) : (l.maxPurchases > 0 && l.soldCount >= l.maxPurchases);
- return {
- id: l._id,
- title: l.title,
- description: l.description,
- type: l.type,
- listingType: l.listingType,
- category: l.category,
- price: l.price,
- soldCount: l.soldCount,
- stockLeft: isTool ? (l.toolQty > 0 ? Math.max(0, l.toolQty - l.soldCount) : null) : (l.maxPurchases > 0 ? Math.max(0, l.maxPurchases - l.soldCount) : null),
- soldOut,
- picture: l.picture || null,
- available: l.available,
- createdAt: l.createdAt
- };
- });
- res.json({
- page, limit, total,
- totalPages: Math.ceil(total / limit),
- items
- });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/v1/tools', apiKeyAuth, async (req, res) => {
- try {
- const { category, search } = req.query;
- const page = Math.max(1, parseInt(req.query.page) || 1);
- const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
- const skip = (page - 1) * limit;
- const filter = { available: true, type: 'tool' };
- if (category) filter.category = category;
- if (search) filter.$or = [{ title: { $regex: search, $options: 'i' } }, { description: { $regex: search, $options: 'i' } }];
- const [total, tools] = await Promise.all([
- Log.countDocuments(filter),
- Log.find(filter)
- .select('title description category price soldCount toolQty picture listingType createdAt')
- .sort({ createdAt: -1 })
- .skip(skip).limit(limit)
- ]);
- res.json({
- page, limit, total, totalPages: Math.ceil(total / limit),
- tools: tools.map(t => ({
- id: t._id, title: t.title, description: t.description,
- category: t.category, price: t.price, soldCount: t.soldCount,
- stockTotal: t.toolQty || null,
- stockLeft: t.toolQty > 0 ? Math.max(0, t.toolQty - t.soldCount) : null,
- soldOut: t.toolQty > 0 && t.soldCount >= t.toolQty,
- picture: t.picture || null, listingType: t.listingType, createdAt: t.createdAt
- }))
- });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/v1/marketplace/:id', apiKeyAuth, async (req, res) => {
- try {
- const log = await Log.findById(req.params.id)
- .select('-details -toolLink -deliverableFile -deliverableFileName -subAccounts');
- if (!log) return res.status(404).json({ error: 'Item not found' });
- const isTool = log.type === 'tool';
- const soldOut = isTool ? (log.toolQty > 0 && log.soldCount >= log.toolQty) : (log.maxPurchases > 0 && log.soldCount >= log.maxPurchases);
- res.json({
- id: log._id, title: log.title, description: log.description,
- type: log.type, listingType: log.listingType, category: log.category,
- price: log.price, soldCount: log.soldCount,
- stockLeft: isTool ? (log.toolQty > 0 ? Math.max(0, log.toolQty - log.soldCount) : null) : (log.maxPurchases > 0 ? Math.max(0, log.maxPurchases - log.soldCount) : null),
- soldOut, picture: log.picture || null, available: log.available,
- averageRating: log.reviews?.length ? (log.reviews.reduce((s,r)=>s+r.rating,0)/log.reviews.length).toFixed(1) : null,
- reviewCount: log.reviews?.length || 0,
- createdAt: log.createdAt
- });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
-app.get('/api/v1/transactions', apiKeyAuth, async (req, res) => {
- try {
- const page = Math.max(1, parseInt(req.query.page) || 1);
- const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 20));
- const [total, txs] = await Promise.all([
- Transaction.countDocuments({ userId: req.apiUser._id }),
- Transaction.find({ userId: req.apiUser._id })
- .sort({ createdAt: -1 }).skip((page-1)*limit).limit(limit)
- .select('type amount description status createdAt')
- ]);
- res.json({ page, limit, total, totalPages: Math.ceil(total/limit), transactions: txs });
- } catch (e) { res.status(500).json({ error: e.message }); }
-});
 app.get('/api/top-buyers', optionalAuth, async (req, res) => {
  try {
  const top = await Transaction.aggregate([
@@ -5245,7 +4885,9 @@ app.get('/api/top-buyers', optionalAuth, async (req, res) => {
 });
 app.post('/api/support', async (req, res) => {
  try {
- const { name, email, subject, message, userId } = req.body;
+ const clip = (v, n) => String(v == null ? '' : v).slice(0, n);
+ const name = clip(req.body.name, 120), email = clip(req.body.email, 200), subject = clip(req.body.subject, 200), message = clip(req.body.message, 5000);
+ const userId = /^[a-f0-9]{24}$/i.test(String(req.body.userId || '')) ? String(req.body.userId) : undefined;
  if (!name || !email || !message) return res.status(400).json({ error: 'Name, email and message required' });
  await Support.create({ name, email, subject: subject || 'General', message, userId });
  res.json({ message: 'Support ticket submitted!' });
@@ -5399,7 +5041,6 @@ const SUPPORT_FAQ = [
  { keywords: ['buy', 'purchase', 'order', 'checkout'], reply: "To buy something: open Marketplace, pick a listing, and confirm the purchase — it's deducted straight from your wallet balance and delivered instantly to your Purchases page." },
  { keywords: ['delivery', 'deliver', 'received', 'where is my'], reply: "Delivery is instant for almost everything — check your Purchases page right after buying. If nothing shows up after a few minutes, contact support with your receipt ID." },
  { keywords: ['referral', 'refer a friend', 'refer', 'commission', 'invite'], reply: "Share your referral link from the Referrals page. You earn a 4% commission automatically whenever someone you referred makes a purchase." },
- { keywords: ['api', 'developer', 'integrate', 'endpoint', 'fetch', 'json'], reply: "Generate an API Key + Secret from Settings API Access, then check the API Docs page (in the menu) for endpoints, JSON responses, and code examples in cURL, JavaScript, and Python." },
  { keywords: ['number', 'otp', 'virtual number', 'buy number', 'sms verification', 'phone verification'], reply: "Buy Numbers gives you a real phone number to receive SMS/OTP codes for verifying accounts. There are two servers: Server 1 is USA/Canada numbers for many different services (not only WhatsApp), and you can also pick other countries. Server 2 covers many other services (not just WhatsApp) across different countries. Pick a server on the Buy Numbers page, choose your service/country, and the code arrives automatically once the sender sends it — no manual refresh needed." },
  { keywords: ['server 1', 'server1', 'usa whatsapp', 'canada'], reply: "Server 1 is no longer USA WhatsApp only — it now gives USA/Canada numbers for many different services, and you can also choose any other country the provider has. Search your country, search your service, see the price, and buy." },
  { keywords: ['server 2', 'server2'], reply: "Server 2 covers a wide range of services beyond WhatsApp — pick your country and the service you need to verify (e.g. Telegram, Facebook, Google, etc.), buy a number, and the code arrives automatically once it's sent." },
@@ -5429,7 +5070,7 @@ app.post('/api/support/ai-chat', auth, async (req, res) => {
  } catch (e) { res.status(500).json({ error: 'Failed to get a reply — please try again.' }); }
 });
 app.post('/api/admin/verify', (req, res) => {
- req.body.passcode === process.env.ADMIN_PASSCODE ? res.json({ success: true }) : res.status(403).json({ error: 'Wrong passcode' });
+ passcodeOk(req.body && req.body.passcode) ? res.json({ success: true }) : res.status(403).json({ error: 'Wrong passcode' });
 });
 app.get('/api/admin/restock-requests', anyAdminAuth, async (req, res) => {
  try {
@@ -8069,8 +7710,6 @@ app.get('/support', (req, res) => (res.set('Cache-Control', 'no-store, must-reva
 // Kept as permanent redirects so old links and bookmarks land on the homepage.
 app.get(['/services', '/airtime', '/data', '/cable', '/electricity', '/betting', '/data-bill'], (req, res) => res.redirect(301, '/'));
 app.get('/settings', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'settings.html'))));
-app.get('/api-docs', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'apidocs.html'))));
-app.get('/apidocs', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'apidocs.html'))));
 app.get('/groups', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'groups.html'))));
 app.get('/messages', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'messages.html'))));
 app.get('/chat', (req, res) => res.redirect(301, '/groups'));
@@ -8489,9 +8128,7 @@ klsCampaigns = require('./lib/campaigns')({
 let klsBoost = null;
 try {
   klsBoost = require('./lib/boost')({
-    app, mongoose, User, Transaction, auth, anyAdminAuth, SystemError, Announcement,
-    // Unlocks the public developer endpoints /api/v1/boost/* (X-API-Key + X-API-Secret).
-    apiKeyAuth
+    app, mongoose, User, Transaction, auth, anyAdminAuth, SystemError, Announcement
   });
 } catch (boostErr) {
   console.error('[boost] module failed to load:', boostErr.message);

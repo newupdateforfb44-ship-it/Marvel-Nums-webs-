@@ -55,6 +55,7 @@
 <link rel="stylesheet" href="/css/marvinums-brand.css?v=2">
 <script defer src="/js/marvinums-brand.js?v=2"></script>
   <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
+  <link rel="stylesheet" href="/css/glass-ui.css?v=1">
 </head>
 <body class="mn-bg-hero">
 <div id="pageLoadBar" class="page-load-bar"></div>
@@ -259,7 +260,6 @@
  <a class="dd-item" href="/referrals"><span><svg class="icon i-link" aria-hidden="true"><use href="#i-link"/></svg></span> Referrals</a>
  <a class="dd-item" href="/purchases"><span><svg class="icon i-package" aria-hidden="true"><use href="#i-package"/></svg></span> My Purchases</a>
  <a class="dd-item" href="/transactions"><span><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg></span> Transactions</a>
- <a class="dd-item" href="/api-docs"><span><svg class="icon i-plug" aria-hidden="true"><use href="#i-plug"/></svg></span> API Docs</a>
  <a class="dd-item" href="/settings"><span><svg class="icon i-settings" aria-hidden="true"><use href="#i-settings"/></svg></span> Settings</a>
  <a class="dd-item" href="#" onclick="showPage('terms')"><span><svg class="icon i-scroll" aria-hidden="true"><use href="#i-scroll"/></svg></span> Terms &amp; Conditions</a>
           <div class="dropdown-divider"></div>
@@ -848,12 +848,7 @@ function filterToolsGrid(){
       <button class="btn-primary" onclick="setPassword()">Add Password</button>
       <div id="setPasswordFeedback" class="form-feedback"></div>
     </div>
-    <div class="settings-card">
- <h3><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg> API Access <span class="mgid-hint" style="display:inline">— for connecting Marvel Nums to your own scripts/apps</span></h3>
-      <div id="apiKeySection">Loading...</div>
- <button class="btn-primary" style="margin-top:14px" onclick="showPage('apidocs')"><svg class="icon i-book-open" aria-hidden="true"><use href="#i-book-open"/></svg> View Full API Documentation</button>
-    </div>
-  </div>
+      </div>
 </div>
 <div id="page-welcome" class="page">
   <div class="welcome-wrap">
@@ -1169,172 +1164,6 @@ function filterToolsGrid(){
  <button class="btn-primary" onclick="history.length>1?history.back():showPage(token?'home':'login')" style="margin-top:20px"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back</button>
   </div>
 </div>
-<div id="page-apidocs" class="page">
-  <div class="page-hero">
- <div class="ph-chip"><svg class="icon i-key" aria-hidden="true"><use href="#i-key"/></svg> Developers</div>
-    <h1>Marvel Nums API Documentation</h1>
-    <p>Connect your own scripts and apps to your Marvel Nums account</p>
-  </div>
-  <div class="section-wrap terms-wrap api-docs-wrap">
-    <div class="api-doc-section">
-      <h3>Getting Started</h3>
-      <p>Every Marvel Nums user can generate a personal <strong>API Key</strong> and <strong>API Secret</strong> from
- <a href="/settings">Settings <svg class="icon i-arrow-right" aria-hidden="true"><use href="#i-arrow-right"/></svg> API Access</a>. These two values authenticate every request
-        you make to the API — treat them like a password. Your secret is shown <strong>once</strong> at generation time and never again,
-        so save it somewhere safe immediately.</p>
-      <p>All endpoints are scoped to your own account only — you can check your own balance, list available items, view your
-        own purchase history, and buy items on your own behalf. You cannot access any other user's data.</p>
-    </div>
-    <div class="api-doc-section">
-      <h3>Authentication</h3>
-      <p>Every request must include these two headers:</p>
-      <div class="api-docs-block">X-API-Key: your_api_key
-X-API-Secret: your_api_secret</div>
-      <p>Requests missing either header, or with an invalid/revoked key, get a <code>401 Unauthorized</code> response.</p>
-    </div>
-    <div class="api-doc-section">
-      <h3>Base URL</h3>
-      <div class="api-docs-block" id="apiBaseUrlBlock">https://your-site.example.com/api/v1</div>
-    </div>
-    <div class="api-doc-section">
-      <h3>Endpoints</h3>
-      <table class="api-endpoint-table">
-        <thead><tr><th>Method</th><th>Endpoint</th><th>What it does</th></tr></thead>
-        <tbody>
-          <tr><td><span class="api-method get">GET</span></td><td><code>/me</code></td><td>Your account info (name, email, balance, Game ID)</td></tr>
-          <tr><td><span class="api-method get">GET</span></td><td><code>/balance</code></td><td>Your current wallet balance</td></tr>
-          <tr><td><span class="api-method get">GET</span></td><td><code>/purchases</code></td><td>Your full purchase history</td></tr>
-          <tr><td><span class="api-method get">GET</span></td><td><code>/listings</code></td><td>All available logs/tools (add <code>?type=tool</code> or <code>?type=log</code> to filter)</td></tr>
-          <tr><td><span class="api-method get">GET</span></td><td><code>/listings/:id</code></td><td>Details of one specific listing</td></tr>
-          <tr><td><span class="api-method post">POST</span></td><td><code>/buy/:id</code></td><td>Purchase a listing using your wallet balance</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="api-doc-section">
-      <h3>Example: Check your balance</h3>
-      <div class="lang-tabs">
-        <button class="lang-tab active" onclick="switchLangTab(this,'bal-curl')">cURL</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'bal-js')">JavaScript</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'bal-py')">Python</button>
-      </div>
-      <div class="lang-panel" id="bal-curl">
-        <div class="api-docs-block">curl https://your-site.example.com/api/v1/balance \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret"</div>
-      </div>
-      <div class="lang-panel" id="bal-js" style="display:none">
-        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/balance', {
-  headers: {
-    'X-API-Key': 'your_api_key',
-    'X-API-Secret': 'your_api_secret'
-  }
-});
-const data = await res.json();
-console.log(data.balance);</div>
-      </div>
-      <div class="lang-panel" id="bal-py" style="display:none">
-        <div class="api-docs-block">import requests
-res = requests.get(
-    "https://your-site.example.com/api/v1/balance",
-    headers={
-        "X-API-Key": "your_api_key",
-        "X-API-Secret": "your_api_secret"
-    }
-)
-print(res.json()["balance"])</div>
-      </div>
-    </div>
-    <div class="api-doc-section">
-      <h3>Example: List available items</h3>
-      <div class="lang-tabs">
-        <button class="lang-tab active" onclick="switchLangTab(this,'list-curl')">cURL</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'list-js')">JavaScript</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'list-py')">Python</button>
-      </div>
-      <div class="lang-panel" id="list-curl">
-        <div class="api-docs-block">curl "https://your-site.example.com/api/v1/listings?type=tool" \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret"</div>
-      </div>
-      <div class="lang-panel" id="list-js" style="display:none">
-        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/listings?type=tool', {
-  headers: {
-    'X-API-Key': 'your_api_key',
-    'X-API-Secret': 'your_api_secret'
-  }
-});
-const tools = await res.json();
-tools.forEach(t => console.log(t.title, t.price));</div>
-      </div>
-      <div class="lang-panel" id="list-py" style="display:none">
-        <div class="api-docs-block">import requests
-res = requests.get(
-    "https://your-site.example.com/api/v1/listings",
-    params={"type": "tool"},
-    headers={
-        "X-API-Key": "your_api_key",
-        "X-API-Secret": "your_api_secret"
-    }
-)
-for tool in res.json():
-    print(tool["title"], tool["price"])</div>
-      </div>
-    </div>
-    <div class="api-doc-section">
-      <h3>Example: Buy an item</h3>
- <div class="info-box" style="margin-bottom:12px"><svg class="icon i-credit-card" aria-hidden="true"><use href="#i-credit-card"/></svg> No platform fee — you're charged exactly the item's listed price via the API, same as buying it through the marketplace. The response includes <code>itemPrice</code> and <code>totalCharged</code> (always equal) so you can confirm this.</div>
-      <div class="lang-tabs">
-        <button class="lang-tab active" onclick="switchLangTab(this,'buy-curl')">cURL</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'buy-js')">JavaScript</button>
-        <button class="lang-tab" onclick="switchLangTab(this,'buy-py')">Python</button>
-      </div>
-      <div class="lang-panel" id="buy-curl">
-        <div class="api-docs-block">curl -X POST https://your-site.example.com/api/v1/buy/LISTING_ID_HERE \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret"</div>
-      </div>
-      <div class="lang-panel" id="buy-js" style="display:none">
-        <div class="api-docs-block">const res = await fetch('https://your-site.example.com/api/v1/buy/LISTING_ID_HERE', {
-  method: 'POST',
-  headers: {
-    'X-API-Key': 'your_api_key',
-    'X-API-Secret': 'your_api_secret'
-  }
-});
-const result = await res.json();
-console.log(result.message, result.newBalance);</div>
-      </div>
-      <div class="lang-panel" id="buy-py" style="display:none">
-        <div class="api-docs-block">import requests
-res = requests.post(
-    "https://your-site.example.com/api/v1/buy/LISTING_ID_HERE",
-    headers={
-        "X-API-Key": "your_api_key",
-        "X-API-Secret": "your_api_secret"
-    }
-)
-result = res.json()
-print(result["message"], result["newBalance"])</div>
-      </div>
-    </div>
-    <div class="api-doc-section">
-      <h3>Errors</h3>
-      <table class="api-endpoint-table">
-        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
-        <tbody>
-          <tr><td><code>401</code></td><td>Missing or invalid API key/secret</td></tr>
-          <tr><td><code>403</code></td><td>Account restricted</td></tr>
-          <tr><td><code>404</code></td><td>Listing not found or no longer available</td></tr>
-          <tr><td><code>400</code></td><td>Insufficient balance, sold out, or invalid request</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
- <button class="btn-primary" onclick="downloadApiDocs()"><svg class="icon i-arrow-down" aria-hidden="true"><use href="#i-arrow-down"/></svg> Download These Docs</button>
- <button class="btn-primary" onclick="showPage('settings')" style="background:transparent;border:1px solid var(--border);color:var(--t2)"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to Settings</button>
-    </div>
-  </div>
-</div>
 </main>
 <div id="itemModal" class="modal-overlay" onclick="closeModal(event)">
   <div class="modal-box">
@@ -1424,6 +1253,6 @@ print(result["message"], result["newBalance"])</div>
 <script src="js/dev-credit.js?v=20260910a" defer></script>
 <script src="/js/mobile-features.js" defer></script>
 <script src="/js/vpn-notice.js" defer></script>
-<script src="/welcome-popup.js?v=2" defer></script>
+<script src="/welcome-popup.js?v=3" defer></script>
 </body>
 </html>
