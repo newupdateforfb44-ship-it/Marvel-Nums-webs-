@@ -93,31 +93,48 @@
     var p = queue.then(run); queue = p.catch(function () {}); return p;
   }
 
-  /* ───────── Tap-to-choose pickers ─────────
-   * The big "select tiles" (server / country / service / pool) used to open the phone's own
-   * picker, which needs a "Done" tap. Now a tile opens our own sheet instead: tap an item and it
-   * is chosen and the sheet closes straight away. The real <select> stays underneath, so every
-   * page's existing logic keeps working (we just set its value and fire "change").
+  /* ───────── Marvel Nums bottom-sheet pickers ─────────
+   * Every big "select tile" (server / country / service / provider / operator) opens this ONE reusable sheet.
+   * The real <select> stays underneath: choosing an item sets its value and fires "change", so each page's
+   * existing logic (and its clearing of dependent choices) keeps working untouched.
+   * The sheet is LIVE — it watches the <select>, so "Loading…" turns into the real list by itself, and a failed
+   * load shows an error with a Try again button (wired through data-retry on the <select>).
    */
   var pcss = '' +
     '.select-tile select{pointer-events:none!important}.select-tile{-webkit-tap-highlight-color:transparent}' +
-    '#klsPick{position:fixed;inset:0;z-index:2147483050;display:none;align-items:flex-end;justify-content:center;background:rgba(5,7,12,.6);backdrop-filter:blur(3px)}' +
-    '#klsPick.show{display:flex;animation:klsFade .18s}' +
-    '.kp-sheet{width:min(560px,100%);max-height:86vh;display:flex;flex-direction:column;background:#12141c;color:#f4f4f8;border:1px solid rgba(255,255,255,.09);border-radius:22px 22px 0 0;box-shadow:0 -18px 60px rgba(0,0,0,.5);animation:kpUp .28s cubic-bezier(.2,.9,.3,1.05)}' +
-    '@keyframes kpUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}' +
-    '@media (min-width:700px){#klsPick{align-items:center}.kp-sheet{border-radius:22px;max-height:78vh}}' +
-    '.kp-hd{display:flex;align-items:center;gap:10px;padding:16px 16px 8px}.kp-hd h3{margin:0;font-size:17px;flex:1}.kp-x{background:rgba(255,255,255,.08);border:0;color:inherit;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}' +
-    '.kp-search{margin:4px 16px 10px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:inherit;font-size:16px;outline:none}.kp-search:focus{border-color:#0788e8}' +
-    '.kp-list{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 8px 14px;flex:1;min-height:120px}' +
-    '.kp-grp{position:sticky;top:0;z-index:1;padding:8px 10px 4px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;opacity:.65;background:#12141c}' +
-    '.kp-item{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;text-align:left;padding:12px 10px;border:0;background:transparent;color:inherit;border-radius:12px;cursor:pointer;font-size:15px;font-family:inherit}' +
-    '.kp-item:hover,.kp-item:focus{background:rgba(255,255,255,.07);outline:none}.kp-item:active{background:rgba(7,136,232,.2)}.kp-item.sel{background:rgba(7,136,232,.16)}' +
-    '.kp-ic{width:28px;height:28px;flex:0 0 auto;display:grid;place-items:center;font-size:20px}.kp-ic img{width:26px;height:26px;object-fit:contain;border-radius:6px}.kp-ic img.fl{width:28px;height:20px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.15)}' +
-    '.kp-tx{flex:1;min-width:0}.kp-nm{font-weight:700;overflow:hidden;text-overflow:ellipsis}.kp-mt{font-size:12.5px;opacity:.7;margin-top:2px}.kp-ck{color:#22c55e;font-weight:900}' +
-    '.kp-empty{padding:26px 14px;text-align:center;opacity:.7}' +
-    '[data-theme="light"] .kp-sheet{background:#fff;color:#111827;border-color:rgba(0,0,0,.1)}[data-theme="light"] .kp-grp{background:#fff}[data-theme="light"] .kp-search{background:#f3f4f6;border-color:#d1d5db}[data-theme="light"] .kp-item:hover{background:#f3f4f6}[data-theme="light"] .kp-x{background:#eceff3}' +
-    '@media (prefers-color-scheme:light){html:not([data-theme="dark"]) .kp-sheet{background:#fff;color:#111827;border-color:rgba(0,0,0,.1)}html:not([data-theme="dark"]) .kp-grp{background:#fff}html:not([data-theme="dark"]) .kp-search{background:#f3f4f6;border-color:#d1d5db}html:not([data-theme="dark"]) .kp-x{background:#eceff3}}';
-  var pickEl, pickState = null;
+    '#klsPick{position:fixed;inset:0;z-index:2147483050;display:none;align-items:flex-end;justify-content:center;background:rgba(2,6,24,.66);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}' +
+    '#klsPick.show{display:flex;animation:kpFadeIn .22s ease both}#klsPick.closing{animation:kpFadeOut .22s ease both}' +
+    '@keyframes kpFadeIn{from{opacity:0}to{opacity:1}}@keyframes kpFadeOut{from{opacity:1}to{opacity:0}}' +
+    '.kp-sheet{width:min(560px,100%);max-height:86vh;max-height:86dvh;display:flex;flex-direction:column;color:#f4f6ff;' +
+      'background:linear-gradient(180deg,rgba(16,28,60,.98),rgba(7,14,36,.99));border:1px solid rgba(38,177,255,.28);border-bottom:0;' +
+      'border-radius:24px 24px 0 0;box-shadow:0 -20px 60px rgba(0,0,0,.55),0 -1px 0 rgba(22,200,255,.25) inset;' +
+      'padding-bottom:env(safe-area-inset-bottom,0);animation:kpUp .3s cubic-bezier(.22,.9,.28,1) both;will-change:transform}' +
+    '#klsPick.closing .kp-sheet{animation:kpDown .22s cubic-bezier(.4,0,1,1) both}' +
+    '@keyframes kpUp{from{transform:translateY(100%)}to{transform:none}}@keyframes kpDown{from{transform:none}to{transform:translateY(100%)}}' +
+    '@media (min-width:700px){#klsPick{align-items:center}.kp-sheet{border-radius:24px;border-bottom:1px solid rgba(38,177,255,.28);max-height:78vh}' +
+      '@keyframes kpUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}@keyframes kpDown{from{transform:none;opacity:1}to{transform:translateY(40px);opacity:0}}}' +
+    '.kp-grab{width:42px;height:5px;border-radius:99px;background:rgba(255,255,255,.22);margin:9px auto 0;flex:0 0 auto;touch-action:none}' +
+    '.kp-hd{display:flex;align-items:center;gap:10px;padding:12px 16px 6px;touch-action:none}.kp-hd h3{margin:0;font-size:18px;font-weight:800;flex:1}' +
+    '.kp-cnt{font-size:12px;opacity:.6;font-weight:700}' +
+    '.kp-x{background:rgba(255,255,255,.09);border:0;color:inherit;width:34px;height:34px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto}.kp-x:hover{background:rgba(255,255,255,.16)}' +
+    '.kp-search{margin:6px 16px 10px;padding:13px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;font-size:16px;outline:none;font-family:inherit;flex:0 0 auto}' +
+    '.kp-search:focus{border-color:#16c8ff;box-shadow:0 0 0 3px rgba(22,200,255,.18)}.kp-search:disabled{opacity:.45}' +
+    '.kp-list{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 8px 14px;flex:1;min-height:150px}' +
+    '.kp-grp{position:sticky;top:0;z-index:1;padding:8px 10px 4px;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;opacity:.8;color:#7fdcff;background:#0c1836}' +
+    '.kp-item{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;text-align:left;padding:12px 12px;margin:2px 0;border:1px solid transparent;background:transparent;color:inherit;border-radius:14px;cursor:pointer;font-size:15px;font-family:inherit;transition:background .15s,border-color .15s,transform .1s}' +
+    '.kp-item:hover,.kp-item:focus{background:rgba(255,255,255,.07);outline:none}.kp-item:active{transform:scale(.985);background:rgba(22,200,255,.16)}' +
+    '.kp-item.sel{background:linear-gradient(90deg,rgba(22,200,255,.17),rgba(23,105,255,.13));border-color:rgba(22,200,255,.45)}' +
+    '.kp-ic{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;font-size:20px}.kp-ic img{width:28px;height:28px;object-fit:contain;border-radius:7px}' +
+    '.kp-ic img.fl{width:30px;height:21px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px rgba(255,255,255,.18)}' +
+    '.kp-tx{flex:1;min-width:0}.kp-nm{font-weight:700;overflow:hidden;text-overflow:ellipsis}.kp-mt{font-size:12.5px;opacity:.7;margin-top:2px}' +
+    '.kp-ck{color:#22c55e;font-weight:900;font-size:18px;flex:0 0 auto}' +
+    '.kp-state{padding:34px 20px;text-align:center}.kp-state .kp-big{font-size:30px;margin-bottom:8px}.kp-state p{margin:0 0 4px;font-size:14.5px;line-height:1.5}.kp-state .kp-sub{font-size:12.5px;opacity:.65}' +
+    '.kp-state.err .kp-msg{color:#ff8a80}.kp-btn{margin-top:14px;padding:11px 20px;border-radius:12px;border:1px solid rgba(22,200,255,.5);background:rgba(22,200,255,.12);color:#bdeeff;font:inherit;font-weight:800;font-size:14px;cursor:pointer}' +
+    '.kp-btn:active{transform:scale(.97)}' +
+    '.kp-spin{width:30px;height:30px;margin:0 auto 12px;border-radius:50%;border:3px solid rgba(255,255,255,.14);border-top-color:#16c8ff;animation:kpSpin .8s linear infinite}@keyframes kpSpin{to{transform:rotate(360deg)}}' +
+    '.kp-sk{height:46px;border-radius:14px;margin:6px 4px;background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.12),rgba(255,255,255,.05));background-size:200% 100%;animation:kpSh 1.2s linear infinite}@keyframes kpSh{to{background-position:-200% 0}}' +
+    '@media (prefers-reduced-motion:reduce){.kp-sheet,#klsPick.show,#klsPick.closing{animation-duration:.01s!important}.kp-spin,.kp-sk{animation:none}}';
+  var pickEl, pickState = null, pickCloseT = null, pickSeq = 0, prevOverflow = '';
   function flagUrl(emoji) {
     var cp = Array.from(emoji).map(function (c) { return c.codePointAt(0); }).filter(function (c) { return c >= 127462 && c <= 127487; });
     return cp.length === 2 ? 'https://flagcdn.com/w40/' + String.fromCharCode(cp[0] - 127397, cp[1] - 127397).toLowerCase() + '.png' : '';
@@ -145,13 +162,37 @@
     }
     return out;
   }
+  function placeholderOf(sel) {
+    var o = Array.prototype.filter.call(sel.options, function (x) { return x.value === ''; })[0];
+    return o ? (o.textContent || '').trim() : '';
+  }
+  // What should the sheet show right now? Decided from the REAL <select>, never from made-up data.
+  function classify(sel, items) {
+    if (items.length) return { kind: 'list' };
+    var t = placeholderOf(sel);
+    if (/loading|checking/i.test(t)) return { kind: 'loading', msg: t };
+    if (/fail|could not|couldn.t|error|unable|try again/i.test(t)) return { kind: 'error', msg: t };
+    return { kind: 'empty', msg: t || 'Nothing to choose from yet.' };
+  }
   function iconHtml(it) {
     if (it.icon) return '<img src="' + esc(it.icon) + '" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode(\'📱\'))">';
     if (it.lead.indexOf('flag:') === 0 && it.lead.length > 5) return '<img class="fl" src="' + esc(it.lead.slice(5)) + '" alt="" loading="lazy" onerror="this.replaceWith(document.createTextNode(\'🌍\'))">';
     if (it.lead.indexOf('emoji:') === 0) return esc(it.lead.slice(6));
     return '';
   }
-  function closePick() { if (!pickEl) return; pickEl.classList.remove('show'); pickEl.innerHTML = ''; pickState = null; document.removeEventListener('keydown', pickKey); }
+  function closePick(now) {
+    if (!pickEl || !pickEl.classList.contains('show') || pickEl.classList.contains('closing')) return;
+    if (pickState && pickState.obs) pickState.obs.disconnect();
+    document.removeEventListener('keydown', pickKey);
+    var seq = pickSeq, reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    var finish = function () {
+      if (seq !== pickSeq) return;                    // a newer sheet was opened meanwhile — leave it alone
+      pickEl.classList.remove('show', 'closing'); pickEl.innerHTML = ''; pickState = null;
+      document.documentElement.style.overflow = prevOverflow;
+    };
+    if (now || reduce) { finish(); return; }
+    pickEl.classList.add('closing'); clearTimeout(pickCloseT); pickCloseT = setTimeout(finish, 230);
+  }
   function pickKey(e) { if (e.key === 'Escape') closePick(); }
   function openPick(sel, tile) {
     ready(function () {
@@ -160,48 +201,102 @@
         var st = document.createElement('style'); st.textContent = pcss; document.head.appendChild(st);
         pickEl = document.createElement('div'); pickEl.id = 'klsPick'; document.body.appendChild(pickEl);
       }
+      clearTimeout(pickCloseT); pickSeq++;
+      pickEl.classList.remove('closing');
+      if (!pickEl.classList.contains('show')) { prevOverflow = document.documentElement.style.overflow; }
+      if (pickState && pickState.obs) pickState.obs.disconnect();
       var items = readOptions(sel);
       var title = ((tile.querySelector('.st-label') || {}).textContent || 'Choose').trim();
       var touch = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
-      pickEl.innerHTML = '<div class="kp-sheet" role="dialog" aria-modal="true"><div class="kp-hd"><h3>' + esc(title) + '</h3><button class="kp-x" type="button" aria-label="Close">×</button></div>' +
-        (items.length > 7 ? '<input class="kp-search" type="search" placeholder="Search…" autocomplete="off">' : '') + '<div class="kp-list"></div></div>';
+      pickEl.innerHTML = '<div class="kp-sheet" role="dialog" aria-modal="true" aria-label="' + esc(title) + '">' +
+        '<div class="kp-grab"></div><div class="kp-hd"><h3>' + esc(title) + '</h3><span class="kp-cnt"></span><button class="kp-x" type="button" aria-label="Close">×</button></div>' +
+        '<input class="kp-search" type="search" placeholder="Search ' + esc(title.replace(/^select\s+/i, '').toLowerCase()) + '…" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Search">' +
+        '<div class="kp-list" role="listbox"></div></div>';
       pickEl.classList.add('show');
-      var list = pickEl.querySelector('.kp-list'), search = pickEl.querySelector('.kp-search');
-      var view = [], shown = 0, STEP = 80;
+      document.documentElement.style.overflow = 'hidden';
+      var sheet = pickEl.querySelector('.kp-sheet'), list = pickEl.querySelector('.kp-list'), search = pickEl.querySelector('.kp-search'), cnt = pickEl.querySelector('.kp-cnt');
+      var view = [], shown = 0, STEP = 80, retrying = false;
       pickState = { sel: sel };
+
       function row(it, i) {
-        return '<button type="button" class="kp-item' + (it.selected ? ' sel' : '') + '" data-i="' + i + '"><span class="kp-ic">' + iconHtml(it) + '</span><span class="kp-tx"><div class="kp-nm">' + esc(it.name) + '</div>' + (it.meta ? '<div class="kp-mt">' + esc(it.meta) + '</div>' : '') + '</span>' + (it.selected ? '<span class="kp-ck">✓</span>' : '') + '</button>';
+        return '<button type="button" role="option" aria-selected="' + (it.selected ? 'true' : 'false') + '" class="kp-item' + (it.selected ? ' sel' : '') + '" data-i="' + i + '"><span class="kp-ic">' + iconHtml(it) +
+          '</span><span class="kp-tx"><div class="kp-nm">' + esc(it.name) + '</div>' + (it.meta ? '<div class="kp-mt">' + esc(it.meta) + '</div>' : '') + '</span>' + (it.selected ? '<span class="kp-ck">✓</span>' : '') + '</button>';
       }
       function paint(reset) {
         if (reset) { list.innerHTML = ''; shown = 0; }
-        if (!view.length) { list.innerHTML = '<div class="kp-empty">Nothing matches your search.</div>'; return; }
         var html = '', last = shown ? view[shown - 1].it.group : null;
         view.slice(shown, shown + STEP).forEach(function (v) {
-          if (v.it.group && v.it.group !== last) { html += '<div class="kp-grp">' + esc(v.it.group) + '</div>'; }
+          if (v.it.group && v.it.group !== last) html += '<div class="kp-grp">' + esc(v.it.group) + '</div>';
           last = v.it.group; html += row(v.it, v.i);
         });
         shown += STEP;
         list.insertAdjacentHTML('beforeend', html);
       }
-      function filter() {
-        var q = search ? search.value.trim().toLowerCase() : '';
+      function stateBox(kind, big, msg, sub, btn) {
+        list.innerHTML = '<div class="kp-state ' + kind + '">' + (kind === 'load' ? '<div class="kp-spin"></div>' : '<div class="kp-big">' + big + '</div>') +
+          '<p class="kp-msg">' + esc(msg) + '</p>' + (sub ? '<div class="kp-sub">' + esc(sub) + '</div>' : '') + (btn ? '<button type="button" class="kp-btn" data-act="' + btn[0] + '">' + btn[1] + '</button>' : '') + '</div>';
+      }
+      function render() {
+        var c = classify(sel, items);
+        search.disabled = c.kind !== 'list';
+        if (c.kind === 'loading' || retrying) {
+          cnt.textContent = ''; stateBox('load', '', retrying ? 'Trying again…' : c.msg.replace(/…$/, '') + '…', 'Fetching live data'); 
+          list.insertAdjacentHTML('beforeend', '<div class="kp-sk"></div><div class="kp-sk"></div><div class="kp-sk"></div>'); return;
+        }
+        if (c.kind === 'error') {
+          cnt.textContent = '';
+          var canRetry = !!(sel.getAttribute('data-retry') && typeof window[sel.getAttribute('data-retry')] === 'function');
+          stateBox('err', '⚠️', 'We could not load this list.', c.msg, canRetry ? ['retry', 'Try again'] : null); return;
+        }
+        if (c.kind === 'empty') { cnt.textContent = ''; stateBox('empty', '📭', c.msg, 'Nothing is available for your earlier choices right now.'); return; }
+        var q = search.value.trim().toLowerCase();
         view = items.map(function (it, i) { return { it: it, i: i }; }).filter(function (v) { return !q || (v.it.name + ' ' + v.it.meta).toLowerCase().indexOf(q) !== -1; });
+        cnt.textContent = (q ? view.length + ' of ' : '') + items.length + ' available';
+        if (!view.length) { stateBox('empty', '🔍', 'No match for “' + q + '”.', 'Try a different spelling.', ['clear', 'Clear search']); return; }
         paint(true);
-        if (!q) { var s = list.querySelector('.sel'); if (s) s.scrollIntoView({ block: 'center' }); }
+        if (!q && !pickState.scrolled) { var s = list.querySelector('.sel'); if (s) s.scrollIntoView({ block: 'center' }); pickState.scrolled = true; }
       }
       list.addEventListener('scroll', function () { if (shown < view.length && list.scrollTop + list.clientHeight > list.scrollHeight - 300) paint(false); });
       list.addEventListener('click', function (e) {
+        var act = e.target.closest('[data-act]');
+        if (act) {
+          if (act.getAttribute('data-act') === 'clear') { search.value = ''; render(); search.focus(); return; }
+          if (act.getAttribute('data-act') === 'retry') {
+            var fn = window[sel.getAttribute('data-retry')], arg = sel.getAttribute('data-retry-arg');
+            retrying = true; render();
+            try { fn(arg === 'true' ? true : undefined); } catch (_) {}
+            setTimeout(function () { retrying = false; render(); }, 12000); // never spin forever
+            return;
+          }
+        }
         var b = e.target.closest('.kp-item'); if (!b) return;
         var it = items[Number(b.getAttribute('data-i'))]; if (!it) return;
-        closePick();
         sel.value = it.value;
         sel.dispatchEvent(new Event('change', { bubbles: true }));
+        closePick();
       });
-      if (search) { search.addEventListener('input', filter); if (!touch) setTimeout(function () { search.focus(); }, 40); }
-      pickEl.querySelector('.kp-x').onclick = closePick;
+      // Live: the page may finish loading, fail, or reset this <select> while the sheet is open.
+      var t = null;
+      try {
+        pickState.obs = new MutationObserver(function () {
+          clearTimeout(t);
+          t = setTimeout(function () { if (!pickState || pickState.sel !== sel) return; retrying = false; items = readOptions(sel); render(); }, 60);
+        });
+        pickState.obs.observe(sel, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['disabled'] });
+      } catch (_) {}
+      search.addEventListener('input', render);
+      pickEl.querySelector('.kp-x').onclick = function () { closePick(); };
       pickEl.onclick = function (e) { if (e.target === pickEl) closePick(); };
+      // Swipe down on the handle/header to dismiss (touch devices).
+      var y0 = null, dy = 0, hd = pickEl.querySelector('.kp-hd'), gr = pickEl.querySelector('.kp-grab');
+      [hd, gr].forEach(function (el) {
+        el.addEventListener('touchstart', function (e) { y0 = e.touches[0].clientY; dy = 0; sheet.style.animation = 'none'; sheet.style.transition = 'none'; }, { passive: true });
+        el.addEventListener('touchmove', function (e) { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); sheet.style.transform = 'translateY(' + dy + 'px)'; }, { passive: true });
+        el.addEventListener('touchend', function () { if (y0 == null) return; y0 = null; sheet.style.transition = 'transform .2s'; if (dy > 90) { sheet.style.transform = ''; sheet.style.animation = ''; closePick(); } else sheet.style.transform = ''; });
+      });
       document.addEventListener('keydown', pickKey);
-      filter();
+      render();
+      if (!touch) setTimeout(function () { if (!search.disabled) search.focus(); }, 60);
     });
   }
   function installPickers() {
@@ -213,13 +308,129 @@
       if (!tile) return;
       var sel = tile.querySelector('select'); if (!sel) return;
       e.preventDefault();
-      if (sel.disabled) { var hint = ((tile.querySelector('.st-value') || {}).textContent || '').trim(); if (hint) banner(hint, 'info', { title: 'One step at a time', ms: 2600 }); return; }
+      if (sel.disabled && !/loading|checking/i.test(placeholderOf(sel))) {
+        var hint = ((tile.querySelector('.st-value') || {}).textContent || '').trim(); if (hint) banner(hint, 'info', { title: 'One step at a time', ms: 2600 }); return;
+      }
       openPick(sel, tile);
     }, true);
   }
   installPickers();
 
-  window.KLS = { banner: banner, confirm: confirmCard };
+  /* ───────── Marvel Nums purchase confirmation modal ─────────
+   * KLS.purchase({ title, rows:[[label,value],…], price, priceText, getBalance(), fmt(n), notice, fine,
+   *                confirm(): Promise<result>, successText(result), onSuccess(result), depositUrl })
+   * Shows the REAL selections / price / wallet balance, then runs confirm() (the page's real purchase request).
+   * Nothing is submitted until "Confirm Purchase"; double taps are ignored; success is shown only after confirm() resolves.
+   */
+  var bcss = '' +
+    '#mnBuy{position:fixed;inset:0;z-index:2147483200;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,24,.7);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}' +
+    '#mnBuy.show{display:flex;animation:mnbIn .2s ease both}#mnBuy.closing{animation:mnbOut .2s ease both}' +
+    '@keyframes mnbIn{from{opacity:0}to{opacity:1}}@keyframes mnbOut{from{opacity:1}to{opacity:0}}' +
+    '.mnb-card{width:min(430px,100%);max-height:92vh;overflow:auto;color:#f4f6ff;background:linear-gradient(180deg,rgba(18,32,68,.98),rgba(7,14,36,.99));border:1px solid rgba(38,177,255,.3);border-radius:24px;padding:22px 20px 18px;box-shadow:0 26px 80px rgba(0,0,0,.6);animation:mnbPop .28s cubic-bezier(.2,.9,.3,1.15) both}' +
+    '#mnBuy.closing .mnb-card{animation:mnbPopOut .2s ease both}@keyframes mnbPop{from{transform:translateY(24px) scale(.95);opacity:0}to{transform:none;opacity:1}}@keyframes mnbPopOut{to{transform:translateY(16px) scale(.96);opacity:0}}' +
+    '@media (max-width:560px){#mnBuy{align-items:flex-end;padding:0}.mnb-card{width:100%;border-radius:24px 24px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom,0))}}' +
+    '.mnb-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px}.mnb-ic{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#16c8ff,#1769ff);color:#fff;flex:0 0 auto}' +
+    '.mnb-hd h3{margin:0;font-size:19px;font-weight:800}.mnb-hd p{margin:2px 0 0;font-size:12.5px;opacity:.65}' +
+    '.mnb-notice{margin:0 0 12px;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.45;background:rgba(244,185,66,.12);border:1px solid rgba(244,185,66,.4);color:#ffd98a}' +
+    '.mnb-rows{border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.04)}' +
+    '.mnb-row{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 14px;font-size:14px}.mnb-row+.mnb-row{border-top:1px solid rgba(255,255,255,.07)}' +
+    '.mnb-row span{opacity:.7;flex:0 0 auto}.mnb-row b{text-align:right;word-break:break-word;font-weight:700}' +
+    '.mnb-row.price b{font-size:18px;color:#7fdcff}.mnb-row.after b{color:#22c55e}.mnb-row.low b{color:#ff8a80}' +
+    '.mnb-sk{display:inline-block;width:80px;height:14px;border-radius:7px;background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(255,255,255,.2),rgba(255,255,255,.08));background-size:200% 100%;animation:kpSh 1.1s linear infinite}' +
+    '.mnb-msg{display:none;margin-top:12px;padding:10px 12px;border-radius:12px;font-size:13.5px;line-height:1.45}.mnb-msg.err{display:block;background:rgba(255,69,58,.12);border:1px solid rgba(255,69,58,.4);color:#ff9d95}' +
+    '.mnb-msg.err a{color:#bdeeff;font-weight:800}' +
+    '.mnb-act{display:flex;gap:10px;margin-top:16px}.mnb-act button,.mnb-act a{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 12px;border-radius:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;text-decoration:none;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);background:transparent;color:inherit}' +
+    '.mnb-act button#mnbCancel{flex:.8}.mnb-act .ok{flex:1.4;white-space:nowrap;border-color:transparent;background:linear-gradient(135deg,#16c8ff,#1769ff);color:#fff;box-shadow:0 8px 24px rgba(23,105,255,.4)}.mnb-act button:active,.mnb-act a:active{transform:scale(.98)}.mnb-act [disabled]{opacity:.55;cursor:not-allowed;box-shadow:none}' +
+    '.mnb-fine{margin:12px 2px 0;font-size:12px;line-height:1.5;opacity:.6;text-align:center}' +
+    '.mnb-spin{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;animation:kpSpin .8s linear infinite}' +
+    '.mnb-done{text-align:center;padding:14px 4px 6px}.mnb-done .mnb-tick{width:64px;height:64px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;background:rgba(34,197,94,.15);color:#22c55e;box-shadow:0 0 0 8px rgba(34,197,94,.08);animation:mnbPop .35s ease both}' +
+    '.mnb-done h3{margin:0 0 6px;font-size:20px}.mnb-done p{margin:0;font-size:14px;opacity:.8}.mnb-done .num{font-size:22px;font-weight:800;letter-spacing:.02em;margin:10px 0 4px;opacity:1}' +
+    '@media (prefers-reduced-motion:reduce){#mnBuy.show,#mnBuy.closing,.mnb-card,.mnb-spin,.mnb-sk{animation-duration:.01s!important}}';
+  var buyEl, buyBusy = false, buyOpen = false;
+  function purchaseModal(o) {
+    o = o || {};
+    return new Promise(function (resolve) {
+      ready(function () {
+        if (buyOpen) return resolve({ status: 'ignored' });       // never stack two purchase dialogs
+        buyOpen = true; mount();
+        if (!buyEl) {
+          var st = document.createElement('style'); st.textContent = bcss; document.head.appendChild(st);
+          buyEl = document.createElement('div'); buyEl.id = 'mnBuy'; document.body.appendChild(buyEl);
+        }
+        var fmt = o.fmt || function (n) { return String(n); };
+        var price = Number(o.price), havePrice = isFinite(price);
+        var rowsHtml = (o.rows || []).map(function (r) { return '<div class="mnb-row"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('');
+        var cart = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>';
+        buyEl.innerHTML = '<div class="mnb-card" role="dialog" aria-modal="true" aria-labelledby="mnbT"><div id="mnbBody">' +
+          '<div class="mnb-hd"><div class="mnb-ic">' + cart + '</div><div><h3 id="mnbT">' + esc(o.title || 'Confirm purchase') + '</h3><p>Review the details before you pay</p></div></div>' +
+          (o.notice ? '<div class="mnb-notice">' + esc(o.notice) + '</div>' : '') +
+          '<div class="mnb-rows">' + rowsHtml +
+            '<div class="mnb-row price"><span>Price</span><b>' + esc(o.priceText || '—') + '</b></div>' +
+            '<div class="mnb-row" id="mnbBalRow"><span>Wallet balance</span><b id="mnbBal"><i class="mnb-sk"></i></b></div>' +
+            '<div class="mnb-row after" id="mnbAfterRow" style="display:none"><span>Balance after</span><b id="mnbAfter">—</b></div>' +
+          '</div><div class="mnb-msg" id="mnbMsg" role="alert"></div>' +
+          '<div class="mnb-act"><button type="button" id="mnbCancel">Cancel</button><button type="button" class="ok" id="mnbOk" disabled>Confirm Purchase</button></div>' +
+          '<p class="mnb-fine">' + esc(o.fine || 'The price is deducted from your wallet now and refunded automatically if no code arrives in time.') + '</p>' +
+          '</div></div>';
+        buyEl.classList.remove('closing'); buyEl.classList.add('show');
+        var $ = function (id) { return buyEl.querySelector('#' + id); };
+        var cancelBtn = $('mnbCancel'), okBtn = $('mnbOk'), msg = $('mnbMsg'), body = $('mnbBody');
+        var balance = null, short = false, finished = false;
+
+        function close(result) {
+          if (finished) return; finished = true;
+          document.removeEventListener('keydown', key);
+          buyEl.classList.add('closing');
+          setTimeout(function () { buyEl.classList.remove('show', 'closing'); buyEl.innerHTML = ''; buyOpen = false; buyBusy = false; resolve(result); }, 210);
+        }
+        function key(e) { if (e.key === 'Escape' && !buyBusy) close({ status: 'cancelled' }); }
+        function setShort() {
+          short = true;
+          $('mnbBalRow').classList.add('low');
+          msg.className = 'mnb-msg err';
+          msg.innerHTML = 'Your wallet balance is too low for this number. <a href="' + esc(o.depositUrl || '/deposit') + '">Fund your wallet</a> and come back — your selections are kept.';
+          okBtn.outerHTML = '<a class="ok" id="mnbOk" href="' + esc(o.depositUrl || '/deposit') + '">Fund wallet</a>';
+        }
+        // Fresh wallet balance every time the dialog opens (the backend still re-checks on purchase).
+        Promise.resolve().then(function () { return o.getBalance ? o.getBalance() : null; }).catch(function () { return null; }).then(function (b) {
+          if (finished) return;
+          balance = (b == null || !isFinite(Number(b))) ? null : Number(b);
+          $('mnbBal').textContent = balance == null ? 'Unavailable' : fmt(balance);
+          if (balance != null && havePrice) {
+            if (balance < price) { setShort(); return; }
+            $('mnbAfterRow').style.display = ''; $('mnbAfter').textContent = fmt(balance - price);
+          }
+          okBtn.disabled = false;
+        });
+
+        cancelBtn.onclick = function () { if (!buyBusy) close({ status: 'cancelled' }); };
+        buyEl.onclick = function (e) { if (e.target === buyEl && !buyBusy) close({ status: 'cancelled' }); };
+        document.addEventListener('keydown', key);
+        buyEl.addEventListener('click', function onOk(e) {
+          var btn = e.target.closest && e.target.closest('#mnbOk'); if (!btn || btn.tagName === 'A') return;
+          if (buyBusy || btn.disabled || short || finished) return;      // duplicate-submit guard
+          buyBusy = true; btn.disabled = true; cancelBtn.disabled = true; msg.className = 'mnb-msg';
+          btn.innerHTML = '<span class="mnb-spin"></span> Placing your order…';
+          Promise.resolve().then(function () { return o.confirm(); }).then(function (result) {
+            // Success is announced only now — after the real purchase request resolved.
+            var text = o.successText ? o.successText(result) : {};
+            body.innerHTML = '<div class="mnb-done"><div class="mnb-tick"><svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>' +
+              '<h3>Purchase successful</h3>' + (text.number ? '<div class="num">' + esc(text.number) + '</div>' : '') + '<p>' + esc(text.line || 'Opening your number…') + '</p></div>';
+            setTimeout(function () { close({ status: 'success', result: result }); if (o.onSuccess) o.onSuccess(result); }, 900);
+          }).catch(function (err) {
+            buyBusy = false; cancelBtn.disabled = false;
+            var m = (err && err.message) || 'The purchase could not be completed.';
+            msg.className = 'mnb-msg err';
+            if (/insufficient balance/i.test(m)) { msg.innerHTML = esc(m) + ' — <a href="' + esc(o.depositUrl || '/deposit') + '">fund your wallet</a>. Nothing was charged.'; btn.innerHTML = 'Confirm Purchase'; btn.disabled = true; }
+            else { msg.textContent = m + (/charged|deduct/i.test(m) ? '' : ' Nothing was charged.'); btn.innerHTML = 'Try again'; btn.disabled = false; }
+            if (o.onError) try { o.onError(err); } catch (_) {}
+          });
+        });
+      });
+    });
+  }
+  window.KLS = { banner: banner, confirm: confirmCard, purchase: purchaseModal };
+  window.mnPurchase = purchaseModal;
   window.kslConfirm = confirmCard;
   window.alert = function (m) { banner(m); };
   // Wrap each page's own showToast (defined later by page scripts) so it uses the banner too.

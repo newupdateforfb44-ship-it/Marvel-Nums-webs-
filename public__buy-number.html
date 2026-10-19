@@ -8,7 +8,6 @@
 <meta name="description" content="Rent a virtual number for SMS/OTP verification on Marvel Nums."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
-<link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
 <meta name="theme-color" content="#0788e8"/>
 <!-- shared site stylesheet: loaded before this page's own <style> so page rules still win -->
 <link rel="stylesheet" href="style.css?v=20260910a"/>
@@ -247,15 +246,19 @@ function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' +
   <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
   <link rel="stylesheet" href="/brand.css"/>
   <link rel="stylesheet" href="/css/mobile-fix.css">
-<script src="/js/kls-ui.js?v=1"></script>
+<script src="/kls-ui.js?v=2"></script>
 <script>
 /* Safety net: if the pop-up helper file failed to load, still ask before spending money (never silently do nothing). */
+if (typeof window.mnPurchase !== 'function') {
+  window.mnPurchase = function () { try { alert('The purchase window could not load. Please refresh the page and try again — nothing was charged.'); } catch (_) {} return Promise.resolve({ status: 'cancelled' }); };
+}
 if (typeof window.kslConfirm !== 'function') {
   window.kslConfirm = function (m) { return Promise.resolve(window.confirm(m)); };
 }
 </script>
 
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="128x128" href="/favicon.png?v=mn2">
+<link rel="shortcut icon" href="/favicon.ico?v=mn2">
 <link rel="stylesheet" href="/css/marvinums-brand.css">
 <script defer src="/js/marvinums-brand.js"></script>
   <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
@@ -575,7 +578,7 @@ if (typeof window.kslConfirm !== 'function') {
       <div class="step-label">Step 1 — Select a server</div>
       <div class="select-tile" style="margin-bottom:12px">
         <div class="st-icon">🖥️</div><div class="st-body"><div class="st-label">Server</div><div class="st-value">Choose the server that offers your service</div></div>
-        <select id="numNovaServerSelect" onchange="onNovaServerChange()"><option value="">Loading servers…</option></select>
+        <select id="numNovaServerSelect" data-retry="loadNumOptions" onchange="onNovaServerChange()"><option value="">Loading servers…</option></select>
       </div>
       <div id="numCountryStep">
       <div class="step-label">Step 2 — Search &amp; pick the country</div>
@@ -592,7 +595,7 @@ if (typeof window.kslConfirm !== 'function') {
           <div class="st-value" id="numCountryValueText">Loading…</div>
         </div>
         <div class="st-chev">⌄</div>
-        <select id="numCountrySelect" autocomplete="off" onchange="s1UserPickedCountry = true; onNumCountryChange()"><option value="">Loading…</option></select>
+        <select id="numCountrySelect" data-retry="loadNumOptions" autocomplete="off" onchange="s1UserPickedCountry = true; onNumCountryChange()"><option value="">Loading…</option></select>
       </div>
 
       </div><!-- /numCountryStep -->
@@ -611,7 +614,7 @@ if (typeof window.kslConfirm !== 'function') {
           <div class="st-value" id="numProviderValueText">Select a country first</div>
         </div>
         <div class="st-chev">⌄</div>
-        <select id="numProviderSelect" onchange="onNumProviderChange()" disabled><option value="">Select a country first</option></select>
+        <select id="numProviderSelect" data-retry="onNumCountryChange" data-retry-arg="true" onchange="onNumProviderChange()" disabled><option value="">Select a country first</option></select>
       </div>
 
       <div class="price-box" id="numPriceBox">
@@ -651,7 +654,7 @@ if (typeof window.kslConfirm !== 'function') {
           <div class="st-value" id="g2ServiceValueText">Loading…</div>
         </div>
         <div class="st-chev">⌄</div>
-        <select id="g2ServiceSelect" onchange="onG2ServiceChange()"><option value="">Loading…</option></select>
+        <select id="g2ServiceSelect" data-retry="loadG2Services" onchange="onG2ServiceChange()"><option value="">Loading…</option></select>
       </div>
 
       <div class="step-label">Step 2 — Search &amp; pick the country</div>
@@ -669,7 +672,7 @@ if (typeof window.kslConfirm !== 'function') {
           <div class="st-value" id="g2CountryValueText">Select a service first</div>
         </div>
         <div class="st-chev">⌄</div>
-        <select id="g2CountrySelect" onchange="onG2CountryChange()" disabled><option value="">Select a service first</option></select>
+        <select id="g2CountrySelect" data-retry="onG2ServiceChange" onchange="onG2CountryChange()" disabled><option value="">Select a service first</option></select>
       </div>
 
       <div id="g2OperatorWrap" style="display:none">
@@ -703,7 +706,7 @@ if (typeof window.kslConfirm !== 'function') {
           <div class="st-value" id="g2ProviderValueText">Select a country first</div>
         </div>
         <div class="st-chev">⌄</div>
-        <select id="g2ProviderSelect" onchange="onG2ProviderChange()" disabled><option value="">Select a country first</option></select>
+        <select id="g2ProviderSelect" data-retry="onG2CountryChange" onchange="onG2ProviderChange()" disabled><option value="">Select a country first</option></select>
       </div>
 
 
@@ -890,7 +893,22 @@ async function loadBalance() {
     const me = await req('/api/user/me', 'GET', null, true);
     window._numBal = Number(me.balance) || 0;
     el.textContent = AMT(me.balance);
-  } catch (e) { el.textContent = '—'; }
+    return window._numBal;
+  } catch (e) { el.textContent = '—'; return null; }
+}
+
+// After a CONFIRMED purchase, open the order in Number History — the one purchased-number card
+// (copy number, 20-min countdown, SMS status, Cancel & Refund). Same order, same backend; no second flow.
+function goToPurchasedNumber(order, server) {
+  const id = order && (order.orderId || order.id);
+  if (!id) { loadBalance(); return; }
+  window.location.href = '/number-history?' + new URLSearchParams({ order: String(id), server }).toString();
+}
+// Text shown in the picked option of a <select>, without the trailing " — price" part.
+function selText(id) {
+  const sel = document.getElementById(id);
+  const t = sel && sel.selectedOptions && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent : '';
+  return String(t || '').split(' — ')[0].replace(/^[^\p{L}\p{N}]+/u, '').trim();
 }
 
 // Countries are fetched live, same as the admin panel — no static list to go stale.
@@ -1134,33 +1152,22 @@ async function buyNumber() {
   if (!bnToken) { window.location.href = '/login'; return; }
   const _srv = numNovaServers.find(x => String(x.id) === String(selectedNovaServerId));
   const _cty = numCountries.find(x => x.code === country);
-  if (!await kslConfirm(`Buy a ${match.provider} number${_cty ? ' (' + _cty.name + ')' : ''}${_srv ? ' on ' + _srv.name : ''} for ${PRICE(match.price)}? It is deducted from your wallet now and automatically refunded if no code arrives within 20 minutes. You can also cancel for a full refund while you wait.`, { title: 'Confirm purchase', okText: 'Yes, buy it', cancelText: 'No, go back' })) return;
-
-  // Show the deduction on screen immediately — the server takes the money before it orders anything.
-  try { if (typeof window._numBal === 'number') document.getElementById('numBalDisplay').textContent = AMT(Math.max(0, window._numBal - Number(match.price || 0))); } catch (_) {}
-  btn.disabled = true; btn.textContent = 'Placing your order…'; setFb(fb, 'Placing your order — this can take up to a minute. Please don’t close the page.', 'ok');
-  try {
-    const order = await req('/api/numbers/buy', 'POST', { country, serviceId, provider: match.provider, serverId: Number(selectedNovaServerId), expectedPrice: match.price }, true, 90000);
-    order.amountPaid = order.amountPaid || match.price || 0;
-    setFb(fb, '', '');
-    showNumWaitStep(order);
-    loadBalance();
-  } catch (e) {
-    if (/insufficient balance/i.test(e.message)) {
-      fb.innerHTML = `<svg class="icon i-x-circle" aria-hidden="true"><use href="#i-x-circle"/></svg> ${esc(e.message)} — <a href="/deposit">fund your wallet</a>`;
-      fb.className = 'fb err';
-    } else if (/no longer available|no longer in the live|price changed|pricing changed/i.test(e.message)) {
- fb.innerHTML = ` ${esc(e.message)}`;
-      fb.className = 'fb err';
-      onNumCountryChange();
-    } else {
- setFb(fb, ' ' + e.message, 'err');
+  const sname = _srv ? _srv.name : 'Server 1';
+  const outcome = await window.mnPurchase({
+    title: 'Confirm purchase',
+    rows: [['Country', _cty ? _cty.name : country], ['Service', match.provider], ['Server', sname]],
+    price: match.price, priceText: PRICE(match.price), fmt: AMT,
+    getBalance: loadBalance,
+    // The REAL purchase request. The backend re-validates the price, stock and wallet balance itself.
+    confirm: () => req('/api/numbers/buy', 'POST', { country, serviceId, provider: match.provider, serverId: Number(selectedNovaServerId), expectedPrice: match.price }, true, 90000),
+    successText: o => ({ number: o && o.phoneNumber, line: 'Opening your number…' }),
+    onSuccess: order => goToPurchasedNumber(order, 'server1'),
+    onError: e => {
+      if (/no longer available|no longer in the live|price changed|pricing changed/i.test(e.message)) onNumCountryChange();
+      loadBalance();
     }
-    loadBalance();
-    try { fb.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
-  } finally {
- btn.disabled = false; btn.textContent = ' Buy This Number';
-  }
+  });
+  if (outcome && outcome.status !== 'success') { /* cancelled or failed: nothing submitted/charged, selections kept */ }
 }
 
 function showNumWaitStep(order) {
@@ -2046,6 +2053,7 @@ async function buyNumberServer2() {
   // FINAL live check — never let anyone confirm payment against a stale price or a sold-out tier.
   btn.disabled = true; btn.textContent = 'Checking availability…'; setFb(fb, '', '');
   const wanted = p.maxPrice, wasPrice = p.price;
+  let priceNotice = '', verified = false;
   try {
     const fresh = await fetchG2Providers(service, country);
     g2Providers = fresh;
@@ -2061,37 +2069,34 @@ async function buyNumberServer2() {
     p = fresh[idx];
     g2LastChecked = new Date();
     setG2Stock(`Verified live · ${p.count} left · ${g2LastChecked.toLocaleTimeString()}`);
-    if (p.price !== wasPrice) {
-      if (!await kslConfirm(`Heads up — this provider's price just changed from ${PRICE(wasPrice)} to ${PRICE(p.price)}. Continue at ${PRICE(p.price)}?`)) return;
-    } else if (!await kslConfirm(`Buy this number for ${PRICE(p.price)}? ${p.count} in stock right now. It is deducted from your wallet now and automatically refunded if no code arrives in time.`)) {
-      return;
-    }
+    priceNotice = p.price !== wasPrice ? `The price just changed from ${PRICE(wasPrice)} to ${PRICE(p.price)}. You will be charged ${PRICE(p.price)}.` : '';
+    verified = true;
   } catch (e) {
     setFb(fb, 'Could not confirm live availability — nothing was charged. Please try again.', 'err');
     return;
   } finally {
     btn.disabled = false; btn.textContent = ' Buy This Number';
   }
+  if (!verified) return;
 
-  btn.disabled = true; btn.textContent = 'Processing…';
-  try {
-    const order = await req('/api/numbers/server2/buy', 'POST', { service, country, maxPrice: p.maxPrice, operator: selectedG2Operator() }, true);
-    setFb(fb, '', '');
-    showNumWaitStep(order);
-    loadBalance();
-  } catch (e) {
-    if (/insufficient balance/i.test(e.message)) {
-      fb.innerHTML = `<svg class="icon i-x-circle" aria-hidden="true"><use href="#i-x-circle"/></svg> ${esc(e.message)} — <a href="/deposit">fund your wallet</a>`;
-      fb.className = 'fb err';
-    } else if (/sold out|no longer/i.test(e.message)) {
-      setFb(fb, e.message, 'err');
-      refreshG2Availability(false); // show them a live list to pick from
-    } else {
-      setFb(fb, e.message, 'err');
+  const opName = selectedG2Operator();
+  const rows = [['Country', selText('g2CountrySelect')], ['Service', selText('g2ServiceSelect')], ['Server', 'Server 2 — All services']];
+  if (opName && opName !== 'any') rows.push(['Operator', selText('g2OperatorSelect')]);
+  rows.push(['Provider', selText('g2ProviderSelect') || 'Selected pool']);
+  const buyPrice = p.price, buyMax = p.maxPrice;
+  await window.mnPurchase({
+    title: 'Confirm purchase', rows, notice: priceNotice,
+    price: buyPrice, priceText: PRICE(buyPrice), fmt: AMT,
+    getBalance: loadBalance,
+    // The REAL purchase request. The backend re-validates price, stock and wallet balance itself.
+    confirm: () => req('/api/numbers/server2/buy', 'POST', { service, country, maxPrice: buyMax, operator: opName }, true),
+    successText: o => ({ number: o && o.phoneNumber, line: 'Opening your number…' }),
+    onSuccess: order => goToPurchasedNumber(order, 'server2'),
+    onError: e => {
+      if (/sold out|no longer/i.test(e.message)) refreshG2Availability(false); // show them a live list to pick from
+      loadBalance();
     }
-  } finally {
-    btn.disabled = false; btn.textContent = ' Buy This Number';
-  }
+  });
 }
 
 

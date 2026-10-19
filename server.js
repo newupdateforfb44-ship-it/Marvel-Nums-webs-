@@ -154,6 +154,14 @@ app.use((req, res, next) => { stripOperators(req.body); stripOperators(req.query
 // HTML pages are never cached: visitors were still being served an old copy of
 // the home page (and other pages) out of the browser/CDN cache after a deploy.
 // Versioned assets (?v=...) keep their normal cache.
+// Older cached pages still ask for /js/kls-ui.js; the file lives at public/kls-ui.js. Serve it from both addresses.
+app.get('/js/kls-ui.js', (req, res) => res.sendFile(path.join(__dirname, 'public', 'kls-ui.js')));
+// Browsers ask for /favicon.ico on their own (ignoring <link> tags in some cases) and cache it hard.
+// Serve the Marvel Nums icon there so no stale/old favicon can ever be picked up.
+app.get('/favicon.ico', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.type('image/png').sendFile(path.join(__dirname, 'public', 'favicon.png'));
+});
 app.use(express.static('public', {
   index: false,
   setHeaders(res, filePath) {
@@ -6344,7 +6352,19 @@ function novaPurchaseErrorResponse(res, e) {
   if (e.orderId) body.orderId = e.orderId;
   res.status(st).json(body);
 }
-app.post('/api/numbers/buy', auth, async (req, res) => {
+// One number purchase at a time per customer: a double-tap / retry while the first request is still running
+// is rejected instead of buying (and charging for) a second number.
+const numberBuyInFlight = new Set();
+function numberBuyGuard(req, res, next) {
+ const k = String(req.user && req.user._id);
+ if (numberBuyInFlight.has(k)) return res.status(429).json({ error: 'Your previous purchase is still being processed. Please wait a moment — nothing extra was charged.' });
+ numberBuyInFlight.add(k);
+ let done = false;
+ const release = () => { if (!done) { done = true; numberBuyInFlight.delete(k); } };
+ res.on('finish', release); res.on('close', release);
+ next();
+}
+app.post('/api/numbers/buy', auth, numberBuyGuard, async (req, res) => {
  try {
    const r = await novaPurchaseNumber({
      userId: req.user._id,
@@ -6358,6 +6378,19 @@ app.post('/api/numbers/buy', auth, async (req, res) => {
    res.json({ orderId: l._id, phoneNumber: l.phoneNumber, expiresAt: l.expiresAt, provider: l.provider, country: l.country, server: `Server ${l.novaServerId}`, amountPaid: r.sellPrice, sessionId: r.sessionId });
  } catch (e) { novaPurchaseErrorResponse(res, e); }
 });
+// Cancel eligibility, computed on the server so the browser never guesses.
+// Server 2 (Grizzly) refuses cancellations in the first 2 minutes (EARLY_CANCEL_DENIED).
+const GRIZZLY_MIN_CANCEL_MS = 2 * 60 * 1000;
+function numberCancelInfo(listing) {
+ const soldAt = new Date(listing.soldAt || listing.createdAt || Date.now()).getTime();
+ const cancelAvailableAt = listing.grizzlyActivationId ? new Date(soldAt + GRIZZLY_MIN_CANCEL_MS) : null;
+ const open = listing.status === 'sold' && !listing.code;
+ return {
+  cancellable: open && (!cancelAvailableAt || cancelAvailableAt.getTime() <= Date.now()),
+  cancelAvailableAt,
+  serverTime: new Date().toISOString()
+ };
+}
 app.get('/api/numbers/status/:orderId', auth, async (req, res) => {
  try {
  let listing = await NumberListing.findOne({ _id: req.params.orderId, soldTo: req.user._id });
@@ -6397,7 +6430,8 @@ app.get('/api/numbers/status/:orderId', auth, async (req, res) => {
  server: listing.server || 'server1', sellPrice: listing.sellPrice,
  providerError: listing.providerError || '', providerErrorAt: listing.providerErrorAt || null,
  codeAddedAt: listing.codeAddedAt || null, cancelledAt: listing.cancelledAt || null, expiredAt: listing.expiredAt || null, operator: listing.operator || '', providerCancelled: !!listing.providerCancelled,
- refunded: listing.status === 'expired' || listing.status === 'cancelled' ? listing.sellPrice : null
+ refunded: listing.status === 'expired' || listing.status === 'cancelled' ? listing.sellPrice : null,
+ ...numberCancelInfo(listing)
  });
  } catch (e) { res.status(500).json({ error: 'Failed to check status' }); }
 });
@@ -6405,8 +6439,26 @@ app.post('/api/numbers/cancel/:orderId', auth, async (req, res) => {
  try {
  const listing = await NumberListing.findOne({ _id: req.params.orderId, soldTo: req.user._id });
  if (!listing) return res.status(404).json({ error: 'Order not found' });
- if (listing.status !== 'sold' || listing.code) return res.status(400).json({ error: 'This order can no longer be cancelled' });
+ if (listing.status !== 'sold' || listing.code) return res.status(400).json({ error: 'This order can no longer be cancelled', status: listing.code ? 'delivered' : listing.status, code: listing.code || '' });
+ // Last-second check: if the SMS already reached the provider, record it and refuse the refund.
+ try {
+  const lateCode = await fetchCodeFromProvider(listing);
+  if (lateCode) {
+   const upd = await NumberListing.findOneAndUpdate({ _id: listing._id, status: 'sold', code: '' }, { $set: { code: lateCode, codeAddedAt: new Date() } }, { new: true });
+   if (listing.grizzlyActivationId) grizzlyRequest('setStatus', { id: listing.grizzlyActivationId, status: 6 }).catch(() => {});
+   if (listing.novaSessionId) novaRequest('POST', `/numbers/sessions/${encodeURIComponent(listing.novaSessionId)}/done`).catch(() => {});
+   return res.status(409).json({ error: 'The verification code has just arrived, so this number can no longer be cancelled or refunded.', status: 'delivered', code: (upd && upd.code) || lateCode });
+  }
+ } catch (e) { console.error('pre-cancel code check failed (continuing):', e.message); }
+ // Server 2 minimum wait: do not refund when the provider will not accept the cancellation yet.
+ const early = numberCancelInfo(listing);
+ if (early.cancelAvailableAt && !early.cancellable) {
+  return res.status(409).json({ error: GRIZZLY_ERRORS.EARLY_CANCEL_DENIED, cancelAvailableAt: early.cancelAvailableAt, serverTime: early.serverTime });
+ }
  const released = await releaseNumberOnProvider(listing);
+ if (listing.grizzlyActivationId && /EARLY_CANCEL_DENIED/i.test(String(released?.detail || ''))) {
+  return res.status(409).json({ error: GRIZZLY_ERRORS.EARLY_CANCEL_DENIED, cancelAvailableAt: new Date(Date.now() + 30000), serverTime: new Date().toISOString() });
+ }
  const cancelled = await NumberListing.findOneAndUpdate({ _id: listing._id, soldTo: req.user._id, status: 'sold', code: '' }, { $set: { status: 'cancelled', cancelledAt: new Date(), providerCancelled: !!released?.ok, providerCancelDetail: String(released?.detail || '').slice(0, 200) } }, { new: true });
  if (!cancelled) return res.status(409).json({ error: 'This order has already changed state; refresh your order status.' });
  const user = await User.findById(listing.soldTo);
@@ -6917,7 +6969,7 @@ app.get('/api/numbers/server2/operators', async (req, res) => {
 });
 
 // Buy: charge the customer in ₦, then request the number from Grizzly.
-app.post('/api/numbers/server2/buy', auth, async (req, res) => {
+app.post('/api/numbers/server2/buy', auth, numberBuyGuard, async (req, res) => {
  try {
  const cfg = await requireServer2(res);
  if (!cfg) return;

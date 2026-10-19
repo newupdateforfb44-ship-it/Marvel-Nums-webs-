@@ -4,14 +4,13 @@
 <script src="/js/auth-keeper.js?v=1"></script>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>Number History — KingBadBoi Log Sale</title>
+  <title>Number History — Marvel Nums</title>
   <meta name="description" content="Your rented number history and OTP records on Marvel Nums."/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css?v=20260910a"/>
   <link rel="stylesheet" href="theme.css?v=20260910a"/>
   <link rel="stylesheet" href="css/layout-polish.css?v=20260910a"/>
- <link rel="icon" type="image/webp" href="/img/marvinums-logo.webp">
   <meta name="theme-color" content="#0788e8"/>
   <script>
 function PRICE(n) { return window.KLSMoney ? window.KLSMoney.price(n) : '₦' + Number(n || 0).toLocaleString('en-NG'); }
@@ -51,9 +50,11 @@ function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' +
   <!-- Brand colours/fonts from site.config.js — keep last so it can override -->
   <link rel="stylesheet" href="/brand.css"/>
   <link rel="stylesheet" href="/css/mobile-fix.css">
-<script src="/js/kls-ui.js?v=1"></script>
+<script src="/kls-ui.js?v=2"></script>
 
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" sizes="128x128" href="/favicon.png?v=mn2">
+<link rel="shortcut icon" href="/favicon.ico?v=mn2">
+<link rel="apple-touch-icon" href="/favicon.png?v=mn2">
 <link rel="stylesheet" href="/css/marvinums-brand.css">
 <script defer src="/js/marvinums-brand.js"></script>
   <link rel="stylesheet" href="/css/marvel-nums-mobile-polish.css?v=2">
@@ -256,29 +257,113 @@ function AMT(n)   { return window.KLSMoney ? window.KLSMoney.amount(n) : '₦' +
  <a href="/number-history" style="color:var(--gold);font-size:13.5px;text-decoration:none"><svg class="icon i-arrow-left" aria-hidden="true"><use href="#i-arrow-left"/></svg> Back to all history</a>
     </div>
 
-    <div class="dep-step-card">
-      <div class="dep-step-body" style="width:100%">
-        <div class="dep-confirm-box">
-          <div class="dcb-row"><span>Phone Number</span><b id="nhPhone">—</b></div>
-          <div class="dcb-row"><span>Service</span><b id="nhService">—</b></div>
-          <div class="dcb-row"><span>Country</span><b id="nhCountry">—</b></div>
-          <div class="dcb-row"><span>Rented On</span><b id="nhDate">—</b></div>
-          <div class="dcb-row"><span>Server</span><b id="nhServerBadge" style="font-size:12px">—</b></div>
+    <div class="mn-card" id="mnCard" data-state="loading">
+      <div class="mn-card-top">
+        <div class="mn-meta"><span id="nhService">—</span><i>•</i><span id="nhCountry">—</span><i>•</i><span id="nhServerBadge">—</span></div>
+        <div class="mn-state-pill" id="mnPill"><span class="mn-dot" id="mnDot"></span><span id="mnPillText">Loading…</span></div>
+      </div>
+
+      <div class="mn-label">Your number</div>
+      <div class="mn-number-row">
+        <div class="mn-number" id="nhPhone">—</div>
+        <button type="button" class="mn-copy" id="nhCopyNumberBtn" onclick="copyNhNumber()" aria-label="Copy number">
+          <svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg><span>Copy</span>
+        </button>
+      </div>
+
+      <div class="mn-timer" id="mnTimerBox">
+        <div class="mn-timer-head"><span>Time left</span><b id="mnTimer">--:--</b></div>
+        <div class="mn-bar"><div class="mn-bar-fill" id="mnBar"></div></div>
+      </div>
+
+      <div class="mn-sms" id="mnSms">
+        <div class="mn-sms-head"><span class="mn-light" id="mnLight"></span><b id="mnSmsText">Waiting for SMS</b></div>
+        <div class="mn-wait" id="mnWait">Waiting for verification code…</div>
+        <div class="mn-code-row" id="nhCodeBox" style="display:none">
+          <div class="mn-code" id="nhCode"></div>
+          <button type="button" class="mn-copy mn-copy-code" id="nhCopyCodeBtn" onclick="copyNhCode()" aria-label="Copy code">
+            <svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg><span>Copy</span>
+          </button>
         </div>
+      </div>
 
-        <div id="nhCodeBox" class="dep-confirm-box" style="display:none;margin-top:10px">
-          <div class="dcb-row dcb-total"><span>OTP Received</span><b id="nhCode">—</b></div>
-        </div>
+      <p id="nhStatusNote" class="mn-note" aria-live="polite"></p>
+      <p id="nhRefundNote" class="mn-refund"></p>
 
-        <p id="nhStatusNote" class="info-note" style="margin-top:12px">—</p>
-        <p id="nhRefundNote" style="font-size:.85rem;color:var(--t2);margin-top:4px"></p>
+      <button type="button" class="mn-cancel" id="mnCancelBtn" style="display:none" onclick="nhAskCancel()">Cancel &amp; Refund</button>
+      <div class="mn-foot">Rented <span id="nhDate">—</span></div>
+    </div>
 
-        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
- <button class="btn-primary" id="nhCopyNumberBtn" onclick="copyNhNumber()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy Number</button>
- <button class="btn-primary" id="nhCopyCodeBtn" style="display:none" onclick="copyNhCode()"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> Copy OTP</button>
+    <div class="mn-modal" id="mnModal" style="display:none" role="dialog" aria-modal="true" aria-labelledby="mnModalTitle">
+      <div class="mn-modal-card">
+        <h3 id="mnModalTitle">Cancel this number?</h3>
+        <p>Your wallet will be refunded in full, and you will no longer be able to receive a code on this number. This only works while no code has arrived.</p>
+        <div class="mn-modal-actions">
+          <button type="button" class="mn-btn-ghost" onclick="nhCloseModal()">Keep number</button>
+          <button type="button" class="mn-btn-danger" id="mnConfirmBtn" onclick="nhConfirmCancel()">Yes, cancel &amp; refund</button>
         </div>
       </div>
     </div>
+    <div class="mn-toast" id="mnToast" role="status" aria-live="polite"></div>
+
+    <style>
+      .mn-card{background:rgba(18,22,38,.72);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:20px 18px;
+        backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 12px 40px rgba(0,0,0,.35)}
+      .mn-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+      .mn-meta{font-size:12.5px;opacity:.75;display:flex;gap:6px;flex-wrap:wrap}
+      .mn-meta i{opacity:.5;font-style:normal}
+      .mn-state-pill{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:800;
+        background:rgba(255,255,255,.06)}
+      .mn-dot{width:8px;height:8px;border-radius:50%;background:#888}
+      .mn-label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.65;margin-bottom:6px}
+      .mn-number-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+      .mn-number{font-family:'Sora',system-ui,sans-serif;font-size:clamp(22px,6.4vw,30px);font-weight:800;letter-spacing:.02em;word-break:break-all}
+      .mn-copy{display:inline-flex;align-items:center;gap:6px;padding:9px 13px;border-radius:12px;border:1px solid rgba(255,255,255,.18);
+        background:rgba(255,255,255,.07);color:inherit;font:inherit;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;
+        transition:transform .12s,background .15s}
+      .mn-copy:active{transform:scale(.95)} .mn-copy:hover{background:rgba(255,255,255,.13)}
+      .mn-copy.done{background:rgba(52,199,89,.2);border-color:#34c759;color:#34c759}
+      .mn-timer{margin:18px 0 4px}
+      .mn-timer-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;opacity:.9;margin-bottom:7px}
+      .mn-timer-head b{font-family:'Sora',system-ui,sans-serif;font-size:22px;font-variant-numeric:tabular-nums}
+      .mn-bar{height:6px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+      .mn-bar-fill{height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#0788e8,#34c759);transition:width 1s linear}
+      .mn-timer.low .mn-bar-fill{background:#ff453a} .mn-timer.low .mn-timer-head b{color:#ff453a}
+      .mn-sms{margin-top:16px;padding:14px;border-radius:16px;border:1px solid rgba(255,69,58,.35);background:rgba(255,69,58,.07);
+        transition:border-color .3s,background .3s}
+      .mn-sms-head{display:flex;align-items:center;gap:10px;font-size:14px}
+      .mn-light{width:14px;height:14px;border-radius:50%;background:#ff453a;box-shadow:0 0 12px 3px rgba(255,69,58,.65);
+        animation:mnPulse 1.5s ease-in-out infinite;flex-shrink:0}
+      @keyframes mnPulse{0%,100%{transform:scale(1);box-shadow:0 0 8px 2px rgba(255,69,58,.5)}
+        50%{transform:scale(1.2);box-shadow:0 0 18px 6px rgba(255,69,58,.85)}}
+      .mn-wait{margin-top:10px;font-size:13.5px;opacity:.8}
+      .mn-code-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+      .mn-code{font-family:'Sora',system-ui,sans-serif;font-size:clamp(22px,7vw,32px);font-weight:800;letter-spacing:.08em;word-break:break-all;user-select:all}
+      .mn-sms.got{border-color:rgba(52,199,89,.5);background:rgba(52,199,89,.08)}
+      .mn-sms.got .mn-light{background:#34c759;box-shadow:0 0 12px 3px rgba(52,199,89,.55);animation:none}
+      .mn-sms.dead{border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+      .mn-sms.dead .mn-light{background:#777;box-shadow:none;animation:none}
+      .mn-note{margin:14px 0 0;font-size:13.5px;line-height:1.45;opacity:.9}
+      .mn-refund{margin:4px 0 0;font-size:13px;color:var(--t2);font-weight:700}
+      .mn-cancel{width:100%;margin-top:16px;padding:13px;border-radius:14px;border:1px solid rgba(255,69,58,.55);background:rgba(255,69,58,.12);
+        color:#ff6a60;font:inherit;font-weight:800;font-size:14.5px;cursor:pointer;transition:background .15s,transform .12s}
+      .mn-cancel:hover:not([disabled]){background:rgba(255,69,58,.22)} .mn-cancel:active:not([disabled]){transform:scale(.98)}
+      .mn-cancel[disabled]{opacity:.55;cursor:not-allowed}
+      .mn-foot{margin-top:14px;font-size:11.5px;opacity:.55;text-align:center}
+      .mn-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;justify-content:center;padding:16px}
+      @media(min-width:560px){.mn-modal{align-items:center}}
+      .mn-modal-card{width:100%;max-width:400px;background:#141a2c;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:20px}
+      .mn-modal-card h3{margin:0 0 8px;font-size:18px} .mn-modal-card p{margin:0 0 16px;font-size:13.5px;line-height:1.5;opacity:.8}
+      .mn-modal-actions{display:flex;gap:10px}
+      .mn-modal-actions button{flex:1;padding:12px;border-radius:12px;font:inherit;font-weight:800;font-size:13.5px;cursor:pointer}
+      .mn-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.2);color:inherit}
+      .mn-btn-danger{background:#ff453a;border:1px solid #ff453a;color:#fff} .mn-btn-danger[disabled]{opacity:.6}
+      .mn-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:10000;
+        background:#1d2540;border:1px solid rgba(255,255,255,.15);padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:700;
+        max-width:90vw;transition:opacity .2s,transform .2s}
+      .mn-toast.show{opacity:1;transform:translate(-50%,0)}
+      @media(prefers-reduced-motion:reduce){.mn-light{animation:none}.mn-bar-fill{transition:none}}
+    </style>
   </div>
 
 </div>
@@ -464,58 +549,184 @@ async function loadNhList() {
 }
 
 // ── Detail view: single order, opened via ?order=<id>&server=<server1|server2> ──
-async function loadNhDetail(orderId, server) {
+// One poller, one 1-second ticker. Both are replaced (never stacked) every time the page state changes.
+const NH_RENTAL_MS = 20 * 60 * 1000;       // matches NUMBER_RENTAL_WINDOW_MS on the server
+let nhOrderId = null, nhPollTimer = null, nhTickTimer = null, nhInFlight = false, nhFails = 0;
+let nhClockOffset = 0;                      // server clock minus device clock, so a wrong phone clock can't break the timer
+let nhCancelling = false, nhExpirySyncDone = false;
+
+const nhTerminal = o => o && (o.status === 'delivered' || o.status === 'expired' || o.status === 'cancelled');
+const nhNow = () => Date.now() + nhClockOffset;
+const nhEl = id => document.getElementById(id);
+
+function nhToast(msg) {
+  const t = nhEl('mnToast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(nhToast._t); nhToast._t = setTimeout(() => t.classList.remove('show'), 2400);
+}
+async function nhCopy(text, btn, toast) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (_) { // older browsers / non-secure context fallback
+    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove();
+  }
+  nhToast(toast);
+  if (btn) { const lbl = btn.querySelector('span'); btn.classList.add('done'); if (lbl) lbl.textContent = 'Copied';
+    setTimeout(() => { btn.classList.remove('done'); if (lbl) lbl.textContent = 'Copy'; }, 1600); }
+}
+function copyNhNumber() { if (nhCurrentOrder?.phoneNumber) nhCopy(nhCurrentOrder.phoneNumber, nhEl('nhCopyNumberBtn'), 'Number copied'); }
+function copyNhCode()   { if (nhCurrentOrder?.code) nhCopy(nhCurrentOrder.code, nhEl('nhCopyCodeBtn'), 'Verification code copied'); }
+
+function nhFmtClock(ms) {
+  const t = Math.max(0, Math.ceil(ms / 1000)), m = Math.floor(t / 60), sec = t % 60;
+  return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+}
+
+// Paints the whole card from one order object. Called after every poll and after cancelling — it is the ONLY
+// place that decides what is visible, so the cancel button can never outlive an arrived code.
+function nhRender(o) {
+  nhCurrentOrder = o;
+  const st = o.status;
+  nhEl('nhDetailTitle').textContent = `${o.provider || 'Number'} — ${o.country || ''}`;
+  nhEl('nhPhone').textContent = o.phoneNumber || '—';
+  nhEl('nhService').textContent = o.provider || '—';
+  nhEl('nhCountry').textContent = o.country || '—';
+  nhEl('nhDate').textContent = o.createdAt ? new Date(o.createdAt).toLocaleString() : '—';
+  nhEl('nhServerBadge').textContent = (o.server === 'server2' ? 'Server 2' : 'Server 1');
+
+  const got = !!o.code || st === 'delivered';
+  const sms = nhEl('mnSms'), light = nhEl('mnSmsText');
+  sms.classList.toggle('got', got);
+  sms.classList.toggle('dead', !got && (st === 'expired' || st === 'cancelled'));
+
+  // Verification code area: empty (just the waiting line) until the real SMS exists.
+  nhEl('nhCodeBox').style.display = got ? '' : 'none';
+  nhEl('mnWait').style.display = (!got && st === 'pending') ? '' : 'none';
+  nhEl('nhCode').textContent = got ? (o.code || '') : '';
+  light.textContent = got ? 'SMS Received' : (st === 'pending' ? 'Waiting for SMS' : st === 'cancelled' ? 'Cancelled' : st === 'expired' ? 'No SMS received' : '—');
+  nhEl('mnPillText').textContent = got ? 'Delivered' : st === 'pending' ? 'Active' : st === 'cancelled' ? 'Cancelled' : st === 'expired' ? 'Expired' : '—';
+  nhEl('mnDot').style.background = got ? '#34c759' : st === 'pending' ? '#ff453a' : '#777';
+
+  // Timer is only meaningful while we are still waiting.
+  nhEl('mnTimerBox').style.display = (!got && st === 'pending') ? '' : 'none';
+
+  const note = nhEl('nhStatusNote');
+  note.textContent = got ? 'Your verification code has arrived. Copy it and paste it into the app.'
+    : st === 'pending' ? 'This page updates automatically — no need to refresh.'
+    : st === 'expired' ? 'This number expired before a code arrived. Your wallet was refunded.'
+    : st === 'cancelled' ? 'This order was cancelled and refunded.' : '';
+  // "Refunded" is shown only when the server reports an actual refund on a cancelled/expired order.
+  nhEl('nhRefundNote').textContent = (!got && o.refunded != null) ? `Refunded: ${PRICE(o.refunded)}` : '';
+
+  // Cancel & Refund: visible only while the server says it is still eligible. Disabled (with a countdown) during
+  // the provider's minimum wait. Gone instantly the moment a code exists or the order reaches any final state.
+  const btn = nhEl('mnCancelBtn');
+  const show = !got && st === 'pending' && !nhTerminal(o);
+  btn.style.display = show ? '' : 'none';
+  if (show) {
+    const waitMs = o.cancelAvailableAt ? new Date(o.cancelAvailableAt).getTime() - nhNow() : 0;
+    const blocked = o.cancellable === false && waitMs > 0;
+    btn.disabled = nhCancelling || blocked;
+    btn.textContent = nhCancelling ? 'Cancelling…' : blocked ? `Cancel & Refund available in ${nhFmtClock(waitMs)}` : 'Cancel & Refund';
+  }
+  nhTick();
+}
+
+// Runs once a second: updates the countdown from the REAL server-side expiry (so refresh never restarts it).
+function nhTick() {
+  const o = nhCurrentOrder; if (!o) return;
+  if (o.status !== 'pending' || o.code) return;
+  const expiry = o.expiresAt ? new Date(o.expiresAt).getTime()
+    : (new Date(o.createdAt).getTime() + NH_RENTAL_MS);
+  const left = expiry - nhNow();
+  nhEl('mnTimer').textContent = nhFmtClock(left);
+  nhEl('mnBar').style.width = Math.max(0, Math.min(100, (left / NH_RENTAL_MS) * 100)) + '%';
+  nhEl('mnTimerBox').classList.toggle('low', left <= 60000);
+  if (o.cancelAvailableAt && o.cancellable === false && !nhCancelling) {
+    const w = new Date(o.cancelAvailableAt).getTime() - nhNow();
+    const btn = nhEl('mnCancelBtn');
+    if (w > 0) btn.textContent = `Cancel & Refund available in ${nhFmtClock(w)}`;
+    else { o.cancellable = true; btn.disabled = false; btn.textContent = 'Cancel & Refund'; }
+  }
+  // Time is up: ask the server ONCE so it can apply the provider's expiry + refund rules. We never refund locally.
+  if (left <= 0 && !nhExpirySyncDone) { nhExpirySyncDone = true; nhPollNow(); }
+}
+
+function nhSchedulePoll() {
+  clearTimeout(nhPollTimer);
+  if (nhTerminal(nhCurrentOrder)) return;                      // terminal state → polling stops for good
+  const base = document.hidden ? 15000 : 4000;                   // slower in a background tab
+  const delay = Math.min(30000, base * Math.pow(2, Math.min(nhFails, 3)));   // back off after network errors
+  nhPollTimer = setTimeout(nhPollNow, delay);
+}
+async function nhPollNow() {
+  if (nhInFlight || !nhOrderId) return;                           // never run two requests at once
+  clearTimeout(nhPollTimer);
+  nhInFlight = true;
   try {
-    const o = await req(`/api/numbers/status/${encodeURIComponent(orderId)}`, 'GET', null, true);
-    nhCurrentOrder = o;
-    document.getElementById('nhDetailTitle').textContent = `${o.provider || 'Number'} — ${o.country || ''}`;
-    document.getElementById('nhPhone').textContent = o.phoneNumber || '—';
-    document.getElementById('nhService').textContent = o.provider || '—';
-    document.getElementById('nhCountry').textContent = o.country || '—';
-    document.getElementById('nhDate').textContent = new Date(o.createdAt).toLocaleString();
-    document.getElementById('nhServerBadge').textContent = (o.server === 'server2' ? 'Server 2' : 'Server 1');
-
-    const codeBox = document.getElementById('nhCodeBox');
-    const copyCodeBtn = document.getElementById('nhCopyCodeBtn');
-    if (o.code) {
-      codeBox.style.display = '';
-      document.getElementById('nhCode').textContent = o.code;
-      copyCodeBtn.style.display = '';
+    const o = await req(`/api/numbers/status/${encodeURIComponent(nhOrderId)}`, 'GET', null, true, false, true);
+    nhFails = 0;
+    if (o.serverTime) nhClockOffset = new Date(o.serverTime).getTime() - Date.now();
+    const had = !!(nhCurrentOrder && nhCurrentOrder.code);
+    nhRender(o);
+    if (!had && o.code) nhToast('Verification code received');
+  } catch (e) {
+    nhFails++;
+    if (!nhCurrentOrder) { // first load failed
+      nhEl('nhDetailTitle').textContent = nhFails >= 3 ? 'Order not found' : 'Loading…';
+      nhEl('nhStatusNote').textContent = e.message || 'Could not load this order.';
     } else {
-      codeBox.style.display = 'none';
-      copyCodeBtn.style.display = 'none';
+      nhEl('nhStatusNote').textContent = 'Connection problem — retrying…';
     }
+    if (e && /not found/i.test(e.message || '') ) { nhFails = 99; return nhFinishNoPoll(); }
+  } finally { nhInFlight = false; }
+  nhSchedulePoll();
+}
+function nhFinishNoPoll() { clearTimeout(nhPollTimer); }
 
-    const noteEl = document.getElementById('nhStatusNote');
-    const refundEl = document.getElementById('nhRefundNote');
-    if (o.status === 'delivered') noteEl.textContent = '✅ OTP delivered successfully.';
-    else if (o.status === 'pending') noteEl.textContent = '⏳ Waiting for the OTP to arrive — this page checks automatically.';
-    else if (o.status === 'expired') noteEl.textContent = '⌛ This number expired before an OTP arrived.';
-    else if (o.status === 'cancelled') noteEl.textContent = '🚫 This order was cancelled.';
-    else noteEl.textContent = '—';
-    refundEl.textContent = o.refunded != null ? `Refunded: ${PRICE(o.refunded)}` : '';
+async function loadNhDetail(orderId, server) {
+  nhOrderId = orderId;
+  clearInterval(nhTickTimer); nhTickTimer = setInterval(nhTick, 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) nhPollNow(); });
+  await nhPollNow();
+}
 
-    // Still waiting on the code — poll every 5s like the buy-number page does.
-    if (o.status === 'pending') {
-      clearTimeout(window.__nhPoll);
-      window.__nhPoll = setTimeout(() => loadNhDetail(orderId, server), 5000);
+// ── Cancel & Refund ──
+function nhAskCancel() {
+  const o = nhCurrentOrder;
+  if (!o || o.code || o.status !== 'pending' || nhCancelling) return;
+  nhEl('mnModal').style.display = 'flex';
+}
+function nhCloseModal() { if (!nhCancelling) nhEl('mnModal').style.display = 'none'; }
+async function nhConfirmCancel() {
+  if (nhCancelling || !nhOrderId) return;                          // blocks double-taps → no duplicate requests/refunds
+  nhCancelling = true;
+  const cbtn = nhEl('mnConfirmBtn'); cbtn.disabled = true; cbtn.textContent = 'Cancelling…';
+  nhEl('mnCancelBtn').disabled = true; nhEl('mnCancelBtn').textContent = 'Cancelling…';
+  try {
+    const r = await req(`/api/numbers/cancel/${encodeURIComponent(nhOrderId)}`, 'POST', null, true);
+    nhEl('mnModal').style.display = 'none';
+    if (r && r.status === 'cancelled') {                           // success message ONLY after the server confirms the refund
+      nhToast(`Cancelled — ${PRICE(r.refunded)} refunded to your wallet`);
+      nhCancelling = false;
+      await nhPollNow();                                           // re-read the real order + refund from the backend
+      nhRefreshWallet();
     }
   } catch (e) {
-    console.error('[Marvel Nums] loadNhDetail failed:', e);
-    document.getElementById('nhDetailTitle').textContent = 'Order not found';
-    document.getElementById('nhStatusNote').textContent = e.message || 'Could not load this order.';
+    nhEl('mnModal').style.display = 'none';
+    nhCancelling = false;
+    nhToast(e.message || 'Could not cancel this number');
+    await nhPollNow();                                             // e.g. the code just arrived → card flips to green, button vanishes
+  } finally {
+    nhCancelling = false; cbtn.disabled = false; cbtn.textContent = 'Yes, cancel & refund';
+    if (nhCurrentOrder) nhRender(nhCurrentOrder);
   }
 }
-
-function copyNhNumber() {
-  if (!nhCurrentOrder?.phoneNumber) return;
-  navigator.clipboard?.writeText(nhCurrentOrder.phoneNumber);
-  showToast('Number copied');
-}
-function copyNhCode() {
-  if (!nhCurrentOrder?.code) return;
-  navigator.clipboard?.writeText(nhCurrentOrder.code);
-  showToast('OTP copied');
+async function nhRefreshWallet() {
+  try {
+    const me = await req('/api/user/me', 'GET', null, true, false, true);
+    ['depositBal', 'dbBal', 'navBalance', 'vaWalletBal', 'plWalletBal'].forEach(id => { const el = nhEl(id); if (el && typeof fmt === 'function') el.textContent = fmt(me.balance); });
+    try { const u = JSON.parse(localStorage.getItem('ksl_user') || '{}'); u.balance = me.balance; localStorage.setItem('ksl_user', JSON.stringify(u)); } catch (_) {}
+  } catch (_) {}
 }
 
 // ── Export: downloads exactly what the current filters match, for THIS server only ──────────
