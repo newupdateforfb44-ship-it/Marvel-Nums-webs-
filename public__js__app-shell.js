@@ -220,8 +220,6 @@
           '<a href="/buy-number"><span class="hm-g-ico">' + ico('i-smartphone') + '</span>Numbers</a>' +
           '<a href="/boost"><span class="hm-g-ico">' + ico('i-zap') + '</span>Boost</a>' +
           '<a href="/tools"><span class="hm-g-ico">' + ico('i-wrench') + '</span>Tools &amp; FMT</a>' +
-          '<a href="/games"><span class="hm-g-ico">' + ico('i-gamepad') + '</span>Games</a>' +
-          '<a href="/giveaways"><span class="hm-g-ico">' + ico('i-gift') + '</span>Giveaways</a>' +
           '<a href="/referrals"><span class="hm-g-ico">' + ico('i-link') + '</span>Referrals</a>' +
           '<a href="/settings"><span class="hm-g-ico">' + ico('i-settings') + '</span>Settings</a>' +
         '</div>' +

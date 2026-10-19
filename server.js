@@ -1514,6 +1514,8 @@ require('./lib/market2').register(app, { mongoose, User, Transaction, auth, anyA
 require('./lib/market3').register(app, { mongoose, User, Transaction, auth, anyAdminAuth, sendAdminEmail });
 // Welcome popup (WhatsApp channel promo) - settings editable in Admin -> Welcome Popup
 require('./lib/welcomepopup').register(app, { mongoose, adminAuth });
+// Games, giveaways, group chat and DMs are removed: their customer AND admin APIs are switched off.
+app.use(['/api/chat', '/api/dm', '/api/games', '/api/giveaways', '/api/admin/chat', '/api/admin/giveaways', '/api/admin/games'], (req, res) => res.status(404).json({ error: 'This feature has been removed.' }));
 // Tutorials (admin uploads video guides, customers watch them on /tutorials) - see lib/tutorials.js
 require('./lib/tutorials').register(app, { mongoose, adminAuth });
 require('./lib/boost2')({ app, mongoose, User, Transaction, auth, anyAdminAuth, novaGate });
@@ -7681,8 +7683,6 @@ app.get('/admin.html', (req, res) => {
   (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 });
 app.get('/dashboard', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'dashboard.html'))));
-app.get('/games', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'game.html'))));
-app.get('/giveaways', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'giveaway.html'))));
 app.get('/buy-number', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'buy-number.html'))));
 app.get('/virtual-account', (req, res) => res.redirect(301, '/deposit'));
 app.get('/number-history', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'number-history.html'))));
@@ -7711,10 +7711,9 @@ app.get('/support', (req, res) => (res.set('Cache-Control', 'no-store, must-reva
 // Legacy bill/VTU paths (airtime, data, cable TV, electricity, betting) were removed.
 // Kept as permanent redirects so old links and bookmarks land on the homepage.
 app.get(['/services', '/airtime', '/data', '/cable', '/electricity', '/betting', '/data-bill'], (req, res) => res.redirect(301, '/'));
+// Removed customer features (games, giveaways, group chat, messages): old links just go to the dashboard.
+app.get(['/games', '/giveaways', '/groups', '/messages', '/chat', '/game.html', '/giveaway.html', '/groups.html', '/messages.html', '/chat.html'], (req, res) => res.redirect(302, '/dashboard'));
 app.get('/settings', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'settings.html'))));
-app.get('/groups', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'groups.html'))));
-app.get('/messages', (req, res) => (res.set('Cache-Control', 'no-store, must-revalidate'), res.sendFile(path.join(__dirname, 'public', 'messages.html'))));
-app.get('/chat', (req, res) => res.redirect(301, '/groups'));
 // NOTE: the SPA catch-all used to live here, which silently shadowed EVERY route
 // registered further down this file (global payments, wallet, countries, the
 // operations layer). Those endpoints answered with index.html instead of JSON,

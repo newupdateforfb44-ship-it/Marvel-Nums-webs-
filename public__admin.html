@@ -1661,53 +1661,10 @@ tr:hover td{background:rgba(255,255,255,.035)}
         </div>
       </div>
     </div>
-    <div id="tab-chatadmin" class="tab-panel">
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-plus" aria-hidden="true"><use href="#i-plus"/></svg> Create Group</div>
- <div class="info-box"><svg class="icon i-message-circle" aria-hidden="true"><use href="#i-message-circle"/></svg> Groups appear in the Group Chat page for all logged-in users. Every member can post in every active group.</div>
-        <div class="fg"><label>Group Name *</label><input type="text" id="cgName" placeholder="e.g. General Chat, Buy/Sell Help, Game Lobby"/></div>
-        <div class="fg"><label>Description (optional)</label><input type="text" id="cgDesc" placeholder="What this group is for"/></div>
- <button class="btn-gold" onclick="createChatGroup()"><svg class="icon i-message-circle" aria-hidden="true"><use href="#i-message-circle"/></svg> Create Group</button>
-        <div id="cgFb" class="fb"></div>
-      </div>
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> All Groups (<span id="cgCount">0</span>)</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Name</th><th>Description</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
-            <tbody id="cgBody"><tr><td colspan="5" style="text-align:center;padding:24px"><div class="spin" style="margin:0 auto"></div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <div id="tab-gamesadmin" class="tab-panel">
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-gamepad" aria-hidden="true"><use href="#i-gamepad"/></svg> Arcade Overview</div>
-        <div class="info-box purple">3 games are live for all logged-in users: Void Interceptor, Turbo Run, and Base Defense. Every user has a permanent Game ID assigned automatically. This tab is read-only monitoring — game content itself is managed in code.</div>
-        <div class="stat-row">
-          <div class="stat-card"><div class="sc-icon"><svg class="icon i-gamepad" aria-hidden="true"><use href="#i-gamepad"/></svg></div><div class="sc-val" id="gTotalPlays">—</div><div class="sc-lbl">Total Plays (selected game)</div></div>
- <div class="stat-card"><div class="sc-icon"><svg class="icon i-trophy" aria-hidden="true"><use href="#i-trophy"/></svg></div><div class="sc-val" id="gTopScore">—</div><div class="sc-lbl">All-Time High Score</div></div>
-        </div>
-      </div>
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-trophy" aria-hidden="true"><use href="#i-trophy"/></svg> Top 10 Leaderboard</div>
-        <div class="lb-game-tabs" id="adminLbGameTabs" style="margin-bottom:16px">
- <button class="lb-game-tab active" onclick="switchAdminLeaderboard('space-shooter',this)"><svg class="icon i-rocket" aria-hidden="true"><use href="#i-rocket"/></svg> Void Interceptor</button>
- <button class="lb-game-tab" onclick="switchAdminLeaderboard('turbo-run',this)"><svg class="icon i-car" aria-hidden="true"><use href="#i-car"/></svg> Turbo Run</button>
- <button class="lb-game-tab" onclick="switchAdminLeaderboard('base-defense',this)"><svg class="icon i-shield" aria-hidden="true"><use href="#i-shield"/></svg> Base Defense</button>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Rank</th><th>Player</th><th>Game ID</th><th>Best Score</th><th>Games Played</th></tr></thead>
-            <tbody id="gLbBody"><tr><td colspan="5" style="text-align:center;padding:24px"><div class="spin" style="margin:0 auto"></div></td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
     <div id="tab-staffadmin" class="tab-panel">
       <div class="sec">
  <div class="sec-title"><svg class="icon i-plus" aria-hidden="true"><use href="#i-plus"/></svg> Create Sub-Admin</div>
- <div class="info-box purple"><svg class="icon i-headphones" aria-hidden="true"><use href="#i-headphones"/></svg> Sub-admins log in separately (email + password, not your passcode). They can access <strong>Dashboard</strong>, <strong>Receipts</strong> (approve/reject deposits), and <strong>Support</strong> only — they cannot manage users, logs, tools, ads, or chat groups.</div>
+ <div class="info-box purple"><svg class="icon i-headphones" aria-hidden="true"><use href="#i-headphones"/></svg> Sub-admins log in separately (email + password, not your passcode). They can access <strong>Dashboard</strong>, <strong>Receipts</strong> (approve/reject deposits), and <strong>Support</strong> only — they cannot manage users, logs, tools or ads.</div>
         <div class="fg"><label>Full Name *</label><input type="text" id="staffName" placeholder="e.g. Amaka"/></div>
         <div class="fg"><label>Email *</label><input type="email" id="staffNewEmail" placeholder="staff@example.com"/></div>
         <div class="fg"><label>Password *</label><input type="password" id="staffNewPass" placeholder="At least 6 characters"/></div>
@@ -1836,41 +1793,6 @@ tr:hover td{background:rgba(255,255,255,.035)}
           </table>
         </div>
         <button class="btn-sm" type="button" style="margin-top:10px" onclick="nbAnalytics()">Refresh analytics</button>
-      </div>
-    </div>
-    <div id="tab-giveaways" class="tab-panel">
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-gift" aria-hidden="true"><use href="#i-gift"/></svg> Post New Giveaway</div>
- <div class="info-box"><svg class="icon i-trophy" aria-hidden="true"><use href="#i-trophy"/></svg> Giveaways show up on the public Giveaways page for logged-in users. The first person to tap "Claim & Win" gets the credentials revealed immediately and is recorded as the winner — everyone else sees their name and profile picture as proof, but never the credentials.</div>
-        <div class="fg"><label>Title *</label><input type="text" id="gwTitle" placeholder="e.g. Free Premium Gmail Account"/></div>
-        <div class="fg"><label>Description (optional)</label><textarea id="gwDesc" rows="2" placeholder="e.g. Aged 2019 Gmail, fully verified, no recovery needed"></textarea></div>
-        <div class="fg"><label>Category (optional label)</label><input type="text" id="gwCategory" placeholder="e.g. Gmail, Netflix, VPN & Proxy"/></div>
-        <div class="fg"><label>Credentials * (only shown to the winner, once)</label><textarea id="gwCredentials" rows="3" placeholder="Login email / username / password / recovery info..."></textarea></div>
-        <div class="fg"><label>Starts Claiming In (optional — leave blank or 0 to open immediately)</label>
-          <select id="gwStartsIn">
-            <option value="0">Immediately</option>
-            <option value="1">In 1 minute</option>
-            <option value="5">In 5 minutes</option>
-            <option value="15">In 15 minutes</option>
-            <option value="30">In 30 minutes</option>
-            <option value="60">In 1 hour</option>
-            <option value="180">In 3 hours</option>
-            <option value="360">In 6 hours</option>
-            <option value="1440">In 24 hours</option>
-          </select>
-        </div>
-        <div class="fg"><label>Image (optional)</label><input type="file" id="gwImage" accept="image/*"/></div>
- <button class="btn-gold" onclick="addGiveaway()"><svg class="icon i-gift" aria-hidden="true"><use href="#i-gift"/></svg> Post Giveaway</button>
-        <div id="addGiveawayFb" class="fb"></div>
-      </div>
-      <div class="sec">
- <div class="sec-title"><svg class="icon i-clipboard" aria-hidden="true"><use href="#i-clipboard"/></svg> All Giveaways (<span id="giveawaysCount">0</span>)</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Img</th><th>Title</th><th>Status</th><th>Winner</th><th>Posted</th><th>Actions</th></tr></thead>
-            <tbody id="giveawaysBody"><tr><td colspan="6" style="text-align:center;padding:24px"><div class="spin" style="margin:0 auto"></div></td></tr></tbody>
-          </table>
-        </div>
       </div>
     </div>
     <div id="tab-weeklyreward" class="tab-panel">
@@ -2155,13 +2077,10 @@ const ADMIN_NAV = [
     { tab:'emaildelivery', icon:'i-mail',      label:'Email delivery', owner:true },
     { tab:'campaigns',     icon:'i-megaphone', label:'Campaigns',      owner:true },
     { tab:'ads',           icon:'i-megaphone', label:'Ads',            owner:true },
-    { tab:'giveaways',     icon:'i-gift',      label:'Giveaways',      owner:true },
     { tab:'weeklyreward',  icon:'i-trophy',    label:'Weekly reward',  owner:true },
     { tab:'welcomepopup', icon:'i-zap',       label:'Welcome popup',  owner:true, keywords:'welcome popup whatsapp channel announcement' },
   ]},
   { group:'Community', owner:true, items:[
-    { tab:'chatadmin',  icon:'i-message-circle', label:'Chat groups', owner:true },
-    { tab:'gamesadmin', icon:'i-gamepad',        label:'Games',       owner:true },
     { tab:'tutorialsadmin', icon:'i-video',      label:'Tutorials',   owner:true, keywords:'tutorial tutorials video guide how to learn' },
   ]},
   { group:'System', items:[
@@ -2281,11 +2200,8 @@ function switchTab(name,el) {
   if(name==='badges')       loadBadgesAdmin();
   if(name==='fraud')        { loadSuspiciousEmails(); loadReferralClusters(); }
   if(name==='ads')          loadAds();
-  if(name==='giveaways')    loadGiveaways();
   if(name==='notifbar')     nbLoad();
   if(name==='weeklyreward') initWeeklyReward();
-  if(name==='chatadmin')    loadChatGroups();
-  if(name==='gamesadmin')   loadGamesAdmin();
   if(name==='sitelinks')    loadSiteLinksAdmin();
   if(name==='staffadmin')   loadStaffList();
 }
@@ -4775,62 +4691,6 @@ async function deleteCluster(idx) {
     loadReferralClusters();
   } catch(e) { alert('Error: ' + e.message); }
 }
-// ── GIVEAWAYS (owner only) ────────────────────────────────────────
-async function loadGiveaways() {
-  const tbody=document.getElementById('giveawaysBody');
-  if(!tbody) return;
-  try {
-    const gws=await aFetch('/api/admin/giveaways');
-    document.getElementById('giveawaysCount').textContent=gws.length;
-    if(!gws.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--t2);padding:24px">No giveaways posted yet</td></tr>';return;}
-    tbody.innerHTML=gws.map(g=>{
-      const notYetOpen = g.status==='active' && new Date(g.startsAt) > new Date();
-      const statusBadge = notYetOpen
-        ? `<span class="badge b-gold">⏳ Opens ${new Date(g.startsAt).toLocaleString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`
-        : `<span class="badge ${g.status==='active'?'b-green':'b-red'}">${g.status==='active'?'<svg class="icon i-dot" aria-hidden="true"><use href="#i-dot"/></svg> Active':'<svg class="icon i-flag" aria-hidden="true"><use href="#i-flag"/></svg> Claimed'}</span>`;
-      return `<tr>
-      <td>${g.imageUrl?`<img src="${g.imageUrl}" class="thumb"/>`:`<div class="thumb"><svg class="icon i-gift" aria-hidden="true"><use href="#i-gift"/></svg></div>`}</td>
-      <td><strong>${esc(g.title)}</strong>${g.category?`<div style="font-size:11.5px;color:var(--t2)">${esc(g.category)}</div>`:''}</td>
-      <td>${statusBadge}</td>
-      <td>${g.winnerName?`<div style="display:flex;align-items:center;gap:6px">${g.winnerProfilePicture?`<img src="${g.winnerProfilePicture}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"/>`:'<svg class="icon i-user" aria-hidden="true"><use href="#i-user"/></svg>'} ${esc(g.winnerName)}</div>`:'<span style="color:var(--t2)">—</span>'}</td>
-      <td style="color:var(--t2);font-size:12px">${new Date(g.createdAt).toLocaleDateString('en-NG')}</td>
-      <td><div class="act">
-        <button class="btn-del" onclick="deleteGiveaway('${g._id}')"><svg class="icon i-trash" aria-hidden="true"><use href="#i-trash"/></svg> Delete</button>
-      </div></td>
-    </tr>`;}).join('');
-  } catch(e){tbody.innerHTML=`<tr><td colspan="6" style="color:var(--red);padding:16px">${e.message}</td></tr>`;}
-}
-async function addGiveaway() {
-  const fb=document.getElementById('addGiveawayFb');
-  const title=gv('gwTitle'),description=gv('gwDesc'),category=gv('gwCategory'),credentials=gv('gwCredentials');
-  const startsInMinutes=gv('gwStartsIn')||'0';
-  const img=document.getElementById('gwImage').files[0];
-  if(!title) return setFb(fb,'Title is required','err');
-  if(!credentials) return setFb(fb,'Credentials are required','err');
-  const fd=new FormData();
-  fd.append('title',title);fd.append('description',description);fd.append('category',category);fd.append('credentials',credentials);fd.append('startsInMinutes',startsInMinutes);
-  if(img) fd.append('image',img);
-  const pbarGw = progressBarFor(fb);
-  setFb(fb,'Uploading... 0%','');
-  pbarGw.show();
-  try {
-    await aFetchUpload('/api/admin/giveaways','POST',fd,(pct)=>{ pbarGw.set(pct); setFb(fb, pct<100?`Uploading... ${pct}%`:'Processing...',''); });
-    pbarGw.hide();
- setFb(fb,' Giveaway posted! It will now show on the public Giveaways page.','ok');
-    document.getElementById('gwTitle').value='';
-    document.getElementById('gwDesc').value='';
-    document.getElementById('gwCategory').value='';
-    document.getElementById('gwCredentials').value='';
-    document.getElementById('gwStartsIn').value='0';
-    document.getElementById('gwImage').value='';
-    loadGiveaways();
- } catch(e){pbarGw.hide();setFb(fb,' '+e.message,'err');}
-}
-async function deleteGiveaway(id) {
-  if(!confirm('Permanently delete this giveaway? This cannot be undone.')) return;
-  try { await aFetch(`/api/admin/giveaways/${id}`,'DELETE'); loadGiveaways(); }
-  catch(e){ alert('Error: '+e.message); }
-}
 // ── WEEKLY TOP-BUYER REWARD (owner only) ──────────────────────
 // Populates the week dropdown with recent Mondays (this week + the last 7), then loads whichever
 // week is selected. "Week" always means Monday–Sunday to match the server's getWeekBounds().
@@ -4948,7 +4808,6 @@ async function resetStaffPassword(id,name) {
   try { const data=await aFetch(`/api/admin/staff/${id}/reset-password`,'POST',{newPassword}); showAdminToast(data.message); }
   catch(e){ alert('Error: '+e.message); }
 }
-// ── CHAT GROUPS ───────────────────────────────────────────────
 // ── PROVIDER PERFORMANCE ANALYTICS (BuyNumber 2 tab) ─────────────────────────
 async function loadProviderAnalytics() {
   const sum = document.getElementById('paSummary');
@@ -5148,73 +5007,6 @@ async function saveSiteLinks() {
     if (pChn) { pChn.href = whatsappChannelLink; pChn.style.display = 'inline'; }
     setTimeout(() => setFb(fb, '', ''), 5000);
  } catch (e) { setFb(fb, ' ' + e.message, 'err'); }
-}
-async function loadChatGroups() {
-  const tbody=document.getElementById('cgBody');
-  if(!tbody) return;
-  try {
-    const groups=await aFetch('/api/admin/chat/groups');
-    document.getElementById('cgCount').textContent=groups.length;
-    if(!groups.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--t2);padding:24px">No groups yet — create one above</td></tr>';return;}
-    tbody.innerHTML=groups.map(g=>`<tr>
-      <td><strong>${esc(g.name)}</strong></td>
-      <td style="color:var(--t2)">${esc(g.description||'—')}</td>
-      <td><span class="badge ${g.active?'b-green':'b-red'}">${g.active?'Active':'Closed'}</span></td>
-      <td style="color:var(--t2);font-size:12px">${new Date(g.createdAt).toLocaleDateString('en-NG')}</td>
-      <td><div class="act">
-        ${g.active?`<button class="btn-del" onclick="toggleChatGroup('${g._id}',false)"><svg class="icon i-ban" aria-hidden="true"><use href="#i-ban"/></svg> Close</button>`:`<button class="btn-cred" onclick="toggleChatGroup('${g._id}',true)"><svg class="icon i-check-circle" aria-hidden="true"><use href="#i-check-circle"/></svg> Reopen</button>`}
-        <button class="btn-del" onclick="deleteChatGroup('${g._id}')"><svg class="icon i-trash" aria-hidden="true"><use href="#i-trash"/></svg> Delete</button>
-      </div></td>
-    </tr>`).join('');
-  } catch(e){tbody.innerHTML=`<tr><td colspan="5" style="color:var(--red);padding:16px">${e.message}</td></tr>`;}
-}
-async function createChatGroup() {
-  const fb=document.getElementById('cgFb');
-  const name=gv('cgName'), description=gv('cgDesc');
- if(!name) return setFb(fb,' Group name is required','err');
-  setFb(fb,'Creating...','');
-  try {
-    await aFetch('/api/admin/chat/groups','POST',{name,description});
- setFb(fb,' Group created! It now shows in Group Chat for all users.','ok');
-    document.getElementById('cgName').value='';
-    document.getElementById('cgDesc').value='';
-    loadChatGroups();
- } catch(e){ setFb(fb,' '+e.message,'err'); }
-}
-async function toggleChatGroup(id,active) {
-  try { await aFetch(`/api/admin/chat/groups/${id}`,'PUT',{active}); loadChatGroups(); }
-  catch(e){ alert('Error: '+e.message); }
-}
-async function deleteChatGroup(id) {
-  if(!confirm('Permanently delete this group and all its messages?')) return;
-  try { await aFetch(`/api/admin/chat/groups/${id}`,'DELETE'); loadChatGroups(); }
-  catch(e){ alert('Error: '+e.message); }
-}
-// ── GAMES (admin monitoring) ────────────────────────────────────
-let currentAdminGame = 'space-shooter';
-function switchAdminLeaderboard(gameKey, btn) {
-  currentAdminGame = gameKey;
-  document.querySelectorAll('#adminLbGameTabs .lb-game-tab').forEach(b=>b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  loadGamesAdmin();
-}
-async function loadGamesAdmin() {
-  const tbody=document.getElementById('gLbBody');
-  if(!tbody) return;
-  try {
-    const top=await aFetch(`/api/admin/games/leaderboard?game=${currentAdminGame}`);
-    document.getElementById('gTopScore').textContent=top.length?fmt(top[0].bestScore):'—';
-    const totalPlays=top.reduce((s,r)=>s+(r.gamesPlayed||0),0);
-    document.getElementById('gTotalPlays').textContent=totalPlays||'0';
-    if(!top.length){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--t2);padding:24px">No games played yet</td></tr>';return;}
-    tbody.innerHTML=top.map((r,i)=>`<tr>
-      <td><strong>#${i+1}</strong></td>
-      <td>${esc(r.name)}</td>
-      <td style="font-family:monospace;color:var(--t2)">${esc(r.gameId||'—')}</td>
-      <td style="font-weight:700;color:var(--gold)">${fmt(r.bestScore)}</td>
-      <td>${r.gamesPlayed}</td>
-    </tr>`).join('');
-  } catch(e){tbody.innerHTML=`<tr><td colspan="5" style="color:var(--red);padding:16px">${e.message}</td></tr>`;}
 }
 // ── USERS ───────────────────────────────────────────────────────
 // "Active Now" = any user whose account made an authenticated request in the last 24 hours.
